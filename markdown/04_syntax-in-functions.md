@@ -1,8 +1,8 @@
 # Syntax in Functions {style=margin-left:-3px}
 
-## Pattern matching {#pattern-matching}
+## Pattern matching
 
-![four!](assets/images/syntax-in-functions/pattern.png){.right width=162 height=250}
+![four!](assets/images/syntax-in-functions/pattern.png)
 
 This chapter will cover some of Haskell's cool syntactic constructs and we'll start with pattern matching.
 Pattern matching consists of specifying patterns to which some data should conform and then checking to see if it does and deconstructing the data according to those patterns.
@@ -12,7 +12,7 @@ This leads to really neat code that's simple and readable.
 You can pattern match on any data type --- numbers, characters, lists, tuples, etc.
 Let's make a really trivial function that checks if the number we supplied to it is a seven or not.
 
-```{.haskell: .hs}
+```haskell
 lucky :: (Integral a) => a -> String
 lucky 7 = "LUCKY NUMBER SEVEN!"
 lucky x = "Sorry, you're out of luck, pal!"
@@ -26,7 +26,7 @@ But what if we wanted a function that says the numbers from 1 to 5 and says `"No
 Without pattern matching, we'd have to make a pretty convoluted if then else tree.
 However, with it:
 
-```{.haskell: .hs}
+```haskell
 sayMe :: (Integral a) => a -> String
 sayMe 1 = "One!"
 sayMe 2 = "Two!"
@@ -45,7 +45,7 @@ We start by saying that the factorial of 0 is 1.
 Then we state that the factorial of any positive integer is that integer multiplied by the factorial of its predecessor.
 Here's how that looks like translated in Haskell terms.
 
-```{.haskell: .hs}
+```haskell
 factorial :: (Integral a) => a -> a
 factorial 0 = 1
 factorial n = n * factorial (n - 1)
@@ -65,7 +65,7 @@ That's why order is important when specifying patterns and it's always best to s
 Pattern matching can also fail.
 If we define a function like this:
 
-```{.haskell: .hs}
+```haskell
 charName :: Char -> String
 charName 'a' = "Albert"
 charName 'b' = "Broseph"
@@ -74,7 +74,7 @@ charName 'c' = "Cecil"
 
 and then try to call it with an input that we didn't expect, this is what happens:
 
-```{.haskell: .ghci}
+```haskell
 ghci> charName 'a'
 "Albert"
 ghci> charName 'b'
@@ -91,7 +91,7 @@ What if we wanted to make a function that takes two vectors in a 2D space (that 
 To add together two vectors, we add their x components separately and then their y components separately.
 Here's how we would have done it if we didn't know about pattern matching:
 
-```{.haskell: .hs}
+```haskell
 addVectors :: (Num a) => (a, a) -> (a, a) -> (a, a)
 addVectors a b = (fst a + fst b, snd a + snd b)
 ```
@@ -99,7 +99,7 @@ addVectors a b = (fst a + fst b, snd a + snd b)
 Well, that works, but there's a better way to do it.
 Let's modify the function so that it uses pattern matching.
 
-```{.haskell: .hs}
+```haskell
 addVectors :: (Num a) => (a, a) -> (a, a) -> (a, a)
 addVectors (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
 ```
@@ -113,7 +113,7 @@ The type of `addVectors` (in both cases) is `addVectors :: (Num a) => (a, a) -> 
 But what about triples?
 Well, there are no provided functions that do that but we can make our own.
 
-```{.haskell: .hs}
+```haskell
 first :: (a, b, c) -> a
 first (x, _, _) = x
 
@@ -130,7 +130,7 @@ It means that we really don't care what that part is, so we just write a `_`.
 Which reminds me, you can also pattern match in list comprehensions.
 Check this out:
 
-```{.haskell: .ghci}
+```haskell
 ghci> let xs = [(1,3), (4,3), (2,4), (5,3), (5,6), (3,1)]
 ghci> [a+b | (a,b) <- xs]
 [4,7,6,8,11,4]
@@ -143,7 +143,7 @@ You can match with the empty list `[]` or any pattern that involves `:` and the 
 But since `[1,2,3]` is just syntactic sugar for `1:2:3:[]`, you can also use the former pattern.
 A pattern like `x:xs` will bind the head of the list to `x` and the rest of it to `xs`, even if there's only one element so `xs` ends up being an empty list.
 
-::: {.hintbox}
+:::
 **Note**: The `x:xs` pattern is used a lot, especially with recursive functions.
 But patterns that have `:` in them only match against lists of length 1 or more.
 :::
@@ -153,7 +153,7 @@ It will only match against lists that have three elements or more.
 
 Now that we know how to pattern match against list, let's make our own implementation of the `head` function.
 
-```{.haskell: .hs}
+```haskell
 head' :: [a] -> a
 head' [] = error "Can't call head on an empty list, dummy!"
 head' (x:_) = x
@@ -161,7 +161,7 @@ head' (x:_) = x
 
 Checking if it works:
 
-```{.haskell: .ghci}
+```haskell
 ghci> head' [4,5,6]
 4
 ghci> head' "Hello"
@@ -177,7 +177,7 @@ But calling `head` on an empty list doesn't make sense.
 
 Let's make a trivial function that tells us some of the first elements of the list in (in)convenient English form.
 
-```{.haskell: .hs}
+```haskell
 tell :: (Show a) => [a] -> String
 tell [] = "The list is empty"
 tell (x:[]) = "The list has one element: " ++ show x
@@ -192,7 +192,7 @@ We can't rewrite `(x:y:_)` with square brackets because it matches any list of l
 We already implemented our own `length` function using list comprehension.
 Now we'll do it by using pattern matching and a little recursion:
 
-```{.haskell: .hs}
+```haskell
 length' :: (Num b) => [a] -> b
 length' [] = 0
 length' (_:xs) = 1 + length' xs
@@ -224,7 +224,7 @@ We write that down as a pattern.
 And we also know that the sum of a list is the head plus the sum of the rest of the list.
 So if we write that down, we get:
 
-```{.haskell:nogutter:nocontrols:hs}
+```haskell
 sum' :: (Num a) => [a] -> a
 sum' [] = 0
 sum' (x:xs) = x + sum' xs
@@ -237,13 +237,13 @@ For instance, the pattern `xs@(x:y:ys)`.
 This pattern will match exactly the same thing as `x:y:ys` but you can easily get the whole list via `xs` instead of repeating yourself by typing out `x:y:ys` in the function body again.
 Here's a quick and dirty example:
 
-```{.haskell:nogutter:nocontrols:hs}
+```haskell
 capital :: String -> String
 capital "" = "Empty string, whoops!"
 capital all@(x:xs) = "The first letter of " ++ all ++ " is " ++ [x]
 ```
 
-```{.haskell:ghci}
+```haskell
 ghci> capital "Dracula"
 "The first letter of Dracula is D"
 ```
@@ -255,9 +255,9 @@ If you tried to pattern match against `(xs ++ ys)`, what would be in the first a
 It doesn't make much sense.
 It would make sense to match stuff against `(xs ++ [x,y,z])` or just `(xs ++ [x])`, but because of the nature of lists, you can't do that.
 
-## Guards, guards! {#guards-guards}
+## Guards, guards!
 
-![guards](assets/images/syntax-in-functions/guards.png){.left width=83 height=180}
+![guards](assets/images/syntax-in-functions/guards.png)
 
 Whereas patterns are a way of making sure a value conforms to some form and deconstructing it, guards are a way of testing whether some property of a value (or several of them) are true or false.
 That sounds a lot like an if statement and it's very similar.
@@ -271,7 +271,7 @@ If it has more than 1000g/L (the density of water), it will sink in water.
 Between are things (like people, usually) that will neither float away nor sink in water.
 So here's the function (we won't be calculating density right now, this function just gets a density and responds)
 
-```{.haskell:hs}
+```haskell
 densityTell :: (RealFloat a) => a -> String
 densityTell density
     | density < 1.2 = "Wow! You're going for a ride in the sky!"
@@ -302,7 +302,7 @@ If no suitable guards or patterns are found, an error is thrown.
 Of course we can use guards with functions that take as many parameters as we want.
 Instead of having the user calculate the density of the substance on their own before calling the function, let's modify this function so that it takes a mass (in grams) and volume (in liters).
 
-```{.haskell:hs}
+```haskell
 densityTell :: (RealFloat a) => a -> a -> String
 densityTell mass volume
     | mass / volume < 1.2 = "Wow! You're going for a ride in the sky!"
@@ -312,7 +312,7 @@ densityTell mass volume
 
 Let's see if cat food will float ...
 
-```{.haskell:ghci}
+```haskell
 ghci> densityTell 400 1
 "Have fun swimming, but watch out for sharks!"
 ```
@@ -327,7 +327,7 @@ Many newbies get syntax errors because they sometimes put it there.
 Another very simple example: let's implement our own `max` function.
 If you remember, it takes two things that can be compared and returns the larger of them.
 
-```{.haskell:hs}
+```haskell
 max' :: (Ord a) => a -> a -> a
 max' a b
     | a > b     = a
@@ -337,7 +337,7 @@ max' a b
 Guards can also be written inline, although I'd advise against that because it's less readable, even for very short functions.
 But to demonstrate, we could write `max'` like this:
 
-```{.haskell:hs}
+```haskell
 max' :: (Ord a) => a -> a -> a
 max' a b | a > b = a | otherwise = b
 ```
@@ -346,7 +346,7 @@ Ugh!
 Not very readable at all!
 Moving on: let's implement our own `compare` by using guards.
 
-```{.haskell:hs}
+```haskell
 myCompare :: (Ord a) => a -> a -> Ordering
 a `myCompare` b
     | a > b     = GT
@@ -354,21 +354,21 @@ a `myCompare` b
     | otherwise = LT
 ```
 
-```{.haskell:hs}
+```haskell
 ghci> 3 `myCompare` 2
 GT
 ```
 
-::: {.hintbox}
+:::
 **Note:** Not only can we call functions as infix with backticks, we can also define them using backticks.
 Sometimes it's easier to read that way.
 :::
 
-## Where!? {#where}
+## Where!?
 
 In the previous section, we defined a density calculator function and responder like this:
 
-```{.haskell:hs}
+```haskell
 densityTell :: (RealFloat a) => a -> a -> String
 densityTell mass volume
     | mass / volume < 1.2 = "Wow! You're going for a ride in the sky!"
@@ -382,7 +382,7 @@ Repeating yourself (two times) while programming is about as desirable as gettin
 Since we repeat the same expression twice, it would be ideal if we could calculate it once, bind it to a name and then use that name instead of the expression.
 Well, we can modify our function like this:
 
-```{.haskell:hs}
+```haskell
 densityTell :: (RealFloat a) => a -> a -> String
 densityTell mass volume
     | density < 1.2 = "Wow! You're going for a ride in the sky!"
@@ -397,7 +397,7 @@ If we decide that we want to calculate density a bit differently, we only have t
 It also improves readability by giving names to things and can make our programs faster since stuff like our `density` variable here is calculated only once.
 We could go a bit overboard and present our function like this:
 
-```{.haskell:hs}
+```haskell
 densityTell :: (RealFloat a) => a -> a -> String
 densityTell mass volume
     | density < air = "Wow! You're going for a ride in the sky!"
@@ -418,7 +418,7 @@ If you want several patterns of one function to access some shared name, you hav
 You can also use where bindings to **pattern match**!
 We could have rewritten the where section of our previous function as:
 
-```{.haskell:hs}
+```haskell
 ...
     where density = mass / volume
           (air, water) = (1.2, 1000.0)
@@ -426,7 +426,7 @@ We could have rewritten the where section of our previous function as:
 
 Let's make another fairly trivial function where we get a first and a last name and give someone back their initials.
 
-```{.haskell:hs}
+```haskell
 initials :: String -> String -> String
 initials firstname lastname = [f] ++ ". " ++ [l] ++ "."
     where (f:_) = firstname
@@ -438,7 +438,7 @@ We could have done this pattern matching directly in the function's parameters (
 Just like we've defined constants in where blocks, you can also define functions.
 Staying true to our solids programming theme, let's make a function that takes a list of mass-volume pairs and returns a list of densities.
 
-```{.haskell:hs}
+```haskell
 calcDensities :: (RealFloat a) => [(a, a)] -> [a]
 calcDensities xs = [density m v | (m, v) <- xs]
     where density mass volume = mass / volume
@@ -451,7 +451,7 @@ We have to examine the list passed to the function and there's a different densi
 *where* bindings can also be nested.
 It's a common idiom to make a function and define some helper function in its *where* clause and then to give those functions helper functions as well, each with its own *where* clause.
 
-## Let it be {#let-it-be}
+## Let it be
 
 Very similar to where bindings are let bindings.
 Where bindings are a syntactic construct that let you bind to variables at the end of a function and the whole function can see them, including all the guards.
@@ -460,7 +460,7 @@ Just like any construct in Haskell that is used to bind values to names, let bin
 Let's see them in action!
 This is how we could define a function that gives us a cylinder's surface area based on its height and radius:
 
-```{.haskell:hs}
+```haskell
 cylinder :: (RealFloat a) => a -> a -> a
 cylinder r h =
     let sideArea = 2 * pi * r * h
@@ -468,7 +468,7 @@ cylinder r h =
     in  sideArea + 2 * topArea
 ```
 
-![let it be](assets/images/syntax-in-functions/letitbe.png){.right width=215 height=240}
+![let it be](assets/images/syntax-in-functions/letitbe.png)
 
 The form is `let <bindings> in <expression>`.
 The names that you define in the *let* part are accessible to the expression after the *in* part.
@@ -481,7 +481,7 @@ The difference is that *let* bindings are expressions themselves.
 *where* bindings are just syntactic constructs.
 Remember when we did the if statement and it was explained that an if else statement is an expression and you can cram it in almost anywhere?
 
-```{.haskell:ghci}
+```haskell
 ghci> [if 5 > 3 then "Woo" else "Boo", if 'a' > 'b' then "Foo" else "Bar"]
 ["Woo", "Bar"]
 ghci> 4 * (if 10 > 5 then 10 else 0) + 2
@@ -490,14 +490,14 @@ ghci> 4 * (if 10 > 5 then 10 else 0) + 2
 
 You can also do that with let bindings.
 
-```{.haskell:ghci}
+```haskell
 ghci> 4 * (let a = 9 in a + 1) + 2
 42
 ```
 
 They can also be used to introduce functions in a local scope:
 
-```{.haskell:ghci}
+```haskell
 ghci> [let square x = x * x in (square 5, square 3, square 2)]
 [(25,9,4)]
 ```
@@ -505,7 +505,7 @@ ghci> [let square x = x * x in (square 5, square 3, square 2)]
 If we want to bind to several variables inline, we obviously can't align them at columns.
 That's why we can separate them with semicolons.
 
-```{.haskell:ghci}
+```haskell
 ghci> (let a = 100; b = 200; c = 300 in a*b*c, let foo="Hey "; bar = "there!" in foo ++ bar)
 (6000000,"Hey there!")
 ```
@@ -514,7 +514,7 @@ You don't have to put a semicolon after the last binding but you can if you want
 Like we said before, you can pattern match with *let* bindings.
 They're very useful for quickly dismantling a tuple into components and binding them to names and such.
 
-```{.haskell:ghci}
+```haskell
 ghci> (let (a,b,c) = (1,2,3) in a+b+c) * 100
 600
 ```
@@ -522,7 +522,7 @@ ghci> (let (a,b,c) = (1,2,3) in a+b+c) * 100
 You can also put *let* bindings inside list comprehensions.
 Let's rewrite our previous example of calculating lists of mass-volume pairs to use a *let* inside a list comprehension instead of defining an auxiliary function with a *where*.
 
-```{.haskell:hs}
+```haskell
 calcDensities :: (RealFloat a) => [(a, a)] -> [a]
 calcDensities xs = [density | (m, v) <- xs, let density = m / v]
 ```
@@ -531,7 +531,7 @@ We include a *let* inside a list comprehension much like we would a predicate, o
 The names defined in a *let* inside a list comprehension are visible to the output function (the part before the `|`) and all predicates and sections that come after of the binding.
 So we could make our function return only the densities that will float in air:
 
-```{.haskell:hs}
+```haskell
 calcDensities :: (RealFloat a) => [(a, a)] -> [a]
 calcDensities xs = [density | (m, v) <- xs, let density = m / v, density < 1.2]
 ```
@@ -543,7 +543,7 @@ However, we could use a *let in* binding in a predicate and the names defined wo
 The *in* part can also be omitted when defining functions and constants directly in GHCi.
 If we do that, then the names will be visible throughout the entire interactive session.
 
-```{.haskell:ghci}
+```haskell
 ghci> let zoot x y z = x * y + z
 ghci> zoot 3 9 2
 29
@@ -558,9 +558,9 @@ Well, since *let* bindings are expressions and are fairly local in their scope, 
 Some people prefer *where* bindings because the names come after the function they're being used in.
 That way, the function body is closer to its name and type declaration and to some that's more readable.
 
-## Case expressions {#case-expressions}
+## Case expressions
 
-![case](assets/images/syntax-in-functions/case.png){.right width=185 height=164}
+![case](assets/images/syntax-in-functions/case.png)
 
 Many imperative languages (C, C++, Java, etc.) have case syntax and if you've ever programmed in them, you probably know what it's about.
 It's about taking a variable and then executing blocks of code for specific values of that variable and then maybe including a catch-all block of code in case the variable has some value for which we didn't set up a case.
@@ -573,13 +573,13 @@ Oh yeah, pattern matching on parameters in function definitions!
 Well, that's actually just syntactic sugar for case expressions.
 These two pieces of code do the same thing and are interchangeable:
 
-```{.haskell:hs}
+```haskell
 head' :: [a] -> a
 head' [] = error "No head for empty lists!"
 head' (x:_) = x
 ```
 
-```{.haskell:hs}
+```haskell
 head' :: [a] -> a
 head' xs = case xs of [] -> error "No head for empty lists!"
                       (x:_) -> x
@@ -587,7 +587,7 @@ head' xs = case xs of [] -> error "No head for empty lists!"
 
 As you can see, the syntax for case expressions is pretty simple:
 
-```{.haskell:hs}
+```haskell
 case expression of pattern -> result
                    pattern -> result
                    pattern -> result
@@ -601,7 +601,7 @@ If it falls through the whole case expression and no suitable pattern is found, 
 Whereas pattern matching on function parameters can only be done when defining functions, case expressions can be used pretty much anywhere.
 For instance:
 
-```{.haskell:hs}
+```haskell
 describeList :: [a] -> String
 describeList xs = "The list is " ++ case xs of [] -> "empty."
                                                [x] -> "a singleton list."
@@ -611,11 +611,10 @@ describeList xs = "The list is " ++ case xs of [] -> "empty."
 They are useful for pattern matching against something in the middle of an expression.
 Because pattern matching in function definitions is syntactic sugar for case expressions, we could have also defined this like so:
 
-```{.haskell:hs}
+```haskell
 describeList :: [a] -> String
 describeList xs = "The list is " ++ what xs
     where what [] = "empty."
           what [x] = "a singleton list."
           what xs = "a longer list."
 ```
-

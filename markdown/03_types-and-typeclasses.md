@@ -1,8 +1,8 @@
-# Types and Typeclasses 
+# Types and Typeclasses
 
-## Believe the type {#believe-the-type}
+## Believe the type
 
-![moo](assets/images/types-and-typeclasses/cow.png){.left width=180 height=127}
+![moo](assets/images/types-and-typeclasses/cow.png)
 
 Previously we mentioned that Haskell has a static type system.
 The type of every expression is known at compile time, which leads to safer code.
@@ -24,7 +24,7 @@ Now we'll use GHCI to examine the types of some expressions.
 We'll do that by using the `:t` command which, followed by any valid expression, tells us its type.
 Let's give it a whirl.
 
-```{.haskell: .ghci}
+```haskell
 ghci> :t 'a'
 'a' :: Char
 ghci> :t True
@@ -37,7 +37,7 @@ ghci> :t 4 == 5
 4 == 5 :: Bool
 ```
 
-![bomb](assets/images/types-and-typeclasses/bomb.png){.right width=171 height=144}
+![bomb](assets/images/types-and-typeclasses/bomb.png)
 Here we see that doing `:t` on an expression prints out the expression followed by `::` and its type.
 `::` is read as "has type of".
 Explicit types are always denoted with the first letter in capital case.
@@ -60,7 +60,7 @@ From here on, we'll give all the functions that we make type declarations.
 Remember the list comprehension we made previously that filters a string so that only caps remain?
 Here's how it looks like with a type declaration.
 
-```{.haskell: .hs}
+```haskell
 removeNonUppercase :: [Char] -> [Char]
 removeNonUppercase st = [ c | c <- st, c `elem` ['A'..'Z']]
 ```
@@ -72,7 +72,7 @@ We didn't have to give this function a type declaration because the compiler can
 But how do we write out the type of a function that takes several parameters?
 Here's a simple function that takes three integers and adds them together:
 
-```{.haskell: .hs}
+```haskell
 addThree :: Int -> Int -> Int -> Int
 addThree x y z = x + y + z
 ```
@@ -86,73 +86,73 @@ Functions are expressions too, so `:t` works on them without a problem.
 
 Here's an overview of some common types.
 
-`Int`{.label .type} stands for integer.
+`Int` stands for integer.
 It's used for whole numbers.
 `7` can be an `Int` but `7.2` cannot.
 `Int` is bounded, which means that it has a minimum and a maximum value.
 Usually on 32-bit machines the maximum possible `Int` is 2147483647 and the minimum is -2147483648.
 
-`Integer`{.label .type} stands for, er … also integer.
+`Integer` stands for, er … also integer.
 The main difference is that it's not bounded so it can be used to represent really really big numbers.
 I mean like really big.
 `Int`, however, is more efficient.
 
-```{.haskell: .hs}
+```haskell
 factorial :: Integer -> Integer
 factorial n = product [1..n]
 ```
 
-```{.haskell: .ghci}
+```haskell
 ghci> factorial 50
 30414093201713378043612608166064768844377641568960512000000000000
 ```
 
-`Float`{.label .type} is a real floating point with single precision.
+`Float` is a real floating point with single precision.
 
-```{.haskell: .hs}
+```haskell
 circumference :: Float -> Float
 circumference r = 2 * pi * r
 ```
 
-```{.haskell: .ghci}
+```haskell
 ghci> circumference 4.0
 25.132742
 ```
 
-`Double`{.label .type} is a real floating point with double the precision!
+`Double` is a real floating point with double the precision!
 
-```{.haskell: .hs}
+```haskell
 circumference' :: Double -> Double
 circumference' r = 2 * pi * r
 ```
 
-```{.haskell: .ghci}
+```haskell
 ghci> circumference' 4.0
 25.132741228718345
 ```
 
-`Bool`{.label .type} is a boolean type.
+`Bool` is a boolean type.
 It can have only two values: `True` and `False`.
 
-`Char`{.label .type} represents a character.
+`Char` represents a character.
 It's denoted by single quotes.
 A list of characters is a string.
 
 Tuples are types but they are dependent on their length as well as the types of their components, so there is theoretically an infinite number of tuple types, which is too many to cover in this tutorial.
-Note that the empty tuple `()`{.label .type} is also a type which can only have a single value: `()`
+Note that the empty tuple `()` is also a type which can only have a single value: `()`
 
-## Type variables {#type-variables}
+## Type variables
 
 What do you think is the type of the `head` function?
 Because `head` takes a list of any type and returns the first element, so what could it be?
 Let's check!
 
-```{.haskell: .ghci}
+```haskell
 ghci> :t head
 head :: [a] -> a
 ```
 
-![box](assets/images/types-and-typeclasses/box.png){.left width=130 height=93}
+![box](assets/images/types-and-typeclasses/box.png)
 Hmmm!
 What is this `a`?
 Is it a type?
@@ -169,7 +169,7 @@ Remember `fst`?
 It returns the first component of a pair.
 Let's examine its type.
 
-```{.haskell: .ghci}
+```haskell
 ghci> :t fst
 fst :: (a, b) -> a
 ```
@@ -179,9 +179,9 @@ That's why we can use `fst` on a pair that contains any two types.
 Note that just because `a` and `b` are different type variables, they don't have to be different types.
 It just states that the first component's type and the return value's type are the same.
 
-## Typeclasses 101 {#typeclasses-101}
+## Typeclasses 101
 
-![class](assets/images/types-and-typeclasses/classes.png){.right width=210 height=158}
+![class](assets/images/types-and-typeclasses/classes.png)
 
 A typeclass is a sort of interface that defines some behavior.
 If a type is a part of a typeclass, that means that it supports and implements the behavior the typeclass describes.
@@ -191,12 +191,12 @@ You can think of them kind of as Java interfaces, only better.
 
 What's the type signature of the `==` function?
 
-```{.haskell: .ghci}
+```haskell
 ghci> :t (==)
 (==) :: (Eq a) => a -> a -> Bool
 ```
 
-::: {.hintbox}
+:::
 **Note**: the equality operator, `==` is a function.
 So are `+`, `*`, `-`, `/` and pretty much all operators.
 If a function is comprised only of special characters, it's considered an infix function by default.
@@ -217,12 +217,12 @@ The `elem` function has a type of `(Eq a) => a -> [a] -> Bool` because it uses `
 
 Some basic typeclasses:
 
-`Eq`{.label .class} is used for types that support equality testing.
+`Eq` is used for types that support equality testing.
 The functions its members implement are `==` and `/=`.
 So if there's an `Eq` class constraint for a type variable in a function, it uses `==` or `/=` somewhere inside its definition.
 All the types we mentioned previously except for functions are part of `Eq`, so they can be tested for equality.
 
-```{.haskell: .ghci}
+```haskell
 ghci> 5 == 5
 True
 ghci> 5 /= 5
@@ -235,9 +235,9 @@ ghci> 3.432 == 3.432
 True
 ```
 
-`Ord`{.label .class} is for types that have an ordering.
+`Ord` is for types that have an ordering.
 
-```{.haskell: .ghci}
+```haskell
 ghci> :t (>)
 (>) :: (Ord a) => a -> a -> Bool
 ```
@@ -245,11 +245,11 @@ ghci> :t (>)
 All the types we covered so far except for functions are part of `Ord`.
 `Ord` covers all the standard comparing functions such as `>`, `<`, `>=` and `<=`.
 The `compare` function takes two `Ord` members of the same type and returns an ordering.
-`Ordering`{.label .type} is a type that can be `GT`, `LT` or `EQ`, meaning *greater than*, *lesser than* and *equal*, respectively.
+`Ordering` is a type that can be `GT`, `LT` or `EQ`, meaning *greater than*, *lesser than* and *equal*, respectively.
 
 To be a member of `Ord`, a type must first have membership in the prestigious and exclusive `Eq` club.
 
-```{.haskell: .ghci}
+```haskell
 ghci> "Abrakadabra" < "Zebra"
 True
 ghci> "Abrakadabra" `compare` "Zebra"
@@ -260,12 +260,12 @@ ghci> 5 `compare` 3
 GT
 ```
 
-Members of `Show`{.label .class} can be presented as strings.
+Members of `Show` can be presented as strings.
 All types covered so far except for functions are a part of `Show`.
 The most used function that deals with the `Show` typeclass is `show`.
 It takes a value whose type is a member of `Show` and presents it to us as a string.
 
-```{.haskell: .ghci}
+```haskell
 ghci> show 3
 "3"
 ghci> show 5.334
@@ -274,10 +274,10 @@ ghci> show True
 "True"
 ```
 
-`Read`{.label .class} is sort of the opposite typeclass of `Show`.
+`Read` is sort of the opposite typeclass of `Show`.
 The `read` function takes a string and returns a type which is a member of `Read`.
 
-```{.haskell: .ghci}
+```haskell
 ghci> read "True" || False
 True
 ghci> read "8.2" + 3.8
@@ -292,7 +292,7 @@ So far so good.
 Again, all types covered so far are in this typeclass.
 But what happens if we try to do just `read "4"`?
 
-```{.haskell: .ghci}
+```haskell
 ghci> read "4"
 <interactive>:1:0:
     Ambiguous type variable `a' in the constraint:
@@ -307,7 +307,7 @@ If we used it as a boolean, it knew it had to return a `Bool`.
 But now, it knows we want some type that is part of the `Read` class, it just doesn't know which one.
 Let's take a look at the type signature of `read`.
 
-```{.haskell: .ghci}
+```haskell
 ghci> :t read
 read :: (Read a) => String -> a
 ```
@@ -319,7 +319,7 @@ Type annotations are a way of explicitly saying what the type of an expression s
 We do that by adding `::` at the end of the expression and then specifying a type.
 Observe:
 
-```{.haskell: .ghci}
+```haskell
 ghci> read "5" :: Int
 5
 ghci> read "5" :: Float
@@ -338,12 +338,12 @@ To see what the type is, Haskell would have to actually evaluate `read "5"`.
 But since Haskell is a statically typed language, it has to know all the types before the code is compiled (or in the case of GHCI, evaluated).
 So we have to tell Haskell: "Hey, this expression should have this type, in case you don't know!".
 
-`Enum`{.label .class} members are sequentially ordered types --- they can be enumerated.
+`Enum` members are sequentially ordered types --- they can be enumerated.
 The main advantage of the `Enum` typeclass is that we can use its types in list ranges.
 They also have defined successors and predecessors, which you can get with the `succ` and `pred` functions.
 Types in this class: `()`, `Bool`, `Char`, `Ordering`, `Int`, `Integer`, `Float` and `Double`.
 
-```{.haskell: .ghci}
+```haskell
 ghci> ['a'..'e']
 "abcde"
 ghci> [LT .. GT]
@@ -354,9 +354,9 @@ ghci> succ 'B'
 'C'
 ```
 
-`Bounded`{.label .class} members have an upper and a lower bound.
+`Bounded` members have an upper and a lower bound.
 
-```{.haskell: .ghci}
+```haskell
 ghci> minBound :: Int
 -2147483648
 ghci> maxBound :: Char
@@ -372,16 +372,16 @@ In a sense they are polymorphic constants.
 
 All tuples are also part of `Bounded` if the components are also in it.
 
-```{.haskell: .ghci}
+```haskell
 ghci> maxBound :: (Bool, Int, Char)
 (True,2147483647,'\1114111')
 ```
 
-`Num`{.label .class} is a numeric typeclass.
+`Num` is a numeric typeclass.
 Its members have the property of being able to act like numbers.
 Let's examine the type of a number.
 
-```{.haskell: .ghci}
+```haskell
 ghci> :t 20
 20 :: (Num t) => t
 ```
@@ -389,7 +389,7 @@ ghci> :t 20
 It appears that whole numbers are also polymorphic constants.
 They can act like any type that's a member of the `Num` typeclass.
 
-```{.haskell: .ghci}
+```haskell
 ghci> 20 :: Int
 20
 ghci> 20 :: Integer
@@ -403,7 +403,7 @@ ghci> 20 :: Double
 Those are types that are in the `Num` typeclass.
 If we examine the type of `*`, we'll see that it accepts all numbers.
 
-```{.haskell: .ghci}
+```haskell
 ghci> :t (*)
 (*) :: (Num a) => a -> a -> a
 ```
@@ -413,13 +413,13 @@ That's why `(5 :: Int) * (6 :: Integer)` will result in a type error whereas `5 
 
 To join `Num`, a type must already be friends with `Show` and `Eq`.
 
-`Integral`{.class .label} is also a numeric typeclass.
+`Integral` is also a numeric typeclass.
 `Num` includes all numbers, including real numbers and integral numbers, `Integral` includes only integral (whole) numbers.
 In this typeclass are `Int` and `Integer`.
 
-`Floating`{.class .label} includes only floating point numbers, so `Float` and `Double`.
+`Floating` includes only floating point numbers, so `Float` and `Double`.
 
-A very useful function for dealing with numbers is `fromIntegral`{.label .function}.
+A very useful function for dealing with numbers is `fromIntegral`.
 It has a type declaration of `fromIntegral :: (Num b, Integral a) => a -> b`.
 From its type signature we see that it takes an integral number and turns it into a more general number.
 That's useful when you want integral and floating point types to work together nicely.
@@ -429,4 +429,3 @@ So to get around this, we do `fromIntegral (length [1,2,3,4]) + 3.2` and it all 
 
 Notice that `fromIntegral` has several class constraints in its type signature.
 That's completely valid and as you can see, the class constraints are separated by commas inside the parentheses.
-

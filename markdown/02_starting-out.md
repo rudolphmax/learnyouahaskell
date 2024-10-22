@@ -1,15 +1,15 @@
 # Starting Out {style=margin-left:-3px}
 
-## Ready, set, go! {#ready-set-go}
+## Ready, set, go!
 
-![egg](assets/images/starting-out/startingout.png){.right width=214 height=187}
+![egg](assets/images/starting-out/startingout.png)
 Alright, let's get started!
 If you're the sort of horrible person who doesn't read introductions to things and you skipped it, you might want to read the last section in the introduction anyway because it explains what you need to follow this tutorial and how we're going to load functions.
 The first thing we're going to do is run ghc's interactive mode and call some function to get a very basic feel for Haskell.
 Open your terminal and type in `ghci`.
 You will be greeted with something like this.
 
-```{.haskell: .ghci}
+```haskell
 GHCi, version 9.2.4: https://www.haskell.org/ghc/  :? for help
 ghci>
 ```
@@ -18,7 +18,7 @@ Congratulations, you're in GHCI!
 
 Here's some simple arithmetic.
 
-```{.haskell: .ghci}
+```haskell
 ghci> 2 + 15
 17
 ghci> 49 * 100
@@ -34,7 +34,7 @@ This is pretty self-explanatory.
 We can also use several operators on one line and all the usual precedence rules are obeyed.
 We can use parentheses to make the precedence explicit or to change it.
 
-```{.haskell: .ghci}
+```haskell
 ghci> (50 * 100) - 4999
 1
 ghci> 50 * 100 - 4999
@@ -53,7 +53,7 @@ Boolean algebra is also pretty straightforward.
 As you probably know, `&&` means a boolean *and*, `||` means a boolean *or*.
 `not` negates a `True` or a `False`.
 
-```{.haskell: .ghci}
+```haskell
 ghci> True && False
 False
 ghci> True && True
@@ -68,7 +68,7 @@ False
 
 Testing for equality is done like so.
 
-```{.haskell: .ghci}
+```haskell
 ghci> 5 == 5
 True
 ghci> 1 == 0
@@ -84,7 +84,7 @@ True
 What about doing `5 + "llama"` or `5 == True`?
 Well, if we try the first snippet, we get a big scary error message!
 
-```{.haskell: .ghci}
+```haskell
 <interactive>:1:1: error: [GHC-39999]
     • No instance for ‘Num String’ arising from the literal ‘5’
     • In the first argument of ‘(+)’, namely ‘5’
@@ -104,7 +104,7 @@ We'll take a closer look at types a bit later.
 Note: you can do `5 + 4.0` because `5` is sneaky and can act like an integer or a floating-point number.
 `4.0` can't act like an integer, so `5` is the one that has to adapt.
 
-::: {.hintbox}
+:::
 **Note:** GHC errors are all assigned unique identifiers such as `GHC-39999` above.
 Whenever you are stuck with a stubborn error, you can look it up at
 [https://errors.haskell.org/](https://errors.haskell.org/) to learn typical causes
@@ -118,13 +118,13 @@ This is what we call an *infix* function.
 Most functions that aren't used with numbers are *prefix* functions.
 Let's take a look at them.
 
-![phoen](assets/images/starting-out/ringring.png){.right width=160 height=161}
+![phoen](assets/images/starting-out/ringring.png)
 Functions are usually prefix, so from now on we won't explicitly state that a function is of the prefix form, we'll just assume it.
 In most imperative languages, functions are called by writing the function name and then writing its parameters in parentheses, usually separated by commas.
 In Haskell, functions are called by writing the function name, a space and then the parameters, separated by spaces.
 For a start, we'll try calling one of the most boring functions in Haskell.
 
-```{.haskell: .ghci}
+```haskell
 ghci> succ 8
 9
 ```
@@ -136,7 +136,7 @@ The functions `min` and `max` take two things that can be put in an order (like 
 `min` returns the one that's lesser and `max` returns the one that's greater.
 See for yourself:
 
-```{.haskell: .ghci}
+```haskell
 ghci> min 9 10
 9
 ghci> max 100 101
@@ -146,7 +146,7 @@ ghci> max 100 101
 Function application (calling a function by putting a space after it and then typing out the parameters) has the highest precedence of them all.
 What that means for us is that these two statements are equivalent.
 
-```{.haskell: .ghci}
+```haskell
 ghci> succ 9 + max 5 4 + 1
 16
 ghci> (succ 9) + (max 5 4) + 1
@@ -171,13 +171,13 @@ So if you see something like `bar (bar 3)`, it doesn't mean that `bar` is called
 It means that we first call the function `bar` with `3` as the parameter to get some number and then we call `bar` again with that number.
 In C, that would be something like `bar(bar(3))`.
 
-## Baby's first functions {#babys-first-functions}
+## Baby's first functions
 
 In the previous section we got a basic feel for calling functions.
 Now let's try making our own!
 Open up your favorite text editor and punch in this function that takes a number and multiplies it by two.
 
-```{.haskell: .hs}
+```haskell
 doubleMe x = x + x
 ```
 
@@ -189,7 +189,7 @@ Now navigate to where it's saved and run `ghci` from there.
 Once inside GHCI, do `:l baby`.
 Now that our script is loaded, we can play with the function that we defined.
 
-```{.haskell: .ghci}
+```haskell
 ghci> :l baby
 [1 of 1] Compiling Main             ( baby.hs, interpreted )
 Ok, one module loaded.
@@ -202,7 +202,7 @@ ghci> doubleMe 8.3
 Because `+` works on integers as well as on floating-point numbers (anything that can be considered a number, really), our function also works on any number.
 Let's make a function that takes two numbers and multiplies each by two and then adds them together.
 
-```{.haskell: .hs}
+```haskell
 doubleUs x y = x*2 + y*2
 ```
 
@@ -210,7 +210,7 @@ Simple.
 We could have also defined it as `doubleUs x y = x + x + y + y`.
 Testing it out produces pretty predictable results (remember to append this function to the `baby.hs` file, save it and then do `:l baby` inside GHCI).
 
-```{.haskell: .ghci}
+```haskell
 ghci> doubleUs 4 9
 26
 ghci> doubleUs 2.3 34.2
@@ -222,7 +222,7 @@ ghci> doubleUs 28 88 + doubleMe 123
 As expected, you can call your own functions from other functions that you made.
 With that in mind, we could redefine `doubleUs` like this:
 
-```{.haskell: .hs}
+```haskell
 doubleUs x y = doubleMe x + doubleMe y
 ```
 
@@ -236,13 +236,13 @@ Functions in Haskell don't have to be in any particular order, so it doesn't mat
 
 Now we're going to make a function that multiplies a number by 2 but only if that number is smaller than or equal to 100 because numbers bigger than 100 are big enough as it is!
 
-```{.haskell: .hs}
+```haskell
 doubleSmallNumber x = if x > 100
                         then x
                         else x*2
 ```
 
-![this is you](assets/images/starting-out/baby.png){.left width=140 height=211}
+![this is you](assets/images/starting-out/baby.png)
 
 Right here we introduced Haskell's if statement.
 You're probably familiar with if statements from other languages.
@@ -255,7 +255,7 @@ An expression is basically a piece of code that returns a value.
 Because the else is mandatory, an if statement will always return something and that's why it's an expression.
 If we wanted to add one to every number that's produced in our previous function, we could have written its body like this.
 
-```{.haskell: .hs}
+```haskell
 doubleSmallNumber' x = (if x > 100 then x else x*2) + 1
 ```
 
@@ -266,7 +266,7 @@ It's a valid character to use in a function name.
 We usually use `'` to either denote a strict version of a function (one that isn't lazy) or a slightly modified version of a function or a variable.
 Because `'` is a valid character in functions, we can make a function like this.
 
-```{.haskell: .hs}
+```haskell
 conanO'Brien = "It's a-me, Conan O'Brien!"
 ```
 
@@ -278,9 +278,9 @@ The second thing is that this function doesn't take any parameters.
 When a function doesn't take any parameters, we usually say it's a *definition* (or a *name*).
 Because we can't change what names (and functions) mean once we've defined them, `conanO'Brien` and the string `"It's a-me, Conan O'Brien!"` can be used interchangeably.
 
-## An intro to lists {#an-intro-to-lists}
+## An intro to lists
 
-![BUY A DOG](assets/images/starting-out/list.png){.left width=150 height=103}
+![BUY A DOG](assets/images/starting-out/list.png)
 Much like shopping lists in the real world, lists in Haskell are very useful.
 It's the most used data structure and it can be used in a multitude of different ways to model and solve a whole bunch of problems.
 Lists are SO awesome.
@@ -291,7 +291,7 @@ They store several elements of the same type.
 That means that we can have a list of integers or a list of characters but we can't have a list that has a few integers and then a few characters.
 And now, a list!
 
-```{.haskell: .ghci}
+```haskell
 ghci> lostNumbers = [4,8,15,16,23,42]
 ghci> lostNumbers
 [4,8,15,16,23,42]
@@ -306,7 +306,7 @@ Because strings are lists, we can use list functions on them, which is really ha
 A common task is putting two lists together.
 This is done by using the `++` operator.
 
-```{.haskell: .ghci}
+```haskell
 ghci> [1,2,3,4] ++ [9,10,11,12]
 [1,2,3,4,9,10,11,12]
 ghci> "hello" ++ " " ++ "world"
@@ -321,7 +321,7 @@ That's not a problem when dealing with lists that aren't too big.
 But putting something at the end of a list that's fifty million entries long is going to take a while.
 However, putting something at the beginning of a list using the `:` operator (also called the cons operator) is instantaneous.
 
-```{.haskell: .ghci}
+```haskell
 ghci> 'A':" SMALL CAT"
 "A SMALL CAT"
 ghci> 5:[1,2,3,4,5]
@@ -336,7 +336,7 @@ Even if you're adding an element to the end of a list with `++`, you have to sur
 If we prepend `3` to it, it becomes `[3]`.
 If we prepend `2` to that, it becomes `[2,3]`, and so on.
 
-::: {.hintbox}
+:::
 **Note:** `[]`, `[[]]` and`[[],[],[]]` are all different things.
 The first one is an empty list, the seconds one is a list that contains one empty list, the third one is a list that contains three empty lists.
 :::
@@ -344,7 +344,7 @@ The first one is an empty list, the seconds one is a list that contains one empt
 If you want to get an element out of a list by index, use `!!`.
 The indices start at 0.
 
-```{.haskell: .ghci}
+```haskell
 ghci> "Steve Buscemi" !! 6
 'B'
 ghci> [9.4,33.2,96.2,11.2,23.25] !! 1
@@ -356,7 +356,7 @@ But if you try to get the sixth element from a list that only has four elements,
 Lists can also contain lists.
 They can also contain lists that contain lists that contain lists …
 
-```{.haskell: .ghci}
+```haskell
 ghci> b = [[1,2,3,4],[5,3,3,3],[1,2,2,3,4],[1,2,3]]
 ghci> b
 [[1,2,3,4],[5,3,3,3],[1,2,2,3,4],[1,2,3]]
@@ -376,7 +376,7 @@ When using `<`, `<=`, `>` and `>=` to compare lists, they are compared in lexico
 First the heads are compared.
 If they are equal then the second elements are compared, etc.
 
-```{.haskell: .ghci}
+```haskell
 ghci> [3,2,1] > [2,1,0]
 True
 ghci> [3,2,1] > [2,10,100]
@@ -392,43 +392,43 @@ True
 What else can you do with lists?
 Here are some basic functions that operate on lists.
 
-`head`{.label .function} takes a list and returns its head.
+`head` takes a list and returns its head.
 The head of a list is basically its first element.
 
-```{.haskell: .ghci}
+```haskell
 ghci> head [5,4,3,2,1]
 5
 ```
 
-`tail`{.label .function} takes a list and returns its tail.
+`tail` takes a list and returns its tail.
 In other words, it chops off a list's head.
 
-```{.haskell: .ghci}
+```haskell
 ghci> tail [5,4,3,2,1]
 [4,3,2,1]
 ```
 
-`last`{.label .function} takes a list and returns its last element.
+`last` takes a list and returns its last element.
 
-```{.haskell: .ghci}
+```haskell
 ghci> last [5,4,3,2,1]
 1
 ```
 
-`init`{.label .function} takes a list and returns everything except its last element.
+`init` takes a list and returns everything except its last element.
 
-```{.haskell: .ghci}
+```haskell
 ghci> init [5,4,3,2,1]
 [5,4,3,2]
 ```
 
 If we think of a list as a monster, here's what's what.
 
-![list monster](assets/images/starting-out/listmonster.png){.center width=580 height=290}
+![list monster](assets/images/starting-out/listmonster.png)
 
 But what happens if we try to get the head of an empty list?
 
-```{.haskell: .ghci}
+```haskell
 ghci> head []
 *** Exception: Prelude.head: empty list
 ```
@@ -439,36 +439,36 @@ If there's no monster, it doesn't have a head.
 When using `head`, `tail`, `last` and `init`, be careful not to use them on empty lists.
 This error cannot be caught at compile time, so it's always good practice to take precautions against accidentally telling Haskell to give you some elements from an empty list.
 
-`length`{.label .function} takes a list and returns its length, obviously.
+`length` takes a list and returns its length, obviously.
 
-```{.haskell: .ghci}
+```haskell
 ghci> length [5,4,3,2,1]
 5
 ```
 
-`null`{.label .function} checks if a list is empty.
+`null` checks if a list is empty.
 If it is, it returns `True`, otherwise it returns `False`.
 Use this function instead of `xs == []` (if you have a list called `xs`).
 
-```{.haskell: .ghci}
+```haskell
 ghci> null [1,2,3]
 False
 ghci> null []
 True
 ```
 
-`reverse`{.label .function} reverses a list.
+`reverse` reverses a list.
 
-```{.haskell: .ghci}
+```haskell
 ghci> reverse [5,4,3,2,1]
 [1,2,3,4,5]
 ```
 
-`take`{.label .function} takes a number and a list.
+`take` takes a number and a list.
 It extracts that many elements from the beginning of the list.
 Watch.
 
-```{.haskell: .ghci}
+```haskell
 ghci> take 3 [5,4,3,2,1]
 [5,4,3]
 ghci> take 1 [3,9,3]
@@ -482,9 +482,9 @@ ghci> take 0 [6,6,6]
 See how if we try to take more elements than there are in the list, it just returns the list.
 If we try to take 0 elements, we get an empty list.
 
-`drop`{.label .function} works in a similar way, only it drops the number of elements from the beginning of a list.
+`drop` works in a similar way, only it drops the number of elements from the beginning of a list.
 
-```{.haskell: .ghci}
+```haskell
 ghci> drop 3 [8,4,2,1,5,6]
 [1,5,6]
 ghci> drop 0 [1,2,3,4]
@@ -493,22 +493,22 @@ ghci> drop 100 [1,2,3,4]
 []
 ```
 
-`maximum`{.label .function} takes a list of stuff that can be put in some kind of order and returns the biggest element.
+`maximum` takes a list of stuff that can be put in some kind of order and returns the biggest element.
 
-`minimum`{.label .function} returns the smallest.
+`minimum` returns the smallest.
 
-```{.haskell: .ghci}
+```haskell
 ghci> minimum [8,4,2,1,5,6]
 1
 ghci> maximum [1,9,2,3,4]
 9
 ```
 
-`sum`{.label .function} takes a list of numbers and returns their sum.
+`sum` takes a list of numbers and returns their sum.
 
-`product`{.label .function} takes a list of numbers and returns their product.
+`product` takes a list of numbers and returns their product.
 
-```{.haskell: .ghci}
+```haskell
 ghci> sum [5,2,1,6,3,2,5,7]
 31
 ghci> product [6,2,1,2]
@@ -517,10 +517,10 @@ ghci> product [1,2,5,6,7,9,2,0]
 0
 ```
 
-`elem`{.label .function} takes a thing and a list of things and tells us if that thing is an element of the list.
+`elem` takes a thing and a list of things and tells us if that thing is an element of the list.
 It's usually called as an infix function because it's easier to read that way.
 
-```{.haskell: .ghci}
+```haskell
 ghci> 4 `elem` [3,4,5,6]
 True
 ghci> 10 `elem` [3,4,5,6]
@@ -530,9 +530,9 @@ False
 Those were a few basic functions that operate on lists.
 We'll take a look at more list functions [later](modules.html#data-list).
 
-## Texas ranges {#texas-ranges}
+## Texas ranges
 
-![draw](assets/images/starting-out/cowboy.png){.right width=200 height=258}
+![draw](assets/images/starting-out/cowboy.png)
 What if we want a list of all numbers between 1 and 20?
 Sure, we could just type them all out but obviously that's not a solution for gentlemen who demand excellence from their programming languages.
 Instead, we'll use ranges.
@@ -548,7 +548,7 @@ I don't know.
 To make a list containing all the natural numbers from 1 to 20, you just write `[1..20]`.
 That is the equivalent of writing `[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]` and there's no difference between writing one or the other except that writing out long enumeration sequences manually is stupid.
 
-```{.haskell: .ghci}
+```haskell
 ghci> [1..20]
 [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
 ghci> ['a'..'z']
@@ -561,7 +561,7 @@ Ranges are cool because you can also specify a step.
 What if we want all even numbers between 1 and 20?
 Or every third number between 1 and 20?
 
-```{.haskell: .ghci}
+```haskell
 ghci> [2,4..20]
 [2,4,6,8,10,12,14,16,18,20]
 ghci> [3,6..20]
@@ -579,7 +579,7 @@ To make a list with all the numbers from 20 to 1, you can't just do `[20..1]`, y
 Watch out when using floating point numbers in ranges!
 Because they are not completely precise (by definition), their use in ranges can yield some pretty funky results.
 
-```{.haskell: .ghci}
+```haskell
 ghci> [0.1, 0.3 .. 1]
 [0.1,0.3,0.5,0.7,0.8999999999999999,1.0999999999999999]
 ```
@@ -597,30 +597,30 @@ And here it sees you just want the first 24 elements and it gladly obliges.
 
 A handful of functions that produce infinite lists:
 
-`cycle`{.label .function} takes a list and cycles it into an infinite list.
+`cycle` takes a list and cycles it into an infinite list.
 If you just try to display the result, it will go on forever so you have to slice it off somewhere.
 
-```{.haskell: .ghci}
+```haskell
 ghci> take 10 (cycle [1,2,3])
 [1,2,3,1,2,3,1,2,3,1]
 ghci> take 12 (cycle "LOL ")
 "LOL LOL LOL "
 ```
 
-`repeat`{.label .function} takes an element and produces an infinite list of just that element.
+`repeat` takes an element and produces an infinite list of just that element.
 It's like cycling a list with only one element.
 
-```{.haskell: .ghci}
+```haskell
 ghci> take 10 (repeat 5)
 [5,5,5,5,5,5,5,5,5,5]
 ```
 
-Although it's simpler to just use the `replicate`{.label .function} function if you want some number of the same element in a list.
+Although it's simpler to just use the `replicate` function if you want some number of the same element in a list.
 `replicate 3 10` returns `[10,10,10]`.
 
-## I'm a list comprehension {#im-a-list-comprehension}
+## I'm a list comprehension
 
-![frog](assets/images/starting-out/kermit.png){.left width=180 height=156}
+![frog](assets/images/starting-out/kermit.png)
 If you've ever taken a course in mathematics, you've probably run into *set comprehensions*.
 They're normally used for building more specific sets out of general sets.
 A basic comprehension for a set that contains the first ten even natural numbers is ![set notation](assets/images/starting-out/setnotation.png).
@@ -636,7 +636,7 @@ The list comprehension we could use is `[x*2 | x <- [1..10]]`.
 `x` is drawn from `[1..10]` and for every element in `[1..10]` (which we have bound to `x`), we get that element, only doubled.
 Here's that comprehension in action.
 
-```{.haskell: .ghci}
+```haskell
 ghci> [x*2 | x <- [1..10]]
 [2,4,6,8,10,12,14,16,18,20]
 ```
@@ -646,7 +646,7 @@ Now let's add a condition (or a predicate) to that comprehension.
 Predicates go after the binding parts and are separated from them by a comma.
 Let's say we want only the elements which, doubled, are greater than or equal to 12.
 
-```{.haskell: .ghci}
+```haskell
 ghci> [x*2 | x <- [1..10], x*2 >= 12]
 [12,14,16,18,20]
 ```
@@ -655,7 +655,7 @@ Cool, it works.
 How about if we wanted all numbers from 50 to 100 whose remainder when divided with the number 7 is 3?
 Easy.
 
-```{.haskell: .ghci}
+```haskell
 ghci> [ x | x <- [50..100], x `mod` 7 == 3]
 [52,59,66,73,80,87,94]
 ```
@@ -668,7 +668,7 @@ Let's say we want a comprehension that replaces each odd number greater than 10 
 If a number isn't odd, we throw it out of our list.
 For convenience, we'll put that comprehension inside a function so we can easily reuse it.
 
-```{.haskell: .ghci}
+```haskell
 boomBangs xs = [ if x < 10 then "BOOM!" else "BANG!" | x <- xs, odd x]
 ```
 
@@ -676,7 +676,7 @@ The last part of the comprehension is the predicate.
 The function `odd` returns `True` on an odd number and `False` on an even one.
 The element is included in the list only if all the predicates evaluate to `True`.
 
-```{.haskell: .hs}
+```haskell
 ghci> boomBangs [7..13]
 ["BOOM!","BOOM!","BANG!","BANG!"]
 ```
@@ -684,7 +684,7 @@ ghci> boomBangs [7..13]
 We can include several predicates.
 If we wanted all numbers from 10 to 20 that are not 13, 15 or 19, we'd do:
 
-```{.haskell: .ghci}
+```haskell
 ghci> [ x | x <- [10..20], x /= 13, x /= 15, x /= 19]
 [10,11,12,14,16,17,18,20]
 ```
@@ -694,7 +694,7 @@ When drawing from several lists, comprehensions produce all combinations of the 
 A list produced by a comprehension that draws from two lists of length 4 will have a length of 16, provided we don't filter them.
 If we have two lists, `[2,5,10]` and `[8,10,11]` and we want to get the products of all the possible combinations between numbers in those lists, here's what we'd do.
 
-```{.haskell: .ghci}
+```haskell
 ghci> [ x*y | x <- [2,5,10], y <- [8,10,11]]
 [16,20,22,40,50,55,80,100,110]
 ```
@@ -702,14 +702,14 @@ ghci> [ x*y | x <- [2,5,10], y <- [8,10,11]]
 As expected, the length of the new list is 9.
 What if we wanted all possible products that are more than 50?
 
-```{.haskell: .ghci}
+```haskell
 ghci> [ x*y | x <- [2,5,10], y <- [8,10,11], x*y > 50]
 [55,80,100,110]
 ```
 
 How about a list comprehension that combines a list of adjectives and a list of nouns … for epic hilarity.
 
-```{.haskell: .ghci}
+```haskell
 ghci> nouns = ["hobo","frog","pope"]
 ghci> adjectives = ["lazy","grouchy","scheming"]
 ghci> [adjective ++ " " ++ noun | adjective <- adjectives, noun <- nouns]
@@ -721,7 +721,7 @@ I know!
 Let's write our own version of `length`!
 We'll call it `length'`.
 
-```{.haskell: .hs}
+```haskell
 length' xs = sum [1 | _ <- xs]
 ```
 
@@ -732,13 +732,13 @@ This means that the resulting sum will be the length of our list.
 Just a friendly reminder: because strings are lists, we can use list comprehensions to process and produce strings.
 Here's a function that takes a string and removes everything except uppercase letters from it.
 
-```{.haskell: .hs}
+```haskell
 removeNonUppercase st = [ c | c <- st, c `elem` ['A'..'Z']]
 ```
 
 Testing it out:
 
-```{.haskell: .ghci}
+```haskell
 ghci> removeNonUppercase "Hahaha! Ahahaha!"
 "HA"
 ghci> removeNonUppercase "IdontLIKEFROGS"
@@ -751,7 +751,7 @@ Nested list comprehensions are also possible if you're operating on lists that c
 A list contains several lists of numbers.
 Let's remove all odd numbers without flattening the list.
 
-```{.haskell: .ghci}
+```haskell
 ghci> let xxs = [[1,3,5,2,3,1,2,4,5],[1,2,3,4,5,6,7,8,9],[1,2,4,2,1,6,3,1,3,2,3,6]]
 ghci> [ [ x | x <- xs, even x ] | xs <- xxs]
 [[2,2,4],[2,4,6,8],[2,4,2,6,2,6]]
@@ -760,9 +760,9 @@ ghci> [ [ x | x <- xs, even x ] | xs <- xxs]
 You can write list comprehensions across several lines.
 So if you're not in GHCI, it's better to split longer list comprehensions across multiple lines, especially if they're nested.
 
-## Tuples {#tuples}
+## Tuples
 
-![tuples](assets/images/starting-out/tuple.png){.right width=160 height=162}
+![tuples](assets/images/starting-out/tuple.png)
 
 In some ways, tuples are like lists --- they are a way to store several values into a single value.
 However, there are a few fundamental differences.
@@ -785,7 +785,7 @@ Instead of surrounding the vectors with square brackets, we use parentheses: `[(
 What if we tried to make a shape like `[(1,2),(8,11,5),(4,5)]`?
 Well, we'd get this error:
 
-```{.haskell: .ghci}
+```haskell
 <interactive>:1:8: error: [GHC-83865]
     • Couldn't match expected type: (a, b)
                   with actual type: (a0, b0, c0)
@@ -813,38 +813,38 @@ Like lists, tuples can be compared with each other if their components can be co
 Only you can't compare two tuples of different sizes, whereas you can compare two lists of different sizes.
 Two useful functions that operate on pairs:
 
-`fst`{.label .function} takes a pair and returns its first component.
+`fst` takes a pair and returns its first component.
 
-```{.haskell: .ghci}
+```haskell
 ghci> fst (8,11)
 8
 ghci> fst ("Wow", False)
 "Wow"
 ```
 
-`snd`{.label .function} takes a pair and returns its second component.
+`snd` takes a pair and returns its second component.
 Surprise!
 
-```{.haskell: .ghci}
+```haskell
 ghci> snd (8,11)
 11
 ghci> snd ("Wow", False)
 False
 ```
 
-::: {.hintbox}
+:::
 **Note:** these functions operate only on pairs.
 They won't work on triples, 4-tuples, 5-tuples, etc.
 We'll go over extracting data from tuples in different ways a bit later.
 :::
 
-A cool function that produces a list of pairs: `zip`{.label .function}.
+A cool function that produces a list of pairs: `zip`.
 It takes two lists and then zips them together into one list by joining the matching elements into pairs.
 It's a really simple function but it has loads of uses.
 It's especially useful for when you want to combine two lists in a way or traverse two lists simultaneously.
 Here's a demonstration.
 
-```{.haskell: .ghci}
+```haskell
 ghci> zip [1,2,3,4,5] [5,5,5,5,5]
 [(1,5),(2,5),(3,5),(4,5),(5,5)]
 ghci> zip [1 .. 5] ["one", "two", "three", "four", "five"]
@@ -856,7 +856,7 @@ The first element goes with the first, the second with the second, etc.
 Notice that because pairs can have different types in them, `zip` can take two lists that contain different types and zip them up.
 What happens if the lengths of the lists don't match?
 
-```{.haskell: .ghci}
+```haskell
 ghci> zip [5,3,2,6,2,7,2,5,4,6,6] ["im","a","turtle"]
 [(5,"im"),(3,"a"),(2,"turtle")]
 ```
@@ -864,17 +864,17 @@ ghci> zip [5,3,2,6,2,7,2,5,4,6,6] ["im","a","turtle"]
 The longer list simply gets cut off to match the length of the shorter one.
 Because Haskell is lazy, we can zip finite lists with infinite lists:
 
-```{.haskell: .ghci}
+```haskell
 ghci> zip [1..] ["apple", "orange", "cherry", "mango"]
 [(1,"apple"),(2,"orange"),(3,"cherry"),(4,"mango")]
 ```
 
-![look at meee](assets/images/starting-out/pythag.png){.center width=350 height=315}
+![look at meee](assets/images/starting-out/pythag.png)
 
 Here's a problem that combines tuples and list comprehensions: which right triangle that has integers for all sides and all sides equal to or smaller than 10 has a perimeter of 24?
 First, let's try generating all triangles with sides equal to or smaller than 10:
 
-```{.haskell: .ghci}
+```haskell
 ghci> triangles = [ (a,b,c) | c <- [1..10], b <- [1..10], a <- [1..10] ]
 ```
 
@@ -883,14 +883,14 @@ If you evaluate that by typing out `triangles` in GHCI, you'll get a list of all
 Next, we'll add a condition that they all have to be right triangles.
 We'll also modify this function by taking into consideration that side b isn't larger than the hypothenuse and that side a isn't larger than side b.
 
-```{.haskell: .ghci}
+```haskell
 ghci> rightTriangles = [ (a,b,c) | c <- [1..10], b <- [1..c], a <- [1..b], a^2 + b^2 == c^2]
 ```
 
 We're almost done.
 Now, we just modify the function by saying that we want the ones where the perimeter is 24.
 
-```{.haskell: .ghci}
+```haskell
 ghci> rightTriangles' = [ (a,b,c) | c <- [1..10], b <- [1..c], a <- [1..b], a^2 + b^2 == c^2, a+b+c == 24]
 ghci> rightTriangles'
 [(6,8,10)]
@@ -899,4 +899,3 @@ ghci> rightTriangles'
 And there's our answer!
 This is a common pattern in functional programming.
 You take a starting set of solutions and then you apply transformations to those solutions and filter them until you get the right ones.
-

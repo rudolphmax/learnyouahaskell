@@ -1,6 +1,6 @@
-# Zippers 
+# Zippers
 
-![hi im chet](assets/images/zippers/60sdude.png){.right width=122 height=407}
+![hi im chet](assets/images/zippers/60sdude.png)
 
 While Haskell's purity comes with a whole bunch of benefits, it makes us tackle some problems differently than we would in impure languages.
 Because of referential transparency, one value is as good as another in Haskell if it represents the same thing.
@@ -19,19 +19,19 @@ If we want to later change an element that's near the element that we previously
 In this chapter, we'll see how we can take some data structure and focus on a part of it in a way that makes changing its elements easy and walking around it efficient.
 Nice!
 
-## Taking a walk {#taking-a-walk}
+## Taking a walk
 
 Like we've learned in biology class, there are many different kinds of trees, so let's pick a seed that we will use to plant ours.
 Here it is:
 
-```{.haskell:hs}
+```haskell
 data Tree a = Empty | Node a (Tree a) (Tree a) deriving (Show)
 ```
 
 So our tree is either empty or it's a node that has an element and two subtrees.
 Here's a fine example of such a tree, which I give to you, the reader, for free!
 
-```{.haskell:hs}
+```haskell
 freeTree :: Tree Char
 freeTree =
     Node 'P'
@@ -59,7 +59,7 @@ freeTree =
 
 And here's this tree represented graphically:
 
-![polly says her back hurts](assets/images/zippers/pollywantsa.png){.center width=780 height=504}
+![polly says her back hurts](assets/images/zippers/pollywantsa.png)
 
 Notice that `W` in the tree there?
 Say we want to change it into a `P`.
@@ -67,7 +67,7 @@ How would we go about doing that?
 Well, one way would be to pattern match on our tree until we find the element that's located by first going right and then left and changing said element.
 Here's the code for this:
 
-```{.haskell:hs}
+```haskell
 changeToP :: Tree Char -> Tree Char
 changeToP (Node x l (Node y (Node _ m n) r)) = Node x l (Node y (Node 'P' m n) r)
 ```
@@ -85,7 +85,7 @@ How about we make our function take a tree along with a list of directions.
 The directions will be either `L` or `R`, representing left and right respectively, and we'll change the element that we arrive at if we follow the supplied directions.
 Here it is:
 
-```{.haskell:hs}
+```haskell
 data Direction = L | R deriving (Show)
 type Directions = [Direction]
 
@@ -102,7 +102,7 @@ If the list of directions is empty, that means that we're at our destination, so
 
 To avoid printing out the whole tree, let's make a function that takes a list of directions and tells us what the element at the destination is:
 
-```{.haskell:hs}
+```haskell
 elemAt :: Directions -> Tree a -> a
 elemAt (L:ds) (Node _ l _) = elemAt ds l
 elemAt (R:ds) (Node _ _ r) = elemAt ds r
@@ -112,7 +112,7 @@ elemAt [] (Node x _ _) = x
 This function is actually quite similar to `changeToP`, only instead of remembering stuff along the way and reconstructing the tree, it ignores everything except its destination.
 Here we change the `'W'` to a `'P'` and see if the change in our new tree sticks:
 
-```{.haskell:hs}
+```haskell
 ghci> let newTree = changeToP [R,L] freeTree
 ghci> elemAt [R,L] newTree
 'P'
@@ -131,9 +131,9 @@ What a drag.
 
 In the next section, we'll find a better way of focusing on a subtree, one that allows us to efficiently switch focus to subtrees that are nearby.
 
-## A trail of breadcrumbs {#a-trail-of-breadcrumbs}
+## A trail of breadcrumbs
 
-![whoop dee doo](assets/images/zippers/bread.png){.right width=321 height=250}
+![whoop dee doo](assets/images/zippers/bread.png)
 
 Okay, so for focusing on a subtree, we want something better than just a list of directions that we always follow from the root of our tree.
 Would it help if we start at the root of the tree and move either left or right one step at a time and sort of leave breadcrumbs?
@@ -142,13 +142,13 @@ Sure, we can try that.
 
 To represent our breadcrumbs, we'll also use a list of `Direction` (which is either `L` or `R`), only instead of calling it `Directions`, we'll call it `Breadcrumbs` , because our directions will now be reversed since we're leaving them as we go down our tree:
 
-```{.haskell:hs}
+```haskell
 type Breadcrumbs = [Direction]
 ```
 
 Here's a function that takes a tree and some breadcrumbs and moves to the left subtree while adding `L` to the head of the list that represents our breadcrumbs:
 
-```{.haskell:hs}
+```haskell
 goLeft :: (Tree a, Breadcrumbs) -> (Tree a, Breadcrumbs)
 goLeft (Node _ l _, bs) = (l, L:bs)
 ```
@@ -156,7 +156,7 @@ goLeft (Node _ l _, bs) = (l, L:bs)
 We ignore the element at the root and the right subtree and just return the left subtree along with the old breadcrumbs with `L` as the head.
 Here's a function to go right:
 
-```{.haskell:hs}
+```haskell
 goRight :: (Tree a, Breadcrumbs) -> (Tree a, Breadcrumbs)
 goRight (Node _ _ r, bs) = (r, R:bs)
 ```
@@ -164,19 +164,19 @@ goRight (Node _ _ r, bs) = (r, R:bs)
 It works the same way.
 Let's use these functions to take our `freeTree` and go right and then left:
 
-```{.haskell:hs}
+```haskell
 ghci> goLeft (goRight (freeTree, []))
 (Node 'W' (Node 'C' Empty Empty) (Node 'R' Empty Empty),[L,R])
 ```
 
-![almostthere](assets/images/zippers/almostzipper.png){.left width=399 height=224}
+![almostthere](assets/images/zippers/almostzipper.png)
 
 Okay, so now we have a tree that has `'W'` in its root and `'C'` in the root of its left subtree and `'R'` in the root of its right subtree.
 The breadcrumbs are `[L,R]`, because we first went right and then left.
 
 To make walking along our tree clearer, we can use the `-:` function that we defined like so:
 
-```{.haskell:hs}
+```haskell
 x -: f = f x
 ```
 
@@ -184,12 +184,12 @@ Which allows us to apply functions to values by first writing the value, then wr
 So instead of `goRight (freeTree, [])`, we can write `(freeTree, []) -: goRight`.
 Using this, we can rewrite the above so that it's more apparent that we're first going right and then left:
 
-```{.haskell:hs}
+```haskell
 ghci> (freeTree, []) -: goRight -: goLeft
 (Node 'W' (Node 'C' Empty Empty) (Node 'R' Empty Empty),[L,R])
 ```
 
-### Going back up 
+### Going back up
 
 What if we now want to go back up in our tree?
 From our breadcrumbs we know that the current tree is the left subtree of its parent and that it is the right subtree of its parent, but that's it.
@@ -204,7 +204,7 @@ That's because we already have that subtree in the first component of the tuple,
 Let's modify our breadcrumbs so that they also contain information about everything that we previously ignored when moving left and right.
 Instead of `Direction`, we'll make a new data type:
 
-```{.haskell:hs}
+```haskell
 data Crumb a = LeftCrumb a (Tree a) | RightCrumb a (Tree a) deriving (Show)
 ```
 
@@ -221,14 +221,14 @@ In the case of a `LeftCrumb`, we know that we moved left, so the subtree that's 
 
 Let's also change our `Breadcrumbs` type synonym to reflect this:
 
-```{.haskell:hs}
+```haskell
 type Breadcrumbs a = [Crumb a]
 ```
 
 Next up, we have to modify the `goLeft` and `goRight` functions to store information about the paths that we didn't take in our breadcrumbs, instead of ignoring that information like they did before.
 Here's `goLeft`:
 
-```{.haskell:hs}
+```haskell
 goLeft :: (Tree a, Breadcrumbs a) -> (Tree a, Breadcrumbs a)
 goLeft (Node x l r, bs) = (l, LeftCrumb x r:bs)
 ```
@@ -240,7 +240,7 @@ An empty tree doesn't have any subtrees, so if we try to go left from an empty t
 
 `goRight` is similar:
 
-```{.haskell:hs}
+```haskell
 goRight :: (Tree a, Breadcrumbs a) -> (Tree a, Breadcrumbs a)
 goRight (Node x l r, bs) = (r, RightCrumb x l:bs)
 ```
@@ -249,13 +249,13 @@ We were previously able to go left and right.
 What we've gotten now is the ability to actually go back up by remembering stuff about the parent nodes and the paths that we didn't visit.
 Here's the `goUp` function:
 
-```{.haskell:hs}
+```haskell
 goUp :: (Tree a, Breadcrumbs a) -> (Tree a, Breadcrumbs a)
 goUp (t, LeftCrumb x r:bs) = (Node x t r, bs)
 goUp (t, RightCrumb x l:bs) = (Node x l t, bs)
 ```
 
-![asstronaut](assets/images/zippers/asstronaut.png){.left width=511 height=433}
+![asstronaut](assets/images/zippers/asstronaut.png)
 
 We're focusing on the tree `t` and we check what the latest `Crumb` is.
 If it's a `LeftCrumb`, then we construct a new tree where our tree `t` is the left subtree and we use the information about the right subtree that we didn't visit and the element to fill out the rest of the `Node`.
@@ -269,17 +269,17 @@ This scheme also enables us to easily move up, left and right.
 Such a pair that contains a focused part of a data structure and its surroundings is called a zipper, because moving our focus up and down the data structure resembles the operation of a zipper on a regular pair of pants.
 So it's cool to make a type synonym as such:
 
-```{.haskell:hs}
+```haskell
 type Zipper a = (Tree a, Breadcrumbs a)
 ```
 
 I'd prefer naming the type synonym `Focus` because that makes it clearer that we're focusing on a part of a data structure, but the term zipper is more widely used to describe such a setup, so we'll stick with `Zipper`.
 
-### Manipulating trees under focus 
+### Manipulating trees under focus
 
 Now that we can move up and down, let's make a function that modifies the element in the root of the subtree that the zipper is focusing on:
 
-```{.haskell:hs}
+```haskell
 modify :: (a -> a) -> Zipper a -> Zipper a
 modify f (Node x l r, bs) = (Node (f x) l r, bs)
 modify f (Empty, bs) = (Empty, bs)
@@ -290,26 +290,26 @@ If we're focusing on an empty tree, we leave it as it is.
 Now we can start off with a tree, move to anywhere we want and modify an element, all while keeping focus on that element so that we can easily move further up or down.
 An example:
 
-```{.haskell:hs}
+```haskell
 ghci> let newFocus = modify (\_ -> 'P') (goRight (goLeft (freeTree,[])))
 ```
 
 We go left, then right and then modify the root element by replacing it with a `'P'`.
 This reads even better if we use `-:`:
 
-```{.haskell:hs}
+```haskell
 ghci> let newFocus = (freeTree,[]) -: goLeft -: goRight -: modify (\_ -> 'P')
 ```
 
 We can then move up if we want and replace an element with a mysterious `'X'`:
 
-```{.haskell:hs}
+```haskell
 ghci> let newFocus2 = modify (\_ -> 'X') (goUp newFocus)
 ```
 
 Or if we wrote it with `-:`:
 
-```{.haskell:hs}
+```haskell
 ghci> let newFocus2 = newFocus -: goUp -: modify (\_ -> 'X')
 ```
 
@@ -320,7 +320,7 @@ Each node has two subtrees, even if those subtrees are empty trees.
 So if we're focusing on an empty subtree, one thing we can do is to replace it with a non-empty subtree, thus attaching a tree to a leaf node.
 The code for this is simple:
 
-```{.haskell:hs}
+```haskell
 attach :: Tree a -> Zipper a -> Zipper a
 attach t (_, bs) = (t, bs)
 ```
@@ -329,7 +329,7 @@ We take a tree and a zipper and return a new zipper that has its focus replaced 
 Not only can we extend trees this way by replacing empty subtrees with new trees, we can also replace whole existing subtrees.
 Let's attach a tree to the far left of our `freeTree`:
 
-```{.haskell:hs}
+```haskell
 ghci> let farLeft = (freeTree,[]) -: goLeft -: goLeft -: goLeft -: goLeft
 ghci> let newFocus = farLeft -: attach (Node 'Z' Empty Empty)
 ```
@@ -337,12 +337,12 @@ ghci> let newFocus = farLeft -: attach (Node 'Z' Empty Empty)
 `newFocus` is now focused on the tree that we just attached and the rest of the tree lies inverted in the breadcrumbs.
 If we were to use `goUp` to walk all the way to the top of the tree, it would be the same tree as `freeTree` but with an additional `'Z'` on its far left.
 
-### I'm going straight to the top, oh yeah, up where the air is fresh and clean! 
+### I'm going straight to the top, oh yeah, up where the air is fresh and clean!
 
 Making a function that walks all the way to the top of the tree, regardless of what we're focusing on, is really easy.
 Here it is:
 
-```{.haskell:hs}
+```haskell
 topMost :: Zipper a -> Zipper a
 topMost (t,[]) = (t,[])
 topMost z = topMost (goUp z)
@@ -352,17 +352,17 @@ If our trail of beefed up breadcrumbs is empty, this means that we're already at
 Otherwise, we go up to get the focus of the parent node and then recursively apply `topMost` to that.
 So now we can walk around our tree, going left and right and up, applying `modify` and `attach` as we go along and then when we're done with our modifications, we use `topMost` to focus on the root of our tree and see the changes that we've done in proper perspective.
 
-## Focusing on lists {#focusing-on-lists}
+## Focusing on lists
 
 Zippers can be used with pretty much any data structure, so it's no surprise that they can be used to focus on sub-lists of lists.
 After all, lists are pretty much like trees, only where a node in a tree has an element (or not) and several subtrees, a node in a list has an element and only a single sub-list.
 When we [implemented our own lists](making-our-own-types-and-typeclasses.html#recursive-data-structures), we defined our data type like so:
 
-```{.haskell:hs}
+```haskell
 data List a = Empty | Cons a (List a) deriving (Show, Read, Eq, Ord)
 ```
 
-![the best damn thing](assets/images/zippers/picard.png){.right width=355 height=380}
+![the best damn thing](assets/images/zippers/picard.png)
 
 Contrast this with our definition of our binary tree and it's easy to see how lists can be viewed as trees where each node has only one subtree.
 
@@ -386,14 +386,14 @@ If we have a list like `[3,4,5]` and we know that the previous element was `2`, 
 
 Because a single breadcrumb here is just the element, we don't really have to put it inside a data type, like we did when we made the `Crumb` data type for tree zippers:
 
-```{.haskell:hs}
+```haskell
 type ListZipper a = ([a],[a])
 ```
 
 The first list represents the list that we're focusing on and the second list is the list of breadcrumbs.
 Let's make functions that go forward and back into lists:
 
-```{.haskell:hs}
+```haskell
 goForward :: ListZipper a -> ListZipper a
 goForward (x:xs, bs) = (xs, x:bs)
 
@@ -406,7 +406,7 @@ When we're moving backwards, we take the latest breadcrumb and put it at the beg
 
 Here are these two functions in action:
 
-```{.haskell:hs}
+```haskell
 ghci> let xs = [1,2,3,4]
 ghci> goForward (xs,[])
 ([2,3,4],[1])
@@ -426,7 +426,7 @@ This also makes it easier to see why we call this a zipper, because this really 
 If you were making a text editor, you could use a list of strings to represent the lines of text that are currently opened and you could then use a zipper so that you know which line the cursor is currently focused on.
 By using a zipper, it would also make it easier to insert new lines anywhere in the text or delete existing ones.
 
-## A very simple file system {#a-very-simple-file-system}
+## A very simple file system
 
 Now that we know how zippers work, let's use trees to represent a very simple file system and then make a zipper for that file system, which will allow us to move between folders, just like we usually do when jumping around our file system.
 
@@ -435,7 +435,7 @@ Files are units of data and come with a name, whereas folders are used to organi
 So let's say that an item in a file system is either a file, which comes with a name and some data, or a folder, which has a name and then a bunch of items that are either files or folders themselves.
 Here's a data type for this and some type synonyms so we know what's what:
 
-```{.haskell:hs}
+```haskell
 type Name = String
 type Data = String
 data FSItem = File Name Data | Folder Name [FSItem] deriving (Show)
@@ -447,7 +447,7 @@ If that list is empty, then we have an empty folder.
 
 Here's a folder with some files and sub-folders:
 
-```{.haskell:hs}
+```haskell
 myDisk :: FSItem
 myDisk =
     Folder "root"
@@ -473,9 +473,9 @@ myDisk =
 
 That's actually what my disk contains right now.
 
-### A zipper for our file system 
+### A zipper for our file system
 
-![spongedisk](assets/images/zippers/spongedisk.png){.right width=243 height=271}
+![spongedisk](assets/images/zippers/spongedisk.png)
 
 Now that we have a file system, all we need is a zipper so we can zip and zoom around it and add, modify and remove files as well as folders.
 Like with binary trees and lists, we're going to be leaving breadcrumbs that contain info about all the stuff that we chose not to visit.
@@ -495,13 +495,13 @@ So this way, we know where the hole is.
 
 Here's our breadcrumb type for the file system:
 
-```{.haskell:hs}
+```haskell
 data FSCrumb = FSCrumb Name [FSItem] [FSItem] deriving (Show)
 ```
 
 And here's a type synonym for our zipper:
 
-```{.haskell:hs}
+```haskell
 type FSZipper = (FSItem, [FSCrumb])
 ```
 
@@ -509,7 +509,7 @@ Going back up in the hierarchy is very simple.
 We just take the latest breadcrumb and assemble a new focus from the current focus and breadcrumb.
 Like so:
 
-```{.haskell:hs}
+```haskell
 fsUp :: FSZipper -> FSZipper
 fsUp (item, FSCrumb name ls rs:bs) = (Folder name (ls ++ [item] ++ rs), bs)
 ```
@@ -521,7 +521,7 @@ If we're in the `"root"` and we want to focus on `"dijon_poupon.doc"`, the bread
 
 Here's a function that, given a name, focuses on a file of folder that's located in the current focused folder:
 
-```{.haskell:hs}
+```haskell
 import Data.List (break)
 
 fsTo :: Name -> FSZipper -> FSZipper
@@ -538,7 +538,7 @@ nameIs name (File fileName _) = name == fileName
 That file has to be in the current focused folder.
 This function doesn't search all over the place, it just looks at the current folder.
 
-![wow cool great](assets/images/zippers/cool.png){.left width=205 height=197}
+![wow cool great](assets/images/zippers/cool.png)
 
 First we use `break` to break the list of items in a folder into those that precede the file that we're searching for and those that come after it.
 If you remember, `break` takes a predicate and a list and returns a pair of lists.
@@ -555,32 +555,32 @@ Also, if our current focus isn't a folder at all but a file, we get an error as 
 Now we can move up and down our file system.
 Let's start at the root and walk to the file `"skull_man(scary).bmp"`:
 
-```{.haskell:hs}
+```haskell
 ghci> let newFocus = (myDisk,[]) -: fsTo "pics" -: fsTo "skull_man(scary).bmp"
 ```
 
 `newFocus` is now a zipper that's focused on the `"skull_man(scary).bmp"` file.
 Let's get the first component of the zipper (the focus itself) and see if that's really true:
 
-```{.haskell:hs}
+```haskell
 ghci> fst newFocus
 File "skull_man(scary).bmp" "Yikes!"
 ```
 
 Let's move up and then focus on its neighboring file `"watermelon_smash.gif"`:
 
-```{.haskell:hs}
+```haskell
 ghci> let newFocus2 = newFocus -: fsUp -: fsTo "watermelon_smash.gif"
 ghci> fst newFocus2
 File "watermelon_smash.gif" "smash!!"
 ```
 
-### Manipulating our file system 
+### Manipulating our file system
 
 Now that we know how to navigate our file system, manipulating it is easy.
 Here's a function that renames the currently focused file or folder:
 
-```{.haskell:hs}
+```haskell
 fsRename :: Name -> FSZipper -> FSZipper
 fsRename newName (Folder name items, bs) = (Folder newName items, bs)
 fsRename newName (File name dat, bs) = (File newName dat, bs)
@@ -588,7 +588,7 @@ fsRename newName (File name dat, bs) = (File newName dat, bs)
 
 Now we can rename our `"pics"` folder to `"cspi"`:
 
-```{.haskell:hs}
+```haskell
 ghci> let newFocus = (myDisk,[]) -: fsTo "pics" -: fsRename "cspi" -: fsUp
 ```
 
@@ -597,7 +597,7 @@ We descended to the `"pics"` folder, renamed it and then moved back up.
 How about a function that makes a new item in the current folder?
 Behold:
 
-```{.haskell:hs}
+```haskell
 fsNewFile :: FSItem -> FSZipper -> FSZipper
 fsNewFile item (Folder folderName items, bs) =
     (Folder folderName (item:items), bs)
@@ -608,7 +608,7 @@ Note that this would crash if we tried to add an item but weren't focusing on a 
 
 Let's add a file to our `"pics"` folder and then move back up to the root:
 
-```{.haskell:hs}
+```haskell
 ghci> let newFocus = (myDisk,[]) -: fsTo "pics" -: fsNewFile (File "heh.jpg" "lol") -: fsUp
 ```
 
@@ -618,17 +618,17 @@ So by using zippers, we get versioning for free, meaning that we can always refe
 This isn't unique to zippers, but is a property of Haskell because its data structures are immutable.
 With zippers however, we get the ability to easily and efficiently walk around our data structures, so the persistence of Haskell's data structures really begins to shine.
 
-## Watch your step {#watch-your-step}
+## Watch your step
 
 So far, while walking through our data structures, whether they were binary trees, lists or file systems, we didn't really care if we took a step too far and fell off.
 For instance, our `goLeft` function takes a zipper of a binary tree and moves the focus to its left subtree:
 
-```{.haskell:hs}
+```haskell
 goLeft :: Zipper a -> Zipper a
 goLeft (Node x l r, bs) = (l, LeftCrumb x r:bs)
 ```
 
-![falling for you](assets/images/zippers/bigtree.png){.right width=247 height=367}
+![falling for you](assets/images/zippers/bigtree.png)
 
 But what if the tree we're stepping off from is an empty tree?
 That is, what if it's not a `Node`, but an `Empty`?
@@ -650,7 +650,7 @@ First, let's take care of possible failure in `goLeft` and `goRight`.
 So far, the failure of functions that could fail was always reflected in their result, and this time is no different.
 So here are `goLeft` and `goRight` with an added possibility of failure:
 
-```{.haskell:hs}
+```haskell
 goLeft :: Zipper a -> Maybe (Zipper a)
 goLeft (Node x l r, bs) = Just (l, LeftCrumb x r:bs)
 goLeft (Empty, _) = Nothing
@@ -662,7 +662,7 @@ goRight (Empty, _) = Nothing
 
 Cool, now if we try to take a step to the left of an empty tree, we get a `Nothing`!
 
-```{.haskell:hs}
+```haskell
 ghci> goLeft (Empty, [])
 Nothing
 ghci> goLeft (Node 'A' Empty Empty, [])
@@ -674,7 +674,7 @@ How about going up?
 The problem before happened if we tried to go up but we didn't have any more breadcrumbs, which meant that we were already in the root of the tree.
 This is the `goUp` function that throws an error if we don't keep within the bounds of our tree:
 
-```{.haskell:hs}
+```haskell
 goUp :: Zipper a -> Zipper a
 goUp (t, LeftCrumb x r:bs) = (Node x t r, bs)
 goUp (t, RightCrumb x l:bs) = (Node x l t, bs)
@@ -682,7 +682,7 @@ goUp (t, RightCrumb x l:bs) = (Node x l t, bs)
 
 Now let's modify it to fail gracefully:
 
-```{.haskell:hs}
+```haskell
 goUp :: Zipper a -> Maybe (Zipper a)
 goUp (t, LeftCrumb x r:bs) = Just (Node x t r, bs)
 goUp (t, RightCrumb x l:bs) = Just (Node x l t, bs)
@@ -693,7 +693,7 @@ If we have breadcrumbs, everything is okay and we return a successful new focus,
 
 Before, these functions took zippers and returned zippers, which meant that we could chain them like this to walk around:
 
-```{.haskell:hs}
+```haskell
 gchi> let newFocus = (freeTree,[]) -: goLeft -: goRight
 ```
 
@@ -707,7 +707,7 @@ So just like our tightrope walker, we're going to trade in all our `-:` operator
 Alright, we can chain our functions again!
 Watch:
 
-```{.haskell:hs}
+```haskell
 ghci> let coolTree = Node 1 Empty (Node 3 Empty Empty)
 ghci> return (coolTree,[]) >>= goRight
 Just (Node 3 Empty Empty,[RightCrumb 1 Empty])
@@ -728,4 +728,3 @@ Wow, I nailed this metaphor.
 
 Our file system also has a lot of cases where an operation could fail, such as trying to focus on a file or folder that doesn't exist.
 As an exercise, you can equip our file system with functions that fail gracefully by using the `Maybe` monad.
-

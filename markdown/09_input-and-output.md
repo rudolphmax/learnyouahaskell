@@ -1,6 +1,6 @@
 # Input and Output
 
-![poor dog](assets/images/input-and-output/dognap.png){.right width=261 height=382}
+![poor dog](assets/images/input-and-output/dognap.png)
 
 We've mentioned that Haskell is a purely functional language.
 Whereas in imperative languages you usually get things done by giving the computer a series of steps to execute, functional programming is more of defining what stuff is.
@@ -20,9 +20,9 @@ Do not despair, all is not lost.
 It turns out that Haskell actually has a really clever system for dealing with functions that have side-effects that neatly separates the part of our program that is pure and the part of our program that is impure, which does all the dirty work like talking to the keyboard and the screen.
 With those two parts separated, we can still reason about our pure program and take advantage of all the things that purity offers, like laziness, robustness and modularity while efficiently communicating with the outside world.
 
-## Hello, world! {#hello-world}
+## Hello, world!
 
-![HELLO!](assets/images/input-and-output/helloworld.png){.left width=223 height=179}
+![HELLO!](assets/images/input-and-output/helloworld.png)
 
 Up until now, we've always loaded our functions into GHCI to test them out and play with them.
 We've also explored the standard library functions that way.
@@ -30,7 +30,7 @@ But now, after eight or so chapters, we're finally going to write our first *rea
 Yay!
 And sure enough, we're going to do the good old `"hello, world"` schtick.
 
-::: {.hintbox}
+:::
 **Hey!**
 For the purposes of this chapter, I'm going to assume you're using a unix-y environment for learning Haskell.
 If you're on Windows, I'd suggest you download [Cygwin](https://www.cygwin.com/), which is a Linux-like environment for Windows, A.K.A. just what you need.
@@ -38,7 +38,7 @@ If you're on Windows, I'd suggest you download [Cygwin](https://www.cygwin.com/)
 
 So, for starters, punch in the following in your favorite text editor:
 
-```{.haskell:hs}
+```haskell
 main = putStrLn "hello, world"
 ```
 
@@ -51,7 +51,7 @@ We're actually going to compile our program!
 I'm so excited!
 Open up your terminal and navigate to the directory where `helloworld.hs` is located and do the following:
 
-```{.plain}
+```haskell
 $ ghc --make helloworld
 [1 of 1] Compiling Main             ( helloworld.hs, helloworld.o )
 Linking helloworld ...
@@ -60,7 +60,7 @@ Linking helloworld ...
 Okay!
 With any luck, you got something like this and now you can run your program by doing `./helloworld`.
 
-```{.haskell:hs}
+```haskell
 $ ./helloworld
 hello, world
 ```
@@ -71,7 +71,7 @@ How extraordinarily boring!
 Let's examine what we wrote.
 First, let's look at the type of the function `putStrLn`.
 
-```{.haskell:hs}
+```haskell
 ghci> :t putStrLn
 putStrLn :: String -> IO ()
 ghci> :t putStrLn "hello, world"
@@ -82,7 +82,7 @@ We can read the type of `putStrLn` like this: `putStrLn` takes a string and retu
 An I/O action is something that, when performed, will carry out an action with a side-effect (that's usually either reading from the input or printing stuff to the screen) and will also contain some kind of return value inside it.
 Printing a string to the terminal doesn't really have any kind of meaningful return value, so a dummy value of `()` is used.
 
-::: {.hintbox}
+:::
 The empty tuple is a value of `()` and it also has a type of `()`.
 :::
 
@@ -94,7 +94,7 @@ Having your whole program be just one I/O action seems kind of limiting.
 That's why we can use *do* syntax to glue together several I/O actions into one.
 Take a look at the following example:
 
-```{.haskell:hs}
+```haskell
 main = do
     putStrLn "Hello, what's your name?"
     name <- getLine
@@ -117,12 +117,12 @@ It looks like it reads a line from the input and stores it into a variable calle
 Does it really?
 Well, let's examine the type of `getLine`.
 
-```{.haskell:hs}
+```haskell
 ghci> :t getLine
 getLine :: IO String
 ```
 
-![luggage](assets/images/input-and-output/luggage.png){.left width=204 height=200}
+![luggage](assets/images/input-and-output/luggage.png)
 
 Aha, o-kay.
 `getLine` is an I/O action that contains a result type of `String`.
@@ -144,7 +144,7 @@ When we do `name <- getLine`, `name` is just a normal string, because it represe
 We can have a really complicated function that, say, takes your name (a normal string) as a parameter and tells you your fortune and your whole life's future based on your name.
 We can do this:
 
-```{.haskell:hs}
+```haskell
 main = do
     putStrLn "Hello, what's your name?"
     name <- getLine
@@ -156,7 +156,7 @@ and `tellFortune` (or any of the functions it passes `name` to) doesn't have to 
 Take a look at this piece of code.
 Is it valid?
 
-```{.haskell:hs}
+```haskell
 nameTag = "Hello, my name is " ++ getLine
 ```
 
@@ -173,7 +173,7 @@ So the taint of impurity spreads around much like the undead scourge and it's in
 Every I/O action that gets performed has a result encapsulated within it.
 That's why our previous example program could also have been written like this:
 
-```{.haskell:hs}
+```haskell
 main = do
     foo <- putStrLn "Hello, what's your name?"
     name <- getLine
@@ -192,7 +192,7 @@ But that's useless, so we leave out the `<-` for I/O actions that don't contain 
 
 Beginners sometimes think that doing
 
-```{.haskell:hs}
+```haskell
 name = getLine
 ```
 
@@ -207,7 +207,7 @@ Either way, they'll be performed only if they eventually fall into `main`.
 Oh, right, there's also one more case when I/O actions will be performed.
 When we type out an I/O action in GHCI and press return, it will be performed.
 
-```{.haskell:hs}
+```haskell
 ghci> putStrLn "HEEY"
 HEEY
 ```
@@ -221,7 +221,7 @@ We also said that in list comprehensions, the *in* part isn't needed.
 Well, you can use them in *do* blocks pretty much like you use them in list comprehensions.
 Check this out:
 
-```{.haskell:hs}
+```haskell
 import Data.Char
 
 main = do
@@ -251,7 +251,7 @@ Now we're going to make a program that continuously reads a line and prints out 
 The program's execution will stop when we input a blank line.
 This is the program:
 
-```{.haskell:hs}
+```haskell
 main = do
     line <- getLine
     if null line
@@ -266,7 +266,7 @@ reverseWords = unwords . map reverse . words
 
 To get a feel of what it does, you can run it before we go over the code.
 
-::: {.hintbox}
+:::
 **Protip**: To run a program you can either compile it and then run the produced executable file by doing `ghc --make helloworld` and then `./helloworld` or you can use the `runhaskell` command like so: `runhaskell helloworld.hs` and your program will be executed on the fly.
 :::
 
@@ -287,7 +287,7 @@ Let's first take a look at what happens under the *else* clause.
 Because, we have to have exactly one I/O action after the *else*, we use a *do* block to glue together two I/O actions into one.
 You could also write that part out as:
 
-```{.haskell:hs}
+```haskell
 else (do
             putStrLn $ reverseWords line
             main)
@@ -318,7 +318,7 @@ That's why we just made a bogus I/O action that doesn't do anything by writing `
 Using `return` doesn't cause the I/O *do* block to end in execution or anything like that.
 For instance, this program will quite happily carry out all the way to the last line:
 
-```{.haskell:hs}
+```haskell
 main = do
     return ()
     return "HAHAHA"
@@ -331,7 +331,7 @@ main = do
 All these `return`s do is that they make I/O actions that don't really do anything except have an encapsulated result and that result is thrown away because it isn't bound to a name.
 We can use `return` in combination with `<-` to bind stuff to names.
 
-```{.haskell:hs}
+```haskell
 main = do
     a <- return "hell"
     b <- return "yeah!"
@@ -342,7 +342,7 @@ So you see, `return` is sort of the opposite to `<-`.
 While `return` takes a value and wraps it up in a box, `<-` takes a box (and performs it) and takes the value out of it, binding it to a name.
 But doing this is kind of redundant, especially since you can use *let* bindings in *do* blocks to bind to names, like so:
 
-```{.haskell:hs}
+```haskell
 main = do
     let a = "hell"
         b = "yeah"
@@ -351,7 +351,7 @@ main = do
 
 When dealing with I/O *do* blocks, we mostly use `return` either because we need to create an I/O action that doesn't do anything or because we don't want the I/O action that's made up from a *do* block to have the result value of its last action, but we want it to have a different result value, so we use `return` to make an I/O action that always has our desired result contained and we put it at the end.
 
-::: {.hintbox}
+:::
 A *do* block can also have just one I/O action.
 In that case, it's the same as just writing the I/O action.
 Some people would prefer writing `then do return ()` in this case because the *else* also has a *do*.
@@ -359,15 +359,15 @@ Some people would prefer writing `then do return ()` in this case because the *e
 
 Before we move on to files, let's take a look at some functions that are useful when dealing with I/O.
 
-`putStr`{.label .function} is much like `putStrLn` in that it takes a string as a parameter and returns an I/O action that will print that string to the terminal, only `putStr` doesn't jump into a new line after printing out the string while `putStrLn` does.
+`putStr` is much like `putStrLn` in that it takes a string as a parameter and returns an I/O action that will print that string to the terminal, only `putStr` doesn't jump into a new line after printing out the string while `putStrLn` does.
 
-```{.haskell:hs}
+```haskell
 main = do   putStr "Hey, "
             putStr "I'm "
             putStrLn "Andy!"
 ```
 
-```{.plain}
+```haskell
 $ runhaskell putstr_test.hs
 Hey, I'm Andy!
 ```
@@ -375,15 +375,15 @@ Hey, I'm Andy!
 Its type signature is `putStr :: String -> IO ()`, so the result encapsulated within the resulting I/O action is the unit.
 A dud value, so it doesn't make sense to bind it.
 
-`putChar`{.label .function} takes a character and returns an I/O action that will print it out to the terminal.
+`putChar` takes a character and returns an I/O action that will print it out to the terminal.
 
-```{.haskell:hs}
+```haskell
 main = do   putChar 't'
             putChar 'e'
             putChar 'h'
 ```
 
-```{.plain}
+```haskell
 $ runhaskell putchar_test.hs
 teh
 ```
@@ -392,7 +392,7 @@ teh
 The edge condition of `putStr` is the empty string, so if we're printing an empty string, just return an I/O action that does nothing by using `return ()`.
 If it's not empty, then print the first character of the string by doing `putChar` and then print of them using `putStr`.
 
-```{.haskell:hs}
+```haskell
 putStr :: String -> IO ()
 putStr [] = return ()
 putStr (x:xs) = do
@@ -404,11 +404,11 @@ See how we can use recursion in I/O, just like we can use it in pure code.
 Just like in pure code, we define the edge case and then think what the result actually is.
 It's an action that first outputs the first character and then outputs the rest of the string.
 
-`print`{.label .function} takes a value of any type that's an instance of `Show` (meaning that we know how to represent it as a string), calls `show` with that value to stringify it and then outputs that string to the terminal.
+`print` takes a value of any type that's an instance of `Show` (meaning that we know how to represent it as a string), calls `show` with that value to stringify it and then outputs that string to the terminal.
 Basically, it's just `putStrLn . show`.
 It first runs `show` on a value and then feeds that to `putStrLn`, which returns an I/O action that will print out our value.
 
-```{.haskell:hs}
+```haskell
 main = do   print True
             print 2
             print "haha"
@@ -416,7 +416,7 @@ main = do   print True
             print [3,4,3]
 ```
 
-```{.haskell:hs}
+```haskell
 $ runhaskell print_test.hs
 True
 2
@@ -429,7 +429,7 @@ As you can see, it's a very handy function.
 Remember how we talked about how I/O actions are performed only when they fall into `main` or when we try to evaluate them in the GHCI prompt?
 When we type out a value (like `3` or `[1,2,3]`) and press the return key, GHCI actually uses `print` on that value to display it on our terminal!
 
-```{.haskell:hs}
+```haskell
 ghci> 3
 3
 ghci> print 3
@@ -442,11 +442,11 @@ ghci> print (map (++"!") ["hey","ho","woo"])
 
 When we want to print out strings, we usually use `putStrLn` because we don't want the quotes around them, but for printing out values of other types to the terminal, `print` is used the most.
 
-`getChar`{.function .label} is an I/O action that reads a character from the input.
+`getChar` is an I/O action that reads a character from the input.
 Thus, its type signature is `getChar :: IO Char`, because the result contained within the I/O action is a `Char`.
 Note that due to buffering, reading of the characters won't actually happen until the user mashes the return key.
 
-```{.haskell:hs}
+```haskell
 main = do
     c <- getChar
     if c /= ' '
@@ -461,7 +461,7 @@ If it is, halt execution and if it isn't, print it to the terminal and then do t
 Well, it kind of does, only not in the way you might expect.
 Check this out:
 
-```{.plain}
+```haskell
 $ runhaskell getchar_test.hs
 hello sir
 hello
@@ -473,13 +473,13 @@ Due to buffering, the execution of the program will begin only when after we've 
 But once we press return, it acts on what we've been putting in so far.
 Try playing with this program to get a feel for it!
 
-The `when`{.label .function} function is found in `Control.Monad` (to get access to it, do `import Control.Monad`).
+The `when` function is found in `Control.Monad` (to get access to it, do `import Control.Monad`).
 It's interesting because in a *do* block it looks like a control flow statement, but it's actually a normal function.
 It takes a boolean value and an I/O action if that boolean value is `True`, it returns the same I/O action that we supplied to it.
 However, if it's `False`, it returns the `return ()`, action, so an I/O action that doesn't do anything.
 Here's how we could rewrite the previous piece of code with which we demonstrated `getChar` by using `when`:
 
-```{.haskell:hs}
+```haskell
 import Control.Monad
 
 main = do
@@ -491,12 +491,12 @@ main = do
 
 So as you can see, it's useful for encapsulating the <code>if *something* then do *some I/O action* else return ()</code> pattern.
 
-`sequence`{.label .function} takes a list of I/O actions and returns an I/O actions that will perform those actions one after the other.
+`sequence` takes a list of I/O actions and returns an I/O actions that will perform those actions one after the other.
 The result contained in that I/O action will be a list of the results of all the I/O actions that were performed.
 Its type signature is `sequence :: [IO a] -> IO [a]`.
 Doing this:
 
-```{.haskell:hs}
+```haskell
 main = do
     a <- getLine
     b <- getLine
@@ -506,7 +506,7 @@ main = do
 
 Is exactly the same as doing this:.
 
-```{.haskell:hs}
+```haskell
 main = do
     rs <- sequence [getLine, getLine, getLine]
     print rs
@@ -520,7 +520,7 @@ Doing `map print [1,2,3,4]` won't create an I/O action.
 It will create a list of I/O actions, because that's like writing `[print 1, print 2, print 3, print 4]`.
 If we want to transform that list of I/O actions into an I/O action, we have to sequence it.
 
-```{.haskell:hs}
+```haskell
 ghci> sequence (map print [1,2,3,4,5])
 1
 2
@@ -535,12 +535,12 @@ Well, when we evaluate an I/O action in GHCI, it's performed and then its result
 That's why evaluating `putStrLn "hehe"` in GHCI just prints out `hehe` (because the contained result in `putStrLn "hehe"` is `()`).
 But when we do `getLine` in GHCI, the result of that I/O action is printed out, because `getLine` has a type of `IO String`.
 
-Because mapping a function that returns an I/O action over a list and then sequencing it is so common, the utility functions `mapM`{.label .function} and `mapM_`{.label .function} were introduced.
+Because mapping a function that returns an I/O action over a list and then sequencing it is so common, the utility functions `mapM` were introduced.
 `mapM` takes a function and a list, maps the function over the list and then sequences it.
 `mapM_` does the same, only it throws away the result later.
 We usually use `mapM_` when we don't care what result our sequenced I/O actions have.
 
-```{.haskell:hs}
+```haskell
 ghci> mapM print [1,2,3]
 1
 2
@@ -552,11 +552,11 @@ ghci> mapM_ print [1,2,3]
 3
 ```
 
-`forever`{.label .function} takes an I/O action and returns an I/O action that just repeats the I/O action it got forever.
+`forever` takes an I/O action and returns an I/O action that just repeats the I/O action it got forever.
 It's located in `Control.Monad`.
 This little program will indefinitely ask the user for some input and spit it back to him, CAPSLOCKED:
 
-```{.haskell:hs}
+```haskell
 import Control.Monad
 import Data.Char
 
@@ -566,12 +566,12 @@ main = forever $ do
     putStrLn $ map toUpper l
 ```
 
-`forM`{.label .function} (located in `Control.Monad`) is like `mapM`, only that it has its parameters switched around.
+`forM` (located in `Control.Monad`) is like `mapM`, only that it has its parameters switched around.
 The first parameter is the list and the second one is the function to map over that list, which is then sequenced.
 Why is that useful?
 Well, with some creative use of lambdas and *do* notation, we can do stuff like this:
 
-```{.haskell:hs}
+```haskell
 import Control.Monad
 
 main = do
@@ -598,7 +598,7 @@ What each I/O action will do can depend on the element that was used to make the
 Finally, perform those actions and bind their results to something.
 We don't have to bind it, we can also just throw it away.
 
-```{.plain}
+```haskell
 $ runhaskell form_test.hs
 Which color do you associate with the number 1?
 white
@@ -631,14 +631,14 @@ Don't think of a function like `putStrLn` as a function that takes a string and 
 Think of it as a function that takes a string and returns an I/O action.
 That I/O action will, when performed, print beautiful poetry to your terminal.
 
-## Files and streams {#files-and-streams}
+## Files and streams
 
-![streams](assets/images/input-and-output/streams.png){.right width=464 height=322}
+![streams](assets/images/input-and-output/streams.png)
 
 `getChar` is an I/O action that reads a single character from the terminal.
 `getLine` is an I/O action that reads a line from the terminal.
 These two are pretty straightforward and most programming languages have some functions or statements that are parallel to them.
-But now, let's meet `getContents`{.label .function}.
+But now, let's meet `getContents`.
 `getContents` is an I/O action that reads everything from the standard input until it encounters an end-of-file character.
 Its type is `getContents :: IO String`.
 What's cool about `getContents` is that it does lazy I/O.
@@ -650,7 +650,7 @@ It'll say: *"Yeah yeah, I'll read the input from the terminal later as we go alo
 In case you don't know how piping works in unix-y systems, here's a quick primer.
 Let's make a text file that contains the following little haiku:
 
-```{.plain}
+```haskell
 I'm a lil' teapot
 What's with that airplane food, huh?
 It's so small, tasteless
@@ -663,7 +663,7 @@ Now, recall the little program we wrote when we were introducing the `forever` f
 It prompted the user for a line, returned it to him in CAPSLOCK and then did that all over again, indefinitely.
 Just so you don't have to scroll all the way back, here it is again:
 
-```{.haskell:hs}
+```haskell
 import Control.Monad
 import Data.Char
 
@@ -678,7 +678,7 @@ And then, we're going to use a unix pipe to feed our text file directly to our l
 We're going to use the help of the GNU *cat* program, which prints out a file that's given to it as an argument.
 Check it out, booyaka!
 
-```{.plain}
+```haskell
 $ ghc --make capslocker
 [1 of 1] Compiling Main             ( capslocker.hs, capslocker.o )
 Linking capslocker ...
@@ -700,7 +700,7 @@ It's like running *cat haiku.txt* and saying: “Wait, don't print this out to t
 So what we're essentially doing with that use of `forever` is taking the input and transforming it into some output.
 That's why we can use `getContents` to make our program even shorter and better:
 
-```{.haskell:hs}
+```haskell
 import Data.Char
 
 main = do
@@ -713,7 +713,7 @@ Then, we map `toUpper` over that string and print that to the terminal.
 Keep in mind that because strings are basically lists, which are lazy, and `getContents` is I/O lazy, it won't try to read the whole content at once and store it into memory before printing out the capslocked version.
 Rather, it will print out the capslocked version as it reads it, because it will only read a line from the input when it really needs to.
 
-```{.plain}
+```haskell
 $ cat haiku.txt | ./capslocker
 I'M A LIL' TEAPOT
 WHAT'S WITH THAT AIRPLANE FOOD, HUH?
@@ -723,7 +723,7 @@ IT'S SO SMALL, TASTELESS
 Cool, it works.
 What if we just run *capslocker* and try to type in the lines ourselves?
 
-```{.plain}
+```haskell
 $ ./capslocker
 hey ho
 HEY HO
@@ -745,7 +745,7 @@ And then, `putStr` says: *"Hey, I need the next line, come on!"* and this repeat
 Let's make program that takes some input and prints out only those lines that are shorter than 10 characters.
 Observe:
 
-```{.haskell:hs}
+```haskell
 main = do
     contents <- getContents
     putStr (shortLinesOnly contents)
@@ -768,7 +768,7 @@ That list of string is then filtered so that only those lines that are shorter t
 And finally, `unlines` joins that list into a single newline delimited string, giving `"short\nshort again"`.
 Let's give it a go.
 
-```{.plain:hs}
+```haskell
 i'm short
 so am i
 i am a loooooooooong line!!!
@@ -778,7 +778,7 @@ loooooooooooooooooooooooooooong
 short
 ```
 
-```{.plain:hs}
+```haskell
 $ ghc --make shortlinesonly
 [1 of 1] Compiling Main             ( shortlinesonly.hs, shortlinesonly.o )
 Linking shortlinesonly ...
@@ -790,11 +790,11 @@ short
 
 We pipe the contents of *shortlines.txt* into the output of *shortlinesonly* and as the output, we only get the short lines.
 
-This pattern of getting some string from the input, transforming it with a function and then outputting that is so common that there exists a function which makes that even easier, called `interact`{.label .function}.
+This pattern of getting some string from the input, transforming it with a function and then outputting that is so common that there exists a function which makes that even easier, called `interact`.
 `interact` takes a function of type `String -> String` as a parameter and returns an I/O action that will take some input, run that function on it and then print out the function's result.
 Let's modify our program to use that.
 
-```{.haskell:hs}
+```haskell
 main = interact shortLinesOnly
 
 shortLinesOnly :: String -> String
@@ -807,7 +807,7 @@ shortLinesOnly input =
 
 Just to show that this can be achieved in much less code (even though it will be less readable) and to demonstrate our function composition skill, we're going to rework that a bit further.
 
-```{.haskell:hs}
+```haskell
 main = interact $ unlines . filter ((<10) . length) . lines
 ```
 
@@ -824,14 +824,14 @@ In our case, we have to replace each line of the input with either `"palindrome"
 So we have to write a function that transforms something like `"elephant\nABCBA\nwhatever"` into `"not a palindrome\npalindrome\nnot a palindrome"`.
 Let's do this!
 
-```{.haskell:hs}
+```haskell
 respondPalindromes contents = unlines (map (\xs -> if isPalindrome xs then "palindrome" else "not a palindrome") (lines contents))
     where   isPalindrome xs = xs == reverse xs
 ```
 
 Let's write this in point-free.
 
-```{.haskell:hs}
+```haskell
 respondPalindromes = unlines . map (\xs -> if isPalindrome xs then "palindrome" else "not a palindrome") . lines
     where   isPalindrome xs = xs == reverse xs
 ```
@@ -840,13 +840,13 @@ Pretty straightforward.
 First it turns something like `"elephant\nABCBA\nwhatever"` into `["elephant", "ABCBA", "whatever"]` and then it maps that lambda over it, giving `["not a palindrome", "palindrome", "not a palindrome"]` and then `unlines` joins that list into a single, newline delimited string.
 Now we can do
 
-```{.haskell:hs}
+```haskell
 main = interact respondPalindromes
 ```
 
 Let's test this out:
 
-```{.plain}
+```haskell
 $ runhaskell palindromes.hs
 hehe
 not a palindrome
@@ -864,7 +864,7 @@ We get out of the program by issuing an end-of-line character.
 We can also use this program by just piping a file into it.
 Let's say we have this file:
 
-```{.plain}
+```haskell
 dogaroo
 radar
 rotor
@@ -874,7 +874,7 @@ madam
 and we save it as `words.txt`.
 This is what we get by piping it into our program:
 
-```{.plain}
+```haskell
 $ cat words.txt | runhaskell palindromes.hs
 not a palindrome
 palindrome
@@ -900,7 +900,7 @@ Keeping that in mind, we'll see that writing to and reading from files is very m
 We'll start off with a really simple program that opens a file called *girlfriend.txt*, which contains a verse from Avril Lavigne's #1 hit *Girlfriend*, and just prints it out to the terminal.
 Here's *girlfriend.txt*:
 
-```{.plain}
+```haskell
 Hey! Hey! You! You!
 I don't like your girlfriend!
 No way! No way!
@@ -909,7 +909,7 @@ I think you need a new one!
 
 And here's our program:
 
-```{.haskell:hs}
+```haskell
 import System.IO
 
 main = do
@@ -921,7 +921,7 @@ main = do
 
 Running it, we get the expected result:
 
-```{.plain}
+```haskell
 $ runhaskell girlfriend.hs
 Hey! Hey! You! You!
 I don't like your girlfriend!
@@ -936,23 +936,23 @@ The third line serves to emphasize that disapproval, whereas the fourth line sug
 
 Let's also go over the program line by line!
 Our program is several I/O actions glued together with a *do* block.
-In the first line of the *do* block, we notice a new function called `openFile`{.label .function}.
+In the first line of the *do* block, we notice a new function called `openFile`.
 This is its type signature: `openFile :: FilePath -> IOMode -> IO Handle`.
 If you read that out loud, it states: `openFile` takes a file path and an `IOMode` and returns an I/O action that will open a file and have the file's associated handle encapsulated as its result.
 
 `FilePath` is just a [type synonym](making-our-own-types-and-typeclasses.html#type-synonyms) for `String`, simply defined as:
 
-```{.haskell:hs}
+```haskell
 type FilePath = String
 ```
 
 `IOMode` is a type that's defined like this:
 
-```{.haskell:hs}
+```haskell
 data IOMode = ReadMode | WriteMode | AppendMode | ReadWriteMode
 ```
 
-![A FILE IN A CAKE!!!](assets/images/input-and-output/file.png){.left width=232 height=340}
+![A FILE IN A CAKE!!!](assets/images/input-and-output/file.png)
 
 Just like our type that represents the seven possible values for the days of the week, this type is an enumeration that represents what we want to do with our opened file.
 Very simple.
@@ -966,7 +966,7 @@ We'll use that handle so we know which file to read from.
 It would be stupid to read a file but not bind that read to a handle because we wouldn't be able to do anything with the file.
 So in our case, we bound the handle to `handle`.
 
-In the next line, we see a function called `hGetContents`{.label .function}.
+In the next line, we see a function called `hGetContents`.
 It takes a `Handle`, so it knows which file to get the contents from and returns an `IO String` --- an I/O action that holds as its result the contents of the file.
 This function is pretty much like `getContents`.
 The only difference is that `getContents` will automatically read from the standard input (that is from the terminal), whereas `hGetContents` takes a file handle which tells it which file to read from.
@@ -979,16 +979,16 @@ Note the difference between the handle used to identify a file and the contents 
 The handle is just something by which we know what our file is.
 If you imagine your whole file system to be a really big book and each file is a chapter in the book, the handle is a bookmark that shows where you're currently reading (or writing) a chapter, whereas the contents are the actual chapter.
 
-With `putStr contents` we just print the contents out to the standard output and then we do `hClose`{.label .function}, which takes a handle and returns an I/O action that closes the file.
+With `putStr contents` we just print the contents out to the standard output and then we do `hClose`, which takes a handle and returns an I/O action that closes the file.
 You have to close the file yourself after opening it with `openFile`!
 
-Another way of doing what we just did is to use the `withFile`{.label .function} function, which has a type signature of `withFile :: FilePath -> IOMode -> (Handle -> IO a) -> IO a`.
+Another way of doing what we just did is to use the `withFile` function, which has a type signature of `withFile :: FilePath -> IOMode -> (Handle -> IO a) -> IO a`.
 It takes a path to a file, an `IOMode` and then it takes a function that takes a handle and returns some I/O action.
 What it returns is an I/O action that will open that file, do something we want with the file and then close it.
 The result encapsulated in the final I/O action that's returned is the same as the result of the I/O action that the function we give it returns.
 This might sound a bit complicated, but it's really simple, especially with lambdas, here's our previous example rewritten to use `withFile`:
 
-```{.haskell:hs}
+```haskell
 import System.IO
 
 main = do
@@ -1004,7 +1004,7 @@ This way, `withFile` opens the file and then passes the handle to the function w
 It gets an I/O action back from that function and then makes an I/O action that's just like it, only it closes the file afterwards.
 Here's how we can make our own `withFile` function:
 
-```{.haskell:hs}
+```haskell
 withFile' :: FilePath -> IOMode -> (Handle -> IO a) -> IO a
 withFile' path mode f = do
     handle <- openFile path mode
@@ -1013,7 +1013,7 @@ withFile' path mode f = do
     return result
 ```
 
-![butter toast](assets/images/input-and-output/edd.png){.right width=246 height=360}
+![butter toast](assets/images/input-and-output/edd.png)
 
 We know the result will be an I/O action so we can just start off with a *do*.
 First we open the file and get a handle from it.
@@ -1022,7 +1022,7 @@ We bind that action to `result`, close the handle and then do `return result`.
 By `return`ing the result encapsulated in the I/O action that we got from `f`, we make it so that our I/O action encapsulates the same result as the one we got from `f handle`.
 So if `f handle` returns an action that will read a number of lines from the standard input and write them to a file and have as its result encapsulated the number of lines it read, if we used that with `withFile'`, the resulting I/O action would also have as its result the number of lines read.
 
-Just like we have `hGetContents` that works like `getContents` but for a specific file, there's also `hGetLine`{.label .function}, `hPutStr`{.label .function}, `hPutStrLn`{.label .function}, `hGetChar`{.label .function}, etc.
+Just like we have `hGetContents` that works like `getContents` but for a specific file, there's also `hGetLine`, etc.
 They work just like their counterparts without the *h*, only they take a handle as a parameter and operate on that specific file instead of operating on standard input or standard output.
 Example: `putStrLn` is a function that takes a string and returns an I/O action that will print out that string to the terminal and a newline after it.
 `hPutStrLn` takes a handle and a string and returns an I/O action that will write that string to the file associated with the handle and then put a newline after it.
@@ -1030,13 +1030,13 @@ In the same vein, `hGetLine` takes a handle and returns an I/O action that reads
 
 Loading files and then treating their contents as strings is so common that we have these three nice little functions to make our work even easier:
 
-`readFile`{.label .function} has a type signature of `readFile :: FilePath -> IO String`.
+`readFile` has a type signature of `readFile :: FilePath -> IO String`.
 Remember, `FilePath` is just a fancy name for `String`.
 `readFile` takes a path to a file and returns an I/O action that will read that file (lazily, of course) and bind its contents to something as a string.
 It's usually more handy than doing `openFile` and binding it to a handle and then doing `hGetContents`.
 Here's how we could have written our previous example with `readFile`:
 
-```{.haskell:hs}
+```haskell
 import System.IO
 
 main = do
@@ -1046,12 +1046,12 @@ main = do
 
 Because we don't get a handle with which to identify our file, we can't close it manually, so Haskell does that for us when we use `readFile`.
 
-`writeFile`{.label .function} has a type of `writeFile :: FilePath -> String -> IO ()`.
+`writeFile` has a type of `writeFile :: FilePath -> String -> IO ()`.
 It takes a path to a file and a string to write to that file and returns an I/O action that will do the writing.
 If such a file already exists, it will be stomped down to zero length before being written on.
 Here's how to turn *girlfriend.txt* into a CAPSLOCKED version and write it to *girlfriendcaps.txt*:
 
-```{.haskell:hs}
+```haskell
 import System.IO
 import Data.Char
 
@@ -1060,7 +1060,7 @@ main = do
     writeFile "girlfriendcaps.txt" (map toUpper contents)
 ```
 
-```{.plain}
+```haskell
 $ runhaskell girlfriendtocaps.hs
 $ cat girlfriendcaps.txt
 HEY! HEY! YOU! YOU!
@@ -1069,12 +1069,12 @@ NO WAY! NO WAY!
 I THINK YOU NEED A NEW ONE!
 ```
 
-`appendFile`{.label .function} has a type signature that's just like `writeFile`, only `appendFile` doesn't truncate the file to zero length if it already exists but it appends stuff to it.
+`appendFile` has a type signature that's just like `writeFile`, only `appendFile` doesn't truncate the file to zero length if it already exists but it appends stuff to it.
 
 Let's say we have a file *todo.txt* that has one task per line that we have to do.
 Now let's make a program that takes a line from the standard input and adds that to our to-do list.
 
-```{.haskell:hs}
+```haskell
 import System.IO
 
 main = do
@@ -1082,7 +1082,7 @@ main = do
     appendFile "todo.txt" (todoItem ++ "\n")
 ```
 
-```{.plain}
+```haskell
 $ runhaskell appendtodo.hs
 Iron the dishes
 $ runhaskell appendtodo.hs
@@ -1101,7 +1101,7 @@ Ooh, one more thing.
 We talked about how doing `contents <- hGetContents handle` doesn't cause the whole file to be read at once and stored in-memory.
 It's I/O lazy, so doing this:
 
-```{.haskell:hs}
+```haskell
 main = do
     withFile "something.txt" ReadMode (\handle -> do
         contents <- hGetContents handle
@@ -1130,7 +1130,7 @@ If it's `Nothing`, then the operating system determines the chunk size.
 
 Here's our previous piece of code, only it doesn't read it line by line but reads the whole file in chunks of 2048 bytes.
 
-```{.haskell:hs}
+```haskell
 main = do
     withFile "something.txt" ReadMode (\handle -> do
         hSetBuffering handle $ BlockBuffering (Just 2048)
@@ -1140,7 +1140,7 @@ main = do
 
 Reading files in bigger chunks can help if we want to minimize disk access or when our file is actually a slow network resource.
 
-We can also use `hFlush`{.label .function}, which is a function that takes a handle and returns an I/O action that will flush the buffer of the file associated with the handle.
+We can also use `hFlush`, which is a function that takes a handle and returns an I/O action that will flush the buffer of the file associated with the handle.
 When we're doing line-buffering, the buffer is flushed after every line.
 When we're doing block-buffering, it's after we've read a chunk.
 It's also flushed after closing a handle.
@@ -1161,7 +1161,7 @@ We'll be using a few new functions from `System.Directory` and one new function 
 
 Anyway, here's the program for removing an item from *todo.txt*:
 
-```{.haskell:hs}
+```haskell
 import System.IO
 import System.Directory
 import Data.List
@@ -1187,7 +1187,7 @@ main = do
 
 At first, we just open *todo.txt* in read mode and bind its handle to `handle`.
 
-Next up, we use a function that we haven't met before which is from `System.IO` --- `openTempFile`{.label .function}.
+Next up, we use a function that we haven't met before which is from `System.IO` --- `openTempFile`.
 Its name is pretty self-explanatory.
 It takes a path to a temporary directory and a template name for a file and opens a temporary file.
 We used `"."` for the temporary directory, because `.` denotes the current directory on just about any OS.
@@ -1214,15 +1214,15 @@ Remember the `delete` and `!!` functions from `Data.List`.
 We bind `todoTasks` without the first occurrence of `"Dust the dog"` to `newTodoItems` and then join that into a single string with `unlines` before writing it to the temporary file that we opened.
 The old file is now unchanged and the temporary file contains all the lines that the old one does, except the one we deleted.
 
-After that we close both the original and the temporary files and then we remove the original one with `removeFile`{.label .function}, which, as you can see, takes a path to a file and deletes it.
-After deleting the old *todo.txt*, we use `renameFile`{.label .function} to rename the temporary file to *todo.txt*.
+After that we close both the original and the temporary files and then we remove the original one with `removeFile`, which, as you can see, takes a path to a file and deletes it.
+After deleting the old *todo.txt*, we use `renameFile` to rename the temporary file to *todo.txt*.
 Be careful, `removeFile` and `renameFile` (which are both in `System.Directory` by the way) take file paths as their parameters, not handles.
 
 And that's that!
 We could have done this in even fewer lines, but we were very careful not to overwrite any existing files and politely asked the operating system to tell us where we can put our temporary file.
 Let's give this a go!
 
-```{.plain}
+```haskell
 $ runhaskell deletetodo.hs
 These are your TO-DO items:
 0 - Iron the dishes
@@ -1246,7 +1246,7 @@ $ cat todo.txt
 Take salad out of the oven
 ```
 
-## Command line arguments {#command-line-arguments}
+## Command line arguments
 
 ![COMMAND LINE ARGUMENTS!!! ARGH](assets/images/input-and-output/arguments.png){width=449 height=380 .right}
 
@@ -1268,12 +1268,12 @@ That's why it's sometimes better to have the user tell the program what they wan
 And what better way to have the user tell the program what they want it to do when they run it than via command line arguments!
 
 The `System.Environment` module has two cool I/O actions.
-One is `getArgs`{.label .function}, which has a type of `getArgs :: IO [String]` and is an I/O action that will get the arguments that the program was run with and have as its contained result a list with the arguments.
-`getProgName`{.label .function} has a type of `getProgName :: IO String` and is an I/O action that contains the program name.
+One is `getArgs`, which has a type of `getArgs :: IO [String]` and is an I/O action that will get the arguments that the program was run with and have as its contained result a list with the arguments.
+`getProgName` has a type of `getProgName :: IO String` and is an I/O action that contains the program name.
 
 Here's a small program that demonstrates how these two work:
 
-```{.haskell:hs}
+```haskell
 import System.Environment
  import Data.List
 
@@ -1291,7 +1291,7 @@ We say `The arguments are:` and then for every argument in `args`, we do `putStr
 Finally, we also print out the program name.
 Let's compile this as `arg-test`.
 
-```{.plain}
+```haskell
 $ ./arg-test first second w00t "multi word arg"
 The arguments are:
 first
@@ -1325,7 +1325,7 @@ It's going to be a simple association list that has command line arguments as ke
 All these functions will be of type `[String] -> IO ()`.
 They're going to take the argument list as a parameter and return an I/O action that does the viewing, adding, deleting, etc.
 
-```{.haskell:hs}
+```haskell
 import System.Environment
 import System.Directory
 import System.IO
@@ -1340,7 +1340,7 @@ dispatch =  [ ("add", add)
 
 We have yet to define `main`, `add`, `view` and `remove`, so let's start with `main`:
 
-```{.haskell:hs}
+```haskell
 main = do
     (command:args) <- getArgs
     let (Just action) = lookup command dispatch
@@ -1365,7 +1365,7 @@ Great!
 All that's left now is to implement `add`, `view` and `remove`.
 Let's start with `add`:
 
-```{.haskell:hs}
+```haskell
 add :: [String] -> IO ()
 add [fileName, todoItem] = appendFile fileName (todoItem ++ "\n")
 ```
@@ -1377,7 +1377,7 @@ Next, let's implement the list viewing functionality.
 If we want to view the items in a file, we do `todo view todo.txt`.
 So in the first pattern match, `command` will be `"view"` and `args` will be `["todo.txt"]`.
 
-```{.haskell:hs}
+```haskell
 view :: [String] -> IO ()
 view [fileName] = do
     contents <- readFile fileName
@@ -1393,7 +1393,7 @@ It's going to be very similar to the program that only deleted the tasks, so if 
 The main difference is that we're not hardcoding *todo.txt* but getting it as an argument.
 We're also not prompting the user for the task number to delete, we're getting it as an argument.
 
-```{.haskell:hs}
+```haskell
 remove :: [String] -> IO ()
 remove [fileName, numberString] = do
     handle <- openFile fileName ReadMode
@@ -1413,7 +1413,7 @@ We opened up the file based on `fileName` and opened a temporary file, deleted t
 
 Here's the whole program at once, in all its glory!
 
-```{.haskell:hs}
+```haskell
 import System.Environment
 import System.Directory
 import System.IO
@@ -1455,7 +1455,7 @@ remove [fileName, numberString] = do
     renameFile tempName fileName
 ```
 
-![fresh baked salad](assets/images/input-and-output/salad.png){.left width=143 height=200}
+![fresh baked salad](assets/images/input-and-output/salad.png)
 
 To summarize our solution: we made a dispatch association that maps from commands to functions that take some command line arguments and return an I/O action.
 We see what the command is and based on that we get the appropriate function from the dispatch list.
@@ -1465,7 +1465,7 @@ In other languages, we might have implemented this with a big switch case statem
 
 Let's try our app out!
 
-```{.plain}
+```haskell
 $ ./todo view todo.txt
 0 - Iron the dishes
 1 - Dust the dog
@@ -1494,7 +1494,7 @@ As an exercise, you can try implementing a `bump` function that will take a file
 You could make this program fail a bit more gracefully in case of bad input (for example, if someone runs `todo UP YOURS HAHAHAHA`) by making an I/O action that just reports there has been an error (say, `errorExit :: IO ()`) and then check for possible erroneous input and if there is erroneous input, perform the error reporting I/O action.
 Another way is to use exceptions, which we will meet soon.
 
-## Randomness {#randomness}
+## Randomness
 
 ![this picture is the ultimate source of randomness and wackiness](assets/images/input-and-output/random.png){width=358 height=362 .right}
 
@@ -1516,7 +1516,7 @@ All that matters are its results.
 However, this makes it a bit tricky for getting random numbers.
 If I have a function like this:
 
-```{.haskell:hs}
+```haskell
 randomNumber :: (Num a) => a
 randomNumber = 4
 ```
@@ -1532,12 +1532,12 @@ So in Haskell, we can make a random number then if we make a function that takes
 
 Enter the `System.Random` module.
 It has all the functions that satisfy our need for randomness.
-Let's just dive into one of the functions it exports then, namely `random`{.label .function}.
+Let's just dive into one of the functions it exports then, namely `random`.
 Here's its type: `random :: (RandomGen g, Random a) => g -> (a, g)`.
 Whoa!
 Some new typeclasses in this type declaration up in here!
-The `RandomGen`{.label .class} typeclass is for types that can act as sources of randomness.
-The `Random`{.label .class} typeclass is for things that can take on random values.
+The `RandomGen` typeclass is for types that can act as sources of randomness.
+The `Random` typeclass is for things that can take on random values.
 A boolean value can take on a random value, namely `True` or `False`.
 A number can also take up a plethora of different random values.
 Can a function take on a random value?
@@ -1547,19 +1547,19 @@ Why does it also return a new generator as well as a random value?
 Well, we'll see in a moment.
 
 To use our `random` function, we have to get our hands on one of those random generators.
-The `System.Random` module exports a cool type, namely `StdGen`{.label .type} that is an instance of the `RandomGen` typeclass.
+The `System.Random` module exports a cool type, namely `StdGen` that is an instance of the `RandomGen` typeclass.
 We can either make a `StdGen` manually or we can tell the system to give us one based on a multitude of sort of random stuff.
 
-To manually make a random generator, use the `mkStdGen`{.label .function} function.
+To manually make a random generator, use the `mkStdGen` function.
 It has a type of `mkStdGen :: Int -> StdGen`.
 It takes an integer and based on that, gives us a random generator.
 Okay then, let's try using `random` and `mkStdGen` in tandem to get a (hardly random) number.
 
-```{.haskell:hs}
+```haskell
 ghci> random (mkStdGen 100)
 ```
 
-```{.plain}
+```haskell
 <interactive>:1:0:
     Ambiguous type variable `a' in the constraint:
       `Random a' arising from a use of `random' at <interactive>:1:0-20
@@ -1570,7 +1570,7 @@ What's this?
 Ah, right, the `random` function can return a value of any type that's part of the `Random` typeclass, so we have to inform Haskell what kind of type we want.
 Also let's not forget that it returns a random value and a random generator in a pair.
 
-```{.haskell:hs}
+```haskell
 ghci> random (mkStdGen 100) :: (Int, StdGen)
 (-1352021624,651872571 1655838864)
 ```
@@ -1580,7 +1580,7 @@ A number that looks kind of random!
 The first component of the tuple is our number whereas the second component is a textual representation of our new random generator.
 What happens if we call `random` with the same random generator again?
 
-```{.haskell:hs}
+```haskell
 ghci> random (mkStdGen 100) :: (Int, StdGen)
 (-1352021624,651872571 1655838864)
 ```
@@ -1589,7 +1589,7 @@ Of course.
 The same result for the same parameters.
 So let's try giving it a different random generator as a parameter.
 
-```{.haskell:hs}
+```haskell
 ghci> random (mkStdGen 949494) :: (Int, StdGen)
 (539963926,466647808 1655838864)
 ```
@@ -1597,7 +1597,7 @@ ghci> random (mkStdGen 949494) :: (Int, StdGen)
 Alright, cool, great, a different number.
 We can use the type annotation to get different types back from that function.
 
-```{.haskell:hs}
+```haskell
 ghci> random (mkStdGen 949488) :: (Float, StdGen)
 (0.8938442,1597344447 1655838864)
 ghci> random (mkStdGen 949488) :: (Bool, StdGen)
@@ -1614,7 +1614,7 @@ So this is where `random` returning a new generator along with a value really co
 We'll represent a coin with a simple `Bool`.
 `True` is tails, `False` is heads.
 
-```{.haskell:hs}
+```haskell
 threeCoins :: StdGen -> (Bool, Bool, Bool)
 threeCoins gen =
     let (firstCoin, newGen) = random gen
@@ -1628,7 +1628,7 @@ Then we call it again, only this time with our new generator, to get the second 
 We do the same for the third coin.
 Had we called it with the same generator every time, all the coins would have had the same value and we'd only be able to get `(False, False, False)` or `(True, True, True)` as a result.
 
-```{.haskell:hs}
+```haskell
 ghci> threeCoins (mkStdGen 21)
 (True,True,True)
 ghci> threeCoins (mkStdGen 22)
@@ -1645,9 +1645,9 @@ That's why Haskell can infer that we want a boolean value in this case.
 
 So what if we want to flip four coins?
 Or five?
-Well, there's a function called `randoms`{.label .function} that takes a generator and returns an infinite sequence of values based on that generator.
+Well, there's a function called `randoms` that takes a generator and returns an infinite sequence of values based on that generator.
 
-```{.haskell:hs}
+```haskell
 ghci> take 5 $ randoms (mkStdGen 11) :: [Int]
 [-1807975507,545074951,-1015194702,-1622477312,-502893664]
 ghci> take 5 $ randoms (mkStdGen 11) :: [Bool]
@@ -1659,7 +1659,7 @@ ghci> take 5 $ randoms (mkStdGen 11) :: [Float]
 Why doesn't `randoms` return a new generator as well as a list?
 We could implement the `randoms` function very easily like this:
 
-```{.haskell:hs}
+```haskell
 randoms' :: (RandomGen g, Random a) => g -> [a]
 randoms' gen = let (value, newGen) = random gen in value:randoms' newGen
 ```
@@ -1670,7 +1670,7 @@ Because we have to be able to potentially generate an infinite amount of numbers
 
 We could make a function that generates a finite stream of numbers and a new generator like this:
 
-```{.haskell:hs}
+```haskell
 finiteRandoms :: (RandomGen g, Random a, Num n) => n -> g -> ([a], g)
 finiteRandoms 0 gen = ([], gen)
 finiteRandoms n gen =
@@ -1689,20 +1689,20 @@ Then we return the head and the rest of the list joined and the final generator 
 What if we want a random value in some sort of range?
 All the random integers so far were outrageously big or small.
 What if we want to throw a die?
-Well, we use `randomR`{.label .function} for that purpose.
+Well, we use `randomR` for that purpose.
 It has a type of `randomR :: (RandomGen g, Random a) :: (a, a) -> g -> (a, g)`, meaning that it's kind of like `random`, only it takes as its first parameter a pair of values that set the lower and upper bounds and the final value produced will be within those bounds.
 
-```{.haskell:hs}
+```haskell
 ghci> randomR (1,6) (mkStdGen 359353)
 (6,1494289578 40692)
 ghci> randomR (1,6) (mkStdGen 35935335)
 (3,1250031057 40692)
 ```
 
-There's also `randomRs`{.label .function}, which produces a stream of random values within our defined ranges.
+There's also `randomRs`, which produces a stream of random values within our defined ranges.
 Check this out:
 
-```{.haskell:hs}
+```haskell
 ghci> take 10 $ randomRs ('a','z') (mkStdGen 3) :: [Char]
 "ndkxbvmomg"
 ```
@@ -1713,13 +1713,13 @@ You may be asking yourself, what does this section have to do with I/O anyway?
 We haven't done anything concerning I/O so far.
 Well, so far we've always made our random number generator manually by making it with some arbitrary integer.
 The problem is, if we do that in our real programs, they will always return the same random numbers, which is no good for us.
-That's why `System.Random` offers the `getStdGen`{.label .function} I/O action, which has a type of `IO StdGen`.
+That's why `System.Random` offers the `getStdGen` I/O action, which has a type of `IO StdGen`.
 When your program starts, it asks the system for a good random number generator and stores that in a so-called global generator.
 `getStdGen` fetches you that global random generator when you bind it to something.
 
 Here's a simple program that generates a random string.
 
-```{.haskell:hs}
+```haskell
 import System.Random
 
 main = do
@@ -1727,7 +1727,7 @@ main = do
     putStr $ take 20 (randomRs ('a','z') gen)
 ```
 
-```{.plain}
+```haskell
 $ runhaskell random_string.hs
 pybphhzzhuepknbykxhe
 $ runhaskell random_string.hs
@@ -1741,7 +1741,7 @@ bakzhnnuzrkgvesqplrx
 Be careful though, just performing `getStdGen` twice will ask the system for the same global generator twice.
 If you do this:
 
-```{.haskell:hs}
+```haskell
 import System.Random
 
 main = do
@@ -1755,7 +1755,7 @@ you will get the same string printed out twice!
 One way to get two different strings of length 20 is to set up an infinite stream and then take the first 20 characters and print them out in one line and then take the second set of 20 characters and print them out in the second line.
 For this, we can use the `splitAt` function from `Data.List`, which splits a list at some index and returns a tuple that has the first part as the first component and the second part as the second component.
 
-```{.haskell:hs}
+```haskell
 import System.Random
 import Data.List
 
@@ -1768,10 +1768,10 @@ main = do
     putStr second20
 ```
 
-Another way is to use the `newStdGen`{.label .function} action, which splits our current random generator into two generators.
+Another way is to use the `newStdGen` action, which splits our current random generator into two generators.
 It updates the global random generator with one of them and encapsulates the other as its result.
 
-```{.haskell:hs}
+```haskell
 import System.Random
 
 main = do
@@ -1785,7 +1785,7 @@ Not only do we get a new random generator when we bind `newStdGen` to something,
 
 Here's a little program that will make the user guess which number it's thinking of.
 
-```{.haskell:hs}
+```haskell
 import System.Random
 import Control.Monad(when)
 
@@ -1806,7 +1806,7 @@ askForNumber gen = do
         askForNumber newGen
 ```
 
-![jack of diamonds](assets/images/input-and-output/jackofdiamonds.png){.left width=313 height=280}
+![jack of diamonds](assets/images/input-and-output/jackofdiamonds.png)
 
 We make a function `askForNumber`, which takes a random number generator and returns an I/O action that will prompt the user for a number and tell him if he guessed it right.
 In that function, we first generate a random number and a new generator based on the generator that we got as a parameter and call them `randNumber` and `newGen`.
@@ -1819,10 +1819,10 @@ If it is, an empty I/O action of `return ()` is performed, which effectively end
 If it isn't, the action consisting of that *do* block right there gets performed.
 We use `read` on `numberString` to convert it to a number, so `number` is now `7`.
 
-::: {.hintbox}
+:::
 **Excuse me!**
 If the user gives us some input here that `read` can't read (like `"haha"`), our program will crash with an ugly error message.
-If you don't want your program to crash on erroneous input, use `reads`{.label .function}, which returns an empty list when it fails to read a string.
+If you don't want your program to crash on erroneous input, use `reads`, which returns an empty list when it fails to read a string.
 When it succeeds, it returns a singleton list with a tuple that has our desired value as one component and a string with what it didn't consume as the other.
 :::
 
@@ -1833,7 +1833,7 @@ And then we call `askForNumber` recursively, only this time with the new generat
 
 Here's our program in action!
 
-```{.plain}
+```haskell
 $ runhaskell guess_the_number.hs
 Which number in the range from 1 to 10 am I thinking of? 4
 Sorry, it was 3
@@ -1848,7 +1848,7 @@ Which number in the range from 1 to 10 am I thinking of?
 
 Another way to make this same program is like this:
 
-```{.haskell:hs}
+```haskell
 import System.Random
 import Control.Monad(when)
 
@@ -1870,9 +1870,9 @@ It's very similar to the previous version, only instead of making a function tha
 After telling the user whether they were correct in their guess or not, we update the global generator and then call `main` again.
 Both approaches are valid but I like the first one more since it does less stuff in `main` and also provides us with a function that we can reuse easily.
 
-## Bytestrings {#bytestrings}
+## Bytestrings
 
-![like normal string, only they byte ... what a pedestrian pun this is](assets/images/input-and-output/chainchomp.png){.right width=306 height=390}
+![like normal string, only they byte ... what a pedestrian pun this is](assets/images/input-and-output/chainchomp.png)
 
 Lists are a cool and useful data structure.
 So far, we've used them pretty much everywhere.
@@ -1919,7 +1919,7 @@ If you look through the [documentation](https://hackage.haskell.org/package/byte
 The functions with the same names mostly act the same as the ones that work on lists.
 Because the names are the same, we're going to do a qualified import in a script and then load that script into GHCI to play with bytestrings.
 
-```{.haskell:hs}
+```haskell
 import qualified Data.ByteString.Lazy as B
 import qualified Data.ByteString as S
 ```
@@ -1927,7 +1927,7 @@ import qualified Data.ByteString as S
 `B` has lazy bytestring types and functions, whereas `S` has strict ones.
 We'll mostly be using the lazy version.
 
-The function `pack`{.function .label} has the type signature `pack :: [Word8] -> ByteString`.
+The function `pack` has the type signature `pack :: [Word8] -> ByteString`.
 What that means is that it takes a list of bytes of type `Word8` and returns a `ByteString`.
 You can think of it as taking a list, which is lazy, and making it less lazy, so that it's lazy only at 32 KiB intervals.
 
@@ -1938,7 +1938,7 @@ And just like `Int`, it's in the `Num` typeclass.
 For instance, we know that the value `5` is polymorphic in that it can act like any numeral type.
 Well, it can also take the type of `Word8`.
 
-```{.haskell:hs}
+```haskell
 ghci> B.pack [99,97,110]
 Chunk "can" Empty
 ghci> B.pack [98..120]
@@ -1951,24 +1951,24 @@ If you try to use a big number, like `336` as a `Word8`, it will just wrap aroun
 We packed only a handful of values into a `ByteString`, so they fit inside one chunk.
 The `Empty` is like the `[]` for lists.
 
-`unpack`{.label .function} is the inverse function of `pack`.
+`unpack` is the inverse function of `pack`.
 It takes a bytestring and turns it into a list of bytes.
 
-`fromChunks`{.label .function} takes a list of strict bytestrings and converts it to a lazy bytestring.
-`toChunks`{.label .function} takes a lazy bytestring and converts it to a list of strict ones.
+`fromChunks` takes a list of strict bytestrings and converts it to a lazy bytestring.
+`toChunks` takes a lazy bytestring and converts it to a list of strict ones.
 
-```{.haskell:hs}
+```haskell
 ghci> B.fromChunks [S.pack [40,41,42], S.pack [43,44,45], S.pack [46,47,48]]
 Chunk "()*" (Chunk "+,-" (Chunk "./0" Empty))
 ```
 
 This is good if you have a lot of small strict bytestrings and you want to process them efficiently without joining them into one big strict bytestring in memory first.
 
-The bytestring version of `:` is called `cons`{.label .function} It takes a byte and a bytestring and puts the byte at the beginning.
+The bytestring version of `:` is called `cons` It takes a byte and a bytestring and puts the byte at the beginning.
 It's lazy though, so it will make a new chunk even if the first chunk in the bytestring isn't full.
-That's why it's better to use the strict version of `cons`, `cons'`{.label .function} if you're going to be inserting a lot of bytes at the beginning of a bytestring.
+That's why it's better to use the strict version of `cons`, `cons'` if you're going to be inserting a lot of bytes at the beginning of a bytestring.
 
-```{.haskell:hs}
+```haskell
 ghci> B.cons 85 $ B.pack [80,81,82,84]
 Chunk "U" (Chunk "PQRT" Empty)
 ghci> B.cons' 85 $ B.pack [80,81,82,84]
@@ -1980,7 +1980,7 @@ ghci> foldr B.cons' B.empty [50..60]
 Chunk "23456789:;<" Empty
 ```
 
-As you can see, `empty`{.label .function} makes an empty bytestring.
+As you can see, `empty` makes an empty bytestring.
 See the difference between `cons` and `cons'`?
 With the `foldr`, we started with an empty bytestring and then went over the list of numbers from the right, adding each number to the beginning of the bytestring.
 When we used `cons`, we ended up with one chunk for every byte, which kind of defeats the purpose.
@@ -1988,14 +1988,14 @@ When we used `cons`, we ended up with one chunk for every byte, which kind of de
 Otherwise, the bytestring modules have a load of functions that are analogous to those in `Data.List`, including, but not limited to, `head`, `tail`, `init`, `null`, `length`, `map`, `reverse`, `foldl`, `foldr`, `concat`, `takeWhile`, `filter`, etc.
 
 It also has functions that have the same name and behave the same as some functions found in `System.IO`, only `String`s are replaced with `ByteString`s.
-For instance, the `readFile` function in `System.IO` has a type of `readFile :: FilePath -> IO String`, while the `readFile`{.label .function} from the bytestring modules has a type of `readFile :: FilePath -> IO ByteString`.
+For instance, the `readFile` function in `System.IO` has a type of `readFile :: FilePath -> IO String`, while the `readFile` from the bytestring modules has a type of `readFile :: FilePath -> IO ByteString`.
 Watch out, if you're using strict bytestrings and you attempt to read a file, it will read it into memory at once!
 With lazy bytestrings, it will read it into neat chunks.
 
 Let's make a simple program that takes two filenames as command-line arguments and copies the first file into the second file.
 Note that `System.Directory` already has a function called `copyFile`, but we're going to implement our own file copying function and program anyway.
 
-```{.haskell:hs}
+```haskell
 import System.Environment
 import qualified Data.ByteString.Lazy as B
 
@@ -2012,7 +2012,7 @@ copyFile source dest = do
 We make our own function that takes two `FilePath`s (remember, `FilePath` is just a synonym for `String`) and returns an I/O action that will copy one file into another using bytestring.
 In the `main` function, we just get the arguments and call our function with them to get the I/O action, which is then performed.
 
-```{.plain}
+```haskell
 $ runhaskell bytestringcopy.hs something.txt ../../something.txt
 ```
 
@@ -2023,9 +2023,9 @@ Sometimes, you have to convert functions that you wrote to work on strings so th
 Whenever you need better performance in a program that reads a lot of data into strings, give bytestrings a try, chances are you'll get some good performance boosts with very little effort on your part.
 I usually write programs by using normal strings and then convert them to use bytestrings if the performance is not satisfactory.
 
-## Exceptions {#exceptions}
+## Exceptions
 
-![timberr!!!!](assets/images/input-and-output/timber.png){.left width=308 height=394}
+![timberr!!!!](assets/images/input-and-output/timber.png)
 
 All languages have procedures, functions, and pieces of code that might fail in some way.
 That's just a fact of life.
@@ -2058,7 +2058,7 @@ They have types of `(Integral a) => a -> a -> a` and `[a] -> a`, respectively.
 No `Maybe` or `Either` in their return type and yet they can both fail!
 `div` explodes in your face if you try to divide by zero and `head` throws a tantrum when you give it an empty list.
 
-```{.haskell:hs}
+```haskell
 ghci> 4 `div` 0
 *** Exception: divide by zero
 ghci> head []
@@ -2089,7 +2089,7 @@ I/O exceptions are exceptions that are caused when something goes wrong while we
 For example, we can try opening a file and then it turns out that the file has been deleted or something.
 Take a look at this program that opens a file whose name is given to it as a command line argument and tells us how many lines the file has.
 
-```{.haskell:hs}
+```haskell
 import System.Environment
 import System.IO
 
@@ -2104,7 +2104,7 @@ Then we call the contents of the file with that name `contents`.
 Lastly, we apply `lines` to those contents to get a list of lines and then we get the length of that list and give it to `show` to get a string representation of that number.
 It works as expected, but what happens when we give it the name of a file that doesn't exist?
 
-```{.plain}
+```haskell
 $ runhaskell linecount.hs i_dont_exist.txt
 linecount.hs: i_dont_exist.txt: openFile: does not exist (No such file or directory)
 ```
@@ -2112,9 +2112,9 @@ linecount.hs: i_dont_exist.txt: openFile: does not exist (No such file or direct
 Aha, we get an error from GHC, telling us that the file does not exist.
 Our program crashes.
 What if we wanted to print out a nicer message if the file doesn't exist?
-One way to do that is to check if the file exists before trying to open it by using the `doesFileExist`{.label .function} function from `System.Directory`.
+One way to do that is to check if the file exists before trying to open it by using the `doesFileExist` function from `System.Directory`.
 
-```{.haskell:hs}
+```haskell
 import System.Environment
 import System.IO
 import System.Directory
@@ -2134,7 +2134,7 @@ Another solution here would be to use exceptions.
 It's perfectly acceptable to use them in this context.
 A file not existing is an exception that arises from I/O, so catching it in I/O is fine and dandy.
 
-To deal with this by using exceptions, we're going to take advantage of the `catch`{.label .function} function from `System.IO.Error`.
+To deal with this by using exceptions, we're going to take advantage of the `catch` function from `System.IO.Error`.
 Its type is `catch :: IO a -> (IOError -> IO a) -> IO a`.
 It takes two parameters.
 The first one is an I/O action.
@@ -2143,7 +2143,7 @@ The second one is the so-called handler.
 If the first I/O action passed to `catch` throws an I/O exception, that exception gets passed to the handler, which then decides what to do.
 So the final result is an I/O action that will either act the same as the first parameter or it will do what the handler tells it if the first I/O action throws an exception.
 
-![non sequitor](assets/images/input-and-output/puppy.png){.right width=334 height=240}
+![non sequitor](assets/images/input-and-output/puppy.png)
 
 If you're familiar with *try-catch* blocks in languages like Java or Python, the `catch` function is similar to them.
 The first parameter is the thing to try, kind of like the stuff in the *try* block in other, imperative languages.
@@ -2157,7 +2157,7 @@ We can use a bunch of useful predicates to find out stuff about values of type `
 
 So let's put our new friend `catch` to use!
 
-```{.haskell:hs}
+```haskell
 import System.Environment
 import System.IO
 import System.IO.Error
@@ -2180,7 +2180,7 @@ So ``toTry `catch` handler`` is the same as `catch toTry handler`, which fits we
 
 Let's give this a go:
 
-```{.plain}
+```haskell
 $ runhaskell count_lines.hs i_exist.txt
 The file has 3 lines!
 
@@ -2197,7 +2197,7 @@ If it's the kind of exception we're waiting to catch, we do our stuff.
 If it's not, we throw that exception back into the wild.
 Let's modify our program to catch only the exceptions caused by a file not existing.
 
-```{.haskell:hs}
+```haskell
 import System.Environment
 import System.IO
 import System.IO.Error
@@ -2216,7 +2216,7 @@ handler e
 ```
 
 Everything stays the same except the handler, which we modified to only catch a certain group of I/O exceptions.
-Here we used two new functions from `System.IO.Error` --- `isDoesNotExistError`{.label .function} and `ioError`{.label .function}.
+Here we used two new functions from `System.IO.Error` --- `isDoesNotExistError`.
 `isDoesNotExistError` is a predicate over `IOError`s, which means that it's a function that takes an `IOError` and returns a `True` or `False`, meaning it has a type of `isDoesNotExistError :: IOError -> Bool`.
 We use it on the exception that gets passed to our handler to see if it's an error caused by a file not existing.
 We use [guard](syntax-in-functions.html#guards-guards) syntax here, but we could have also used an *if else*.
@@ -2230,22 +2230,22 @@ Pretty cool, huh?
 There are several predicates that act on `IOError` and if a guard doesn't evaluate to `True`, evaluation falls through to the next guard.
 The predicates that act on `IOError` are:
 
-* `isAlreadyExistsError`{.function .label}
-* `isDoesNotExistError`{.function .label}
-* `isAlreadyInUseError`{.function .label}
-* `isFullError`{.function .label}
-* `isEOFError`{.function .label}
-* `isIllegalOperation`{.function .label}
-* `isPermissionError`{.function .label}
-* `isUserError`{.function .label}
+* `isAlreadyExistsError`
+* `isDoesNotExistError`
+* `isAlreadyInUseError`
+* `isFullError`
+* `isEOFError`
+* `isIllegalOperation`
+* `isPermissionError`
+* `isUserError`
 
 Most of these are pretty self-explanatory.
-`isUserError` evaluates to `True` when we use the function `userError`{.label .function} to make the exception, which is used for making exceptions from our code and equipping them with a string.
+`isUserError` evaluates to `True` when we use the function `userError` to make the exception, which is used for making exceptions from our code and equipping them with a string.
 For instance, you can do `ioError $ userError "remote computer unplugged!"`, although it's preferred you use types like `Either` and `Maybe` to express possible failure instead of throwing exceptions yourself with `userError`.
 
 So you could have a handler that looks something like this:
 
-```{.haskell:hs}
+```haskell
 handler :: IOError -> IO ()
 handler e
     | isDoesNotExistError e = putStrLn "The file doesn't exist!"
@@ -2262,12 +2262,12 @@ These start with `ioe` and you can see a [full list of them](https://hackage.has
 Say we want to print the filename that caused our error.
 We can't print the `fileName` that we got from `getArgs`, because only the `IOError` is passed to the handler and the handler doesn't know about anything else.
 A function depends only on the parameters it was called with.
-That's why we can use the `ioeGetFileName`{.label .function} function, which has a type of `ioeGetFileName :: IOError -> Maybe FilePath`.
+That's why we can use the `ioeGetFileName` function, which has a type of `ioeGetFileName :: IOError -> Maybe FilePath`.
 It takes an `IOError` as a parameter and maybe returns a `FilePath` (which is just a type synonym for `String`, remember, so it's kind of the same thing).
 Basically, what it does is it extracts the file path from the `IOError`, if it can.
 Let's modify our program to print out the file path that's responsible for the exception occurring.
 
-```{.haskell:hs}
+```haskell
 import System.Environment
 import System.IO
 import System.IO.Error
@@ -2293,7 +2293,7 @@ Using *case* expressions is commonly used when you want to pattern match against
 You don't have to use one handler to `catch` exceptions in your whole I/O part.
 You can just cover certain parts of your I/O code with `catch` or you can cover several of them with `catch` and use different handlers for them, like so:
 
-```{.haskell:hs}
+```haskell
 main = do toTry `catch` handler1
           thenTryThis `catch` handler2
           launchRockets

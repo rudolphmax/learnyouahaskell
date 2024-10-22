@@ -1,6 +1,6 @@
 # Higher Order Functions {style=margin-left:-3px}
 
-![sun](assets/images/higher-order-functions/sun.png){.right width=203 height=183}
+![sun](assets/images/higher-order-functions/sun.png)
 
 Haskell functions can take functions as parameters and return functions as return values.
 A function that does either of those is called a higher order function.
@@ -8,7 +8,7 @@ Higher order functions aren't just a part of the Haskell experience, they pretty
 It turns out that if you want to define computations by defining what stuff *is* instead of defining steps that change some state and maybe looping them, higher order functions are indispensable.
 They're a really powerful way of solving problems and thinking about programs.
 
-## Curried functions {#curried-functions}
+## Curried functions
 
 Every function in Haskell officially only takes one parameter.
 So how is it possible that we defined and used several functions that take more than one parameter so far?
@@ -23,14 +23,14 @@ Then, `5` is applied to that function and that function produces our desired res
 That sounds like a mouthful but it's actually a really cool concept.
 The following two calls are equivalent:
 
-```{.haskell:ghci}
+```haskell
 ghci> max 4 5
 5
 ghci> (max 4) 5
 5
 ```
 
-![haskell curry](assets/images/higher-order-functions/curry.png){.left width=160 height=238}
+![haskell curry](assets/images/higher-order-functions/curry.png)
 
 Putting a space between two things is simply **function application**.
 The space is sort of like an operator and it has the highest precedence.
@@ -46,7 +46,7 @@ Using partial application (calling functions with too few parameters, if you wil
 
 Take a look at this offensively simple function:
 
-```{.haskell:ghci}
+```haskell
 multThree :: (Num a) => a -> a -> a -> a
 multThree x y z = x * y * z
 ```
@@ -63,7 +63,7 @@ Similarly, this function takes an `a` and returns a function of type `(Num a) =>
 And this function, finally, just takes an `a` and returns an `a`.
 Take a look at this:
 
-```{.haskell:ghci}
+```haskell
 ghci> let multTwoWithNine = multThree 9
 ghci> multTwoWithNine 2 3
 54
@@ -76,7 +76,7 @@ By calling functions with too few parameters, so to speak, we're creating new fu
 What if we wanted to create a function that takes a number and compares it to `100`?
 We could do something like this:
 
-```{.haskell:hs}
+```haskell
 compareWithHundred :: (Num a, Ord a) => a -> Ordering
 compareWithHundred x = compare 100 x
 ```
@@ -90,7 +90,7 @@ Wow!
 Isn't that the function we wanted?
 We can rewrite this as:
 
-```{.haskell:hs}
+```haskell
 compareWithHundred :: (Num a, Ord a) => a -> Ordering
 compareWithHundred = compare 100
 ```
@@ -99,7 +99,7 @@ The type declaration stays the same, because `compare 100` returns a function.
 Compare has a type of `(Ord a) => a -> (a -> Ordering)` and calling it with `100` returns a `(Num a, Ord a) => a -> Ordering`.
 The additional class constraint sneaks up there because `100` is also part of the `Num` typeclass.
 
-::: {.hintbox}
+:::
 **Yo!**
 Make sure you really understand how curried functions and partial application work because they're really important!
 :::
@@ -109,7 +109,7 @@ To section an infix function, simply surround it with parentheses and only suppl
 That creates a function that takes one parameter and then applies it to the side that's missing an operand.
 An insultingly trivial function:
 
-```{.haskell:hs}
+```haskell
 divideByTen :: (Floating a) => a -> a
 divideByTen = (/10)
 ```
@@ -117,7 +117,7 @@ divideByTen = (/10)
 Calling, say, `divideByTen 200` is equivalent to doing `200 / 10`, as is doing `(/10) 200`.
 A function that checks if a character supplied to it is an uppercase letter:
 
-```{.haskell:hs}
+```haskell
 isUpperAlphanum :: Char -> Bool
 isUpperAlphanum = (`elem` ['A'..'Z'])
 ```
@@ -129,7 +129,7 @@ So if you want to make a function that subtracts 4 from the number it gets as a 
 
 What happens if we try to just do `multThree 3 4` in GHCI instead of binding it to a name with a *let* or passing it to another function?
 
-```{.haskell:hs}
+```haskell
 ghci> multThree 3 4
 <interactive>:1:1: error: [GHC-39999]
     • No instance for ‘Show (a0 -> a0)’ arising from a use of ‘print’
@@ -142,17 +142,17 @@ Functions aren't instances of the `Show` typeclass, so we can't get a neat strin
 When we do, say, `1 + 1` at the GHCI prompt, it first calculates that to `2` and then calls `show` on `2` to get a textual representation of that number.
 And the textual representation of `2` is just the string `"2"`, which then gets printed to our screen.
 
-## Some higher-orderism is in order {#higher-orderism}
+## Some higher-orderism is in order
 
 Functions can take functions as parameters and also return functions.
 To illustrate this, we're going to make a function that takes a function and then applies it twice to something!
 
-```{.haskell:hs}
+```haskell
 applyTwice :: (a -> a) -> a -> a
 applyTwice f x = f (f x)
 ```
 
-![rocktopus](assets/images/higher-order-functions/bonus.png){.right width=166 height=190}
+![rocktopus](assets/images/higher-order-functions/bonus.png)
 
 First of all, notice the type declaration.
 Before, we didn't need parentheses because `->` is naturally right-associative.
@@ -164,7 +164,7 @@ The first parameter is a function (of type `a -> a`) and the second is that same
 The function can also be `Int -> Int` or `String -> String` or whatever.
 But then, the second parameter to also has to be of that type.
 
-::: {.hintbox}
+:::
 **Note:** From now on, we'll say that functions take several parameters despite each function actually taking only one parameter and returning partially applied functions until we reach a function that returns a solid value.
 So for simplicity's sake, we'll say that `a -> a -> a` takes two parameters, even though we know what's really going on under the hood.
 :::
@@ -173,7 +173,7 @@ The body of the function is pretty simple.
 We just use the parameter `f` as a function, applying `x` to it by separating them with a space and then applying the result to `f` again.
 Anyway, playing around with the function:
 
-```{.haskell:hs}
+```haskell
 ghci> applyTwice (+3) 10
 16
 ghci> applyTwice (++ " HAHA") "HEY"
@@ -194,7 +194,7 @@ It's called `zipWith`.
 It takes a function and two lists as parameters and then joins the two lists by applying the function between corresponding elements.
 Here's how we'll implement it:
 
-```{.haskell:hs}
+```haskell
 zipWith' :: (a -> b -> c) -> [a] -> [b] -> [c]
 zipWith' _ [] _ = []
 zipWith' _ _ [] = []
@@ -218,7 +218,7 @@ And function body at the last pattern is also similar to `zip`, only it doesn't 
 A single higher order function can be used for a multitude of different tasks if it's general enough.
 Here's a little demonstration of all the different things our `zipWith'` function can do:
 
-```{.haskell:ghci}
+```haskell
 ghci> zipWith' (+) [4,2,5,6] [2,6,2,3]
 [6,8,7,9]
 ghci> zipWith' max [6,3,2,1] [7,3,1,5]
@@ -239,7 +239,7 @@ We'll implement another function that's already in the standard library, called 
 Flip simply takes a function and returns a function that is like our original function, only the first two arguments are flipped.
 We can implement it like so:
 
-```{.haskell:hs}
+```haskell
 flip' :: (a -> b -> c) -> (b -> a -> c)
 flip' f = g
     where g x y = f y x
@@ -252,7 +252,7 @@ We wrote that `g x y = f y x`.
 If that's true, then `f y x = g x y` must also hold, right?
 Keeping that in mind, we can define this function in an even simpler manner.
 
-```{.haskell:hs}
+```haskell
 flip' :: (a -> b -> c) -> b -> a -> c
 flip' f y x = f x y
 ```
@@ -261,19 +261,19 @@ Here, we take advantage of the fact that functions are curried.
 When we call `flip' f` without the parameters `y` and `x`, it will return an `f` that takes those two parameters but calls them flipped.
 Even though flipped functions are usually passed to other functions, we can take advantage of currying when making higher-order functions by thinking ahead and writing what their end result would be if they were called fully applied.
 
-```{.haskell:ghci}
+```haskell
 ghci> flip' zip [1,2,3,4,5] "hello"
 [('h',1),('e',2),('l',3),('l',4),('o',5)]
 ghci> zipWith (flip' div) [2,2..] [10,8,6,4,2]
 [5,4,3,2,1]
 ```
 
-## Maps and filters {#maps-and-filters}
+## Maps and filters
 
-`map`{.function .label} takes a function and a list and applies that function to every element in the list, producing a new list.
+`map` takes a function and a list and applies that function to every element in the list, producing a new list.
 Let's see what its type signature is and how it's defined.
 
-```{.haskell:hs}
+```haskell
 map :: (a -> b) -> [a] -> [b]
 map _ [] = []
 map f (x:xs) = f x : map f xs
@@ -284,7 +284,7 @@ It's interesting that just by looking at a function's type signature, you can so
 `map` is one of those really versatile higher-order functions that can be used in millions of different ways.
 Here it is in action:
 
-```{.haskell:ghci}
+```haskell
 ghci> map (+3) [1,5,3,1,6]
 [4,8,6,4,9]
 ghci> map (++ "!") ["BIFF", "BANG", "POW"]
@@ -301,10 +301,10 @@ You've probably noticed that each of these could be achieved with a list compreh
 `map (+3) [1,5,3,1,6]` is the same as writing `[x+3 | x <- [1,5,3,1,6]]`.
 However, using `map` is much more readable for cases where you only apply some function to the elements of a list, especially once you're dealing with maps of maps and then the whole thing with a lot of brackets can get a bit messy.
 
-`filter`{.label .function} is a function that takes a predicate (a predicate is a function that tells whether something is true or not, so in our case, a function that returns a boolean value) and a list and then returns the list of elements that satisfy the predicate.
+`filter` is a function that takes a predicate (a predicate is a function that tells whether something is true or not, so in our case, a function that returns a boolean value) and a list and then returns the list of elements that satisfy the predicate.
 The type signature and implementation go like this:
 
-```{.haskell:hs}
+```haskell
 filter :: (a -> Bool) -> [a] -> [a]
 filter _ [] = []
 filter p (x:xs)
@@ -317,7 +317,7 @@ If `p x` evaluates to `True`, the element gets included in the new list.
 If it doesn't, it stays out.
 Some usage examples:
 
-```{.haskell:hs}
+```haskell
 ghci> filter (>3) [1,5,3,2,1,6,4,3,2,1]
 [5,6,4]
 ghci> filter (==3) [1,2,3,4,5]
@@ -340,7 +340,7 @@ Remember our quicksort function from the [previous chapter](recursion.html)?
 We used list comprehensions to filter out the list elements that are smaller than (or equal to) and larger than the pivot.
 We can achieve the same functionality in a more readable way by using `filter`:
 
-```{.haskell:ghci}
+```haskell
 quicksort :: (Ord a) => [a] -> [a]
 quicksort [] = []
 quicksort (x:xs) =
@@ -349,7 +349,7 @@ quicksort (x:xs) =
     in  smallerSorted ++ [x] ++ biggerSorted
 ```
 
-![map](assets/images/higher-order-functions/map.png){.left width=210 height=115}
+![map](assets/images/higher-order-functions/map.png)
 
 Mapping and filtering is the bread and butter of every functional programmer's toolbox.
 Uh.
@@ -365,7 +365,7 @@ Thanks to Haskell's laziness, even if you map something over a list several time
 Let's **find the largest number under 100,000 that's divisible by 3829**.
 To do that, we'll just filter a set of possibilities in which we know the solution lies.
 
-```{.haskell:hs}
+```haskell
 largestDivisible :: (Integral a) => a
 largestDivisible = head (filter p [100000,99999..])
     where p x = x `mod` 3829 == 0
@@ -379,7 +379,7 @@ Because we only end up using the head of the filtered list, it doesn't matter if
 The evaluation stops when the first adequate solution is found.
 
 Next up, we're going to **find the sum of all odd squares that are smaller than 10,000**.
-But first, because we'll be using it in our solution, we're going to introduce the `takeWhile`{.label .function} function.
+But first, because we'll be using it in our solution, we're going to introduce the `takeWhile` function.
 It takes a predicate and a list and then goes from the beginning of the list and returns its elements while the predicate holds true.
 Once an element is found for which the predicate doesn't hold, it stops.
 If we wanted to get the first word of the string `"elephants know how to party"`, we could do `takeWhile (/=' ') "elephants know how to party"` and it would return `"elephants"`.
@@ -391,7 +391,7 @@ And then, we'll take elements from that list while they are smaller than 10,000.
 Finally, we'll get the sum of that list.
 We don't even have to define a function for that, we can do it in one line in GHCI:
 
-```{.haskell:ghci}
+```haskell
 ghci> sum (takeWhile (<10000) (filter odd (map (^2) [1..])))
 166650
 ```
@@ -400,7 +400,7 @@ Awesome!
 We start with some initial data (the infinite list of all natural numbers) and then we map over it, filter it and cut it until it suits our needs and then we just sum it up.
 We could have also written this using list comprehensions:
 
-```{.haskell:ghci}
+```haskell
 ghci> sum (takeWhile (<10000) [n^2 | n <- [1..], odd (n^2)])
 166650
 ```
@@ -426,7 +426,7 @@ We see that the chain has 10 terms.
 Now what we want to know is this: **for all starting numbers between 1 and 100, how many chains have a length greater than 15?**
 First off, we'll write a function that produces a chain:
 
-```{.haskell:hs}
+```haskell
 chain :: (Integral a) => a -> [a]
 chain 1 = [1]
 chain n
@@ -437,7 +437,7 @@ chain n
 Because the chains end at 1, that's the edge case.
 This is a pretty standard recursive function.
 
-```{.haskell:ghci}
+```haskell
 ghci> chain 10
 [10,5,16,8,4,2,1]
 ghci> chain 1
@@ -450,7 +450,7 @@ Yay!
 It seems to be working correctly.
 And now, the function that tells us the answer to our question:
 
-```{.haskell:hs}
+```haskell
 numLongChains :: Int
 numLongChains = length (filter isLong (map chain [1..100]))
     where isLong xs = length xs > 15
@@ -460,7 +460,7 @@ We map the `chain` function to `[1..100]` to get a list of chains, which are the
 Then, we filter them by a predicate that just checks whether a list's length is longer than 15.
 Once we've done the filtering, we see how many chains are left in the resulting list.
 
-::: {.hintbox}
+:::
 **Note:** This function has a type of `numLongChains :: Int` because `length` returns an `Int` instead of a `Num a` for historical reasons.
 If we wanted to return a more general `Num a`, we could have used `fromIntegral` on the resulting length.
 :::
@@ -472,7 +472,7 @@ Applying only one parameter to a function that takes two parameters returns a fu
 If we map `*` over the list `[0..]`, we get back a list of functions that only take one parameter, so `(Num a) => [a -> a]`.
 `map (*) [0..]` produces a list like the one we'd get by writing `[(0*),(1*),(2*),(3*),(4*),(5*)..`.
 
-```{.haskell:hs}
+```haskell
 ghci> let listOfFuns = map (*) [0..]
 ghci> (listOfFuns !! 4) 5
 20
@@ -482,9 +482,9 @@ Getting the element with the index `4` from our list returns a function that's e
 And then, we just apply `5` to that function.
 So that's like writing `(4*) 5` or just `4 * 5`.
 
-## Lambdas {#lambdas}
+## Lambdas
 
-![lambda](assets/images/higher-order-functions/lambda.png){.right width=203 height=230}
+![lambda](assets/images/higher-order-functions/lambda.png)
 
 Lambdas are basically anonymous functions that are used because we need some functions only once.
 Normally, we make a lambda with the sole purpose of passing it to a higher-order function.
@@ -495,7 +495,7 @@ We usually surround them by parentheses, because otherwise they extend all the w
 If you look about 5 inches up, you'll see that we used a *where* binding in our `numLongChains` function to make the `isLong` function for the sole purpose of passing it to `filter`.
 Well, instead of doing that, we can use a lambda:
 
-```{.haskell:hs}
+```haskell
 numLongChains :: Int
 numLongChains = length (filter (\xs -> length xs > 15) (map chain [1..100]))
 ```
@@ -503,7 +503,7 @@ numLongChains = length (filter (\xs -> length xs > 15) (map chain [1..100]))
 Lambdas are expressions, that's why we can just pass them like that.
 The expression `(\xs -> length xs > 15)` returns a function that tells us whether the length of the list passed to it is greater than 15.
 
-![lamb](assets/images/higher-order-functions/lamb.png){.left width=200 height=134}
+![lamb](assets/images/higher-order-functions/lamb.png)
 
 People who are not well acquainted with how currying and partial application works often use lambdas where they don't need to.
 For instance, the expressions `map (+3) [1,6,3,2]` and `map (\x -> x + 3) [1,6,3,2]` are equivalent since both `(+3)` and `(\x -> x + 3)` are functions that take a number and add 3 to it.
@@ -511,7 +511,7 @@ Needless to say, making a lambda in this case is stupid since using partial appl
 
 Like normal functions, lambdas can take any number of parameters:
 
-```{.haskell:ghci}
+```haskell
 ghci> zipWith (\a b -> (a * 30 + 3) / b) [5,4,3,2,1] [1,2,3,4,5]
 [153.0,61.5,31.0,15.75,6.6]
 ```
@@ -520,7 +520,7 @@ And like normal functions, you can pattern match in lambdas.
 The only difference is that you can't define several patterns for one parameter, like making a `[]` and a `(x:xs)` pattern for the same parameter and then having values fall through.
 If a pattern matching fails in a lambda, a runtime error occurs, so be careful when pattern matching in lambdas!
 
-```{.haskell:ghci}
+```haskell
 ghci> map (\(a,b) -> a + b) [(1,2),(3,5),(6,3),(2,6),(2,5)]
 [3,8,9,8,7]
 ```
@@ -528,12 +528,12 @@ ghci> map (\(a,b) -> a + b) [(1,2),(3,5),(6,3),(2,6),(2,5)]
 Lambdas are normally surrounded by parentheses unless we mean for them to extend all the way to the right.
 Here's something interesting: due to the way functions are curried by default, these two are equivalent:
 
-```{.haskell:ghci}
+```haskell
 addThree :: (Num a) => a -> a -> a -> a
 addThree x y z = x + y + z
 ```
 
-```{.haskell:ghci}
+```haskell
 addThree :: (Num a) => a -> a -> a -> a
 addThree = \x -> \y -> \z -> x + y + z
 ```
@@ -545,7 +545,7 @@ But of course, the first way to write functions is far more readable, the second
 However, there are times when using this notation is cool.
 I think that the `flip` function is the most readable when defined like so:
 
-```{.haskell:ghci}
+```haskell
 flip' :: (a -> b -> c) -> b -> a -> c
 flip' f = \x y -> f y x
 ```
@@ -554,9 +554,9 @@ Even though that's the same as writing `flip' f x y = f y x`, we make it obvious
 The most common use case with `flip` is calling it with just the function parameter and then passing the resulting function on to a map or a filter.
 So use lambdas in this way when you want to make it explicit that your function is mainly meant to be partially applied and passed on to a function as a parameter.
 
-## Only folds and horses {#folds}
+## Only folds and horses
 
-![folded bird](assets/images/higher-order-functions/origami.png){.right width=220 height=221}
+![folded bird](assets/images/higher-order-functions/origami.png)
 
 Back when we were dealing with recursion, we noticed a theme throughout many of the recursive functions that operated on lists.
 Usually, we'd have an edge case for the empty list.
@@ -571,26 +571,26 @@ The binary function is called with the accumulator and the first (or last) eleme
 Then, the binary function is called again with the new accumulator and the now new first (or last) element, and so on.
 Once we've walked over the whole list, only the accumulator remains, which is what we've reduced the list to.
 
-First let's take a look at the `foldl`{.label .function} function, also called the left fold.
+First let's take a look at the `foldl` function, also called the left fold.
 It folds the list up from the left side.
 The binary function is applied between the starting value and the head of the list.
 That produces a new accumulator value and the binary function is called with that value and the next element, etc.
 
 Let's implement `sum` again, only this time, we'll use a fold instead of explicit recursion.
 
-```{.haskell:hs}
+```haskell
 sum' :: (Num a) => [a] -> a
 sum' xs = foldl (\acc x -> acc + x) 0 xs
 ```
 
 Testing, one two three:
 
-```{.haskell:ghci}
+```haskell
 ghci> sum' [3,5,2,1]
 11
 ```
 
-![foldl](assets/images/higher-order-functions/foldl.png){.left width=172 height=348}
+![foldl](assets/images/higher-order-functions/foldl.png)
 
 Let's take an in-depth look into how this fold happens.
 `\acc x -> acc + x` is the binary function.
@@ -608,7 +608,7 @@ You can see how the list is sort of consumed up from the left side by the accumu
 Om nom nom nom!
 If we take into account that functions are curried, we can write this implementation ever more succinctly, like so:
 
-```{.haskell:hs}
+```haskell
 sum' :: (Num a) => [a] -> a
 sum' = foldl (+) 0
 ```
@@ -621,7 +621,7 @@ Anyhoo, let's implement another function with a left fold before moving on to ri
 I'm sure you all know that `elem` checks whether a value is part of a list so I won't go into that again (whoops, just did!).
 Let's implement it with a left fold.
 
-```{.haskell:hs}
+```haskell
 elem' :: (Eq a) => a -> [a] -> Bool
 elem' y ys = foldl (\acc x -> if x == y then True else acc) False ys
 ```
@@ -640,7 +640,7 @@ If it's not, we just leave the accumulator unchanged.
 If it was `False` before, it stays that way because this current element is not it.
 If it was `True`, we leave it at that.
 
-The right fold, `foldr`{.function .label} works in a similar way to the left fold, only the accumulator eats up the values from the right.
+The right fold, `foldr` works in a similar way to the left fold, only the accumulator eats up the values from the right.
 Also, the left fold's binary function has the accumulator as the first parameter and the current value as the second one (so `\acc x -> ...`), the right fold's binary function has the current value as the first parameter and the accumulator as the second one (so `\x acc -> ...`).
 It kind of makes sense that the right fold has the accumulator on the right, because it folds from the right side.
 
@@ -650,7 +650,7 @@ We'll be implementing the map function with a right fold.
 The accumulator will be a list, we'll be accumulating the mapped list element by element.
 From that, it's obvious that the starting element will be an empty list.
 
-```{.haskell:hs}
+```haskell
 map' :: (a -> b) -> [a] -> [b]
 map' f xs = foldr (\x acc -> f x : acc) [] xs
 ```
@@ -665,7 +665,7 @@ We apply `(+3)` to `1` and prepend that to the accumulator and so the end value 
 Of course, we could have implemented this function with a left fold too.
 It would be `map' f xs = foldl (\acc x -> acc ++ [f x]) [] xs`, but the thing is that the `++` function is much more expensive than `:`, so we usually use right folds when we're building up new lists from a list.
 
-![fold this up!](assets/images/higher-order-functions/washmachine.png){.right width=250 height=205}
+![fold this up!](assets/images/higher-order-functions/washmachine.png)
 
 If you reverse a list, you can do a right fold on it just like you would have done a left fold and vice versa.
 Sometimes you don't even have to do that.
@@ -678,7 +678,7 @@ However, if you take an infinite list at a point and you try to fold it up from 
 Whenever you want to traverse a list to return something, chances are you want a fold.**
 That's why folds are, along with maps and filters, one of the most useful types of functions in functional programming.
 
-The `foldl1`{.label .function} and `foldr1`{.label .function} functions work much like `foldl` and `foldr`, only you don't need to provide them with an explicit starting value.
+The `foldl1` functions work much like `foldl` and `foldr`, only you don't need to provide them with an explicit starting value.
 They assume the first (or last) element of the list to be the starting value and then start the fold with the element next to it.
 With that in mind, the `sum` function can be implemented like so: `sum = foldl1 (+)`.
 Because they depend on the lists they fold up having at least one element, they cause runtime errors if called with empty lists.
@@ -688,7 +688,7 @@ If the function doesn't make sense when given an empty list, you can probably us
 
 Just to show you how powerful folds are, we're going to implement a bunch of standard library functions by using folds:
 
-```{.haskell:hs}
+```haskell
 maximum' :: (Ord a) => [a] -> a
 maximum' = foldr1 (\x acc -> if x > acc then x else acc)
 
@@ -724,10 +724,10 @@ Similarly, doing a left fold over that list with `g` as the binary function and 
 If we use `flip (:)` as the binary function and `[]` as the accumulator (so we're reversing the list), then that's the equivalent of `flip (:) (flip (:) (flip (:) (flip (:) [] 3) 4) 5) 6`.
 And sure enough, if you evaluate that expression, you get `[6,5,4,3]`.
 
-`scanl`{.function .label} and `scanr`{.function .label} are like `foldl` and `foldr`, only they report all the intermediate accumulator states in the form of a list.
+`scanl` are like `foldl` and `foldr`, only they report all the intermediate accumulator states in the form of a list.
 There are also `scanl1` and `scanr1`, which are analogous to `foldl1` and `foldr1`.
 
-```{.haskell:ghci}
+```haskell
 ghci> scanl (+) 0 [3,5,2,1]
 [0,3,8,10,11]
 ghci> scanr (+) 0 [3,5,2,1]
@@ -750,12 +750,12 @@ The second will be 1 plus the square root of 2.
 The third will be that plus the square root of 3.
 If there are X sums under 1000, then it takes X+1 elements for the sum to exceed 1000.
 
-```{.haskell:hs}
+```haskell
 sqrtSums :: Int
 sqrtSums = length (takeWhile (<1000) (scanl1 (+) (map sqrt [1..]))) + 1
 ```
 
-```{.haskell:ghci}
+```haskell
 ghci> sqrtSums
 131
 ghci> sum (map sqrt [1..131])
@@ -767,17 +767,17 @@ ghci> sum (map sqrt [1..130])
 We use `takeWhile` here instead of `filter` because `filter` doesn't work on infinite lists.
 Even though we know the list is ascending, `filter` doesn't, so we use `takeWhile` to cut the scanlist off at the first occurrence of a sum greater than 1000.
 
-## Function application with $ {#function-application}
+## Function application with $
 
 Alright, next up, we'll take a look at the `$` function, also called *function application*.
 First of all, let's check out how it's defined:
 
-```{.haskell:hs}
+```haskell
 ($) :: (a -> b) -> a -> b
 f $ x = f x
 ```
 
-![dollar](assets/images/higher-order-functions/dollar.png){.left width=180 height=136}
+![dollar](assets/images/higher-order-functions/dollar.png)
 
 What the heck?
 What is this useless operator?
@@ -803,24 +803,24 @@ And so, we can rewrite `sum (filter (> 10) (map (*2) [2..10]))` as `sum $ filter
 But apart from getting rid of parentheses, `$` means that function application can be treated just like another function.
 That way, we can, for instance, map function application over a list of functions.
 
-```{.haskell:ghci}
+```haskell
 ghci> map ($ 3) [(4+), (10*), (^2), sqrt]
 [7.0,30.0,9.0,1.7320508075688772]
 ```
 
-## Function composition {#composition}
+## Function composition
 
 In mathematics, function composition is defined like this: ![ (f . g)(x) = f(g(x))](assets/images/higher-order-functions/composition.png), meaning that composing two functions produces a new function that, when called with a parameter, say, *x* is the equivalent of calling *g* with the parameter *x* and then calling the *f* with that result.
 
 In Haskell, function composition is pretty much the same thing.
 We do function composition with the `.` function, which is defined like so:
 
-```{.haskell:hs}
+```haskell
 (.) :: (b -> c) -> (a -> b) -> a -> c
 f . g = \x -> f (g x)
 ```
 
-![notes](assets/images/higher-order-functions/notes.png){.left width=230 height=198}
+![notes](assets/images/higher-order-functions/notes.png)
 
 Mind the type declaration.
 `f` must take as its parameter a value that has the same type as `g`'s return value.
@@ -832,7 +832,7 @@ Sure, can use lambdas for that, but many times, function composition is clearer 
 Say we have a list of numbers and we want to turn them all into negative numbers.
 One way to do that would be to get each number's absolute value and then negate it, like so:
 
-```{.haskell:hs}
+```haskell
 ghci> map (\x -> negate (abs x)) [5,-3,-6,7,-3,2,-19,24]
 [-5,-3,-6,-7,-3,-2,-19,-24]
 ```
@@ -840,7 +840,7 @@ ghci> map (\x -> negate (abs x)) [5,-3,-6,7,-3,2,-19,24]
 Notice the lambda and how it looks like the result function composition.
 Using function composition, we can rewrite that as:
 
-```{.haskell:hs}
+```haskell
 ghci> map (negate . abs) [5,-3,-6,7,-3,2,-19,24]
 [-5,-3,-6,-7,-3,-2,-19,-24]
 ```
@@ -850,14 +850,14 @@ Function composition is right-associative, so we can compose many functions at a
 The expression `f (g (z x))` is equivalent to `(f . g . z) x`.
 With that in mind, we can turn
 
-```{.haskell:ghci}
+```haskell
 ghci> map (\xs -> negate (sum (tail xs))) [[1..5],[3..6],[1..7]]
 [-14,-15,-27]
 ```
 
 into
 
-```{.haskell:ghci}
+```haskell
 ghci> map (negate . sum . tail) [[1..5],[3..6],[1..7]]
 [-14,-15,-27]
 ```
@@ -876,7 +876,7 @@ If the expression ends with three parentheses, chances are that if you translate
 Another common use of function composition is defining functions in the so-called point free style (also called the point*less* style).
 Take for example this function that we wrote earlier:
 
-```{.haskell:hs}
+```haskell
 sum' :: (Num a) => [a] -> a
 sum' xs = foldl (+) 0 xs
 ```
@@ -886,7 +886,7 @@ Because of currying, we can omit the `xs` on both sides, because calling `foldl 
 Writing the function as `sum' = foldl (+) 0` is called writing it in point free style.
 How would we write this in point free style?
 
-```{.haskell:hs}
+```haskell
 fn x = ceiling (negate (tan (cos (max 50 x))))
 ```
 
@@ -896,7 +896,7 @@ The `x` in the function body has parentheses after it.
 You can't get the cosine of a function.
 What we can do is express `fn` as a composition of functions.
 
-```{.haskell:hs}
+```haskell
 fn = ceiling . negate . tan . cos . max 50
 ```
 
@@ -910,21 +910,21 @@ The preferred style is to use *let* bindings to give labels to intermediary resu
 In the section about maps and filters, we solved a problem of finding the sum of all odd squares that are smaller than 10,000.
 Here's what the solution looks like when put into a function.
 
-```{.haskell:hs}
+```haskell
 oddSquareSum :: Integer
 oddSquareSum = sum (takeWhile (<10000) (filter odd (map (^2) [1..])))
 ```
 
 Being such a fan of function composition, I would have probably written that like this:
 
-```{.haskell:hs}
+```haskell
 oddSquareSum :: Integer
 oddSquareSum = sum . takeWhile (<10000) . filter odd . map (^2) $ [1..]
 ```
 
 However, if there was a chance of someone else reading that code, I would have written it like this:
 
-```{.haskell:hs}
+```haskell
 oddSquareSum :: Integer
 oddSquareSum =
     let oddSquares = filter odd $ map (^2) [1..]
@@ -933,4 +933,3 @@ oddSquareSum =
 ```
 
 It wouldn't win any code golf competition, but someone reading the function will probably find it easier to read than a composition chain.
-

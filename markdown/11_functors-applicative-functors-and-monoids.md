@@ -1,4 +1,4 @@
-# Functors, Applicative Functors and Monoids 
+# Functors, Applicative Functors and Monoids
 
 Haskell's combination of purity, higher order functions, parameterized algebraic data types, and typeclasses allows us to implement polymorphism on a much higher level than possible in other languages.
 We don't have to think about types belonging to a big hierarchy of types.
@@ -15,9 +15,9 @@ That's an example of a useful and yet still pretty abstract property that typecl
 In this chapter, we'll take a closer look at functors, along with slightly stronger and more useful versions of functors called applicative functors.
 We'll also take a look at monoids, which are sort of like socks.
 
-## Functors redux {#functors-redux}
+## Functors redux
 
-![frogs dont even need money](assets/images/functors-applicative-functors-and-monoids/frogtor.png){.right width=369 height=243}
+![frogs dont even need money](assets/images/functors-applicative-functors-and-monoids/frogtor.png)
 
 We've already talked about functors in [their own little section](making-our-own-types-and-typeclasses.html#the-functor-typeclass).
 If you haven't read it yet, you should probably give it a glance right now, or maybe later when you have more time.
@@ -28,7 +28,7 @@ In Haskell, they're described by the typeclass `Functor`, which has only one typ
 It says: give me a function that takes an `a` and returns a `b` and a box with an `a` (or several of them) inside it and I'll give you a box with a `b` (or several of them) inside it.
 It kind of applies the function to the element inside the box.
 
-::: {.hintbox}
+:::
 **A word of advice.**
 Many times the box analogy is used to help you get some intuition for how functors work, and later, we'll probably use the same analogy for applicative functors and monads.
 It's an okay analogy that helps people understand functors at first, just don't take it too literally, because for some functors the box analogy has to be stretched really thin to still hold some truth.
@@ -55,7 +55,7 @@ By thinking about this box with little feet analogy, we can see how `IO` acts li
 Let's see how `IO` is an instance of `Functor`.
 When we `fmap` a function over an I/O action, we want to get back an I/O action that does the same thing, but has our function applied over its result value.
 
-```{.haskell:hs}
+```haskell
 instance Functor IO where
     fmap f action = do
         result <- action
@@ -73,7 +73,7 @@ We can play around with it to gain some intuition.
 It's pretty simple really.
 Check out this piece of code:
 
-```{.haskell:hs}
+```haskell
 main = do line <- getLine
           let line' = reverse line
           putStrLn $ "You said " ++ line' ++ " backwards!"
@@ -83,13 +83,13 @@ main = do line <- getLine
 The user is prompted for a line and we give it back to the user, only reversed.
 Here's how to rewrite this by using `fmap`:
 
-```{.haskell:hs}
+```haskell
 main = do line <- fmap reverse getLine
           putStrLn $ "You said " ++ line ++ " backwards!"
           putStrLn $ "Yes, you really said" ++ line ++ " backwards!"
 ```
 
-![w00ooOoooOO](assets/images/functors-applicative-functors-and-monoids/alien.png){.left width=262 height=212}
+![w00ooOoooOO](assets/images/functors-applicative-functors-and-monoids/alien.png)
 
 Just like when we `fmap` `reverse` over `Just "blah"` to get `Just "halb"`, we can `fmap` `reverse` over `getLine`.
 `getLine` is an I/O action that has a type of `IO String` and mapping `reverse` over it gives us an I/O action that will go out into the real world and get a line and then apply `reverse` to its result.
@@ -104,7 +104,7 @@ If we look at what `fmap`'s type would be if it were limited to `IO`, it would b
 If you ever find yourself binding the result of an I/O action to a name, only to apply a function to that and call that something else, consider using `fmap`, because it looks prettier.
 If you want to apply multiple transformations to some data inside a functor, you can declare your own function at the top level, make a lambda function or ideally, use function composition:
 
-```{.haskell:hs}
+```haskell
 import Data.Char
 import Data.List
 
@@ -112,7 +112,7 @@ main = do line <- fmap (intersperse '-' . reverse . map toUpper) getLine
           putStrLn line
 ```
 
-```{.plain}
+```haskell
 $ runhaskell fmapping_io.hs
 hello there
 E-R-E-H-T- -O-L-L-E-H
@@ -131,19 +131,19 @@ If the syntax allowed for type constructors to be partially applied with section
 How are functions functors?
 Well, let's take a look at the implementation, which lies in `Control.Monad.Instances`
 
-::: {.hintbox}
+:::
 We usually mark functions that take anything and return anything as `a -> b`.
 `r -> a` is the same thing, we just used different letters for the type variables.
 :::
 
-```{.haskell:hs}
+```haskell
 instance Functor ((->) r) where
     fmap f g = (\x -> f (g x))
 ```
 
 If the syntax allowed for it, it could have been written as
 
-```{.haskell:hs}
+```haskell
 instance Functor (r ->) where
     fmap f g = (\x -> f (g x))
 ```
@@ -169,7 +169,7 @@ We pipe the output of `r -> a` into the input of `a -> b` to get a function `r -
 If you look at how the instance is defined above, you'll see that it's just function composition.
 Another way to write this instance would be:
 
-```{.haskell:hs}
+```haskell
 instance Functor ((->) r) where
     fmap = (.)
 ```
@@ -177,7 +177,7 @@ instance Functor ((->) r) where
 This makes the revelation that using `fmap` over functions is just composition sort of obvious.
 Do `:m + Control.Monad.Instances`, since that's where the instance is defined and then try playing with mapping over functions.
 
-```{.haskell:hs}
+```haskell
 ghci> :t fmap (*3) (+100)
 fmap (*3) (+100) :: (Num a) => a -> a
 ghci> fmap (*3) (+100) 1
@@ -207,7 +207,7 @@ The fact that `fmap` is function composition when used on functions isn't so ter
 It also bends our minds a bit and let us see how things that act more like computations than boxes (`IO` and `(->) r`) can be functors.
 The function being mapped over a computation results in the same computation but the result of that computation is modified with the function.
 
-![lifting a function is easier than lifting a million pounds](assets/images/functors-applicative-functors-and-monoids/lifter.png){.right width=443 height=450}
+![lifting a function is easier than lifting a million pounds](assets/images/functors-applicative-functors-and-monoids/lifter.png)
 
 Before we go on to the rules that `fmap` should follow, let's think about the type of `fmap` once more.
 Its type is `fmap :: (a -> b) -> f a -> f b`.
@@ -222,7 +222,7 @@ It takes an `a -> b` function and returns a function `f a -> f b`.
 This is called *lifting* a function.
 Let's play around with that idea by using GHCI's `:t` command:
 
-```{.haskell:hs}
+```haskell
 ghci> :t fmap (*2)
 fmap (*2) :: (Num a, Functor f) => f a -> f a
 ghci> :t fmap (replicate 3)
@@ -233,7 +233,7 @@ The expression `fmap (*2)` is a function that takes a functor `f` over numbers a
 That functor can be a list, a `Maybe`, an `Either String`, whatever.
 The expression `fmap (replicate 3)` will take a functor over any type and return a functor over a list of elements of that type.
 
-::: {.hintbox}
+:::
 When we say *a functor over numbers*, you can think of that as *a functor that has numbers in it*.
 The former is a bit fancier and more technically correct, but the latter is usually easier to get.
 :::
@@ -248,7 +248,7 @@ What exactly it will do depends on which functor we use it on.
 If we use `fmap (replicate 3)` on a list, the list's implementation for `fmap` will be chosen, which is just `map`.
 If we use it on a `Maybe a`, it'll apply `replicate 3` to the value inside the `Just`, or if it's `Nothing`, then it stays `Nothing`.
 
-```{.haskell:hs}
+```haskell
 ghci> fmap (replicate 3) [1,2,3,4]
 [[1,1,1],[2,2,2],[3,3,3],[4,4,4]]
 ghci> fmap (replicate 3) (Just 4)
@@ -271,15 +271,15 @@ There are two of them that all instances of `Functor` should abide by.
 They aren't enforced by Haskell automatically, so you have to test them out yourself.
 
 **The first functor law states that if we map the `id` function over a functor, the functor that we get back should be the same as the original functor.**
-If we write that a bit more formally, it means that `fmap id = id`{.label .law}.
+If we write that a bit more formally, it means that `fmap id = id`.
 So essentially, this says that if we do `fmap id` over a functor, it should be the same as just calling `id` on the functor.
 Remember, `id` is the identity function, which just returns its parameter unmodified.
 It can also be written as `\x -> x`.
-If we view the functor as something that can be mapped over, the `fmap id = id`{.label .law} law seems kind of trivial or obvious.
+If we view the functor as something that can be mapped over, the `fmap id = id` law seems kind of trivial or obvious.
 
 Let's see if this law holds for a few values of functors.
 
-```{.haskell:hs}
+```haskell
 ghci> fmap id (Just 3)
 Just 3
 ghci> id (Just 3)
@@ -296,7 +296,7 @@ Nothing
 
 If we look at the implementation of `fmap` for, say, `Maybe`, we can figure out why the first functor law holds.
 
-```{.haskell:hs}
+```haskell
 instance Functor Maybe where
     fmap f (Just x) = Just (f x)
     fmap f Nothing = Nothing
@@ -309,11 +309,11 @@ So now we know that if we map `id` over a `Maybe` value with a `Just` value cons
 Seeing that mapping `id` over a `Nothing` value returns the same value is trivial.
 So from these two equations in the implementation for `fmap`, we see that the law `fmap id = id` holds.
 
-![justice is blind, but so is my dog](assets/images/functors-applicative-functors-and-monoids/justice.png){.left width=345 height=428}
+![justice is blind, but so is my dog](assets/images/functors-applicative-functors-and-monoids/justice.png)
 
 **The second law says that composing two functions and then mapping the resulting function over a functor should be the same as first mapping one function over the functor and then mapping the other one.**
-Formally written, that means that `fmap (f . g) = fmap f . fmap g`{.label .law}.
-Or to write it in another way, for any functor *F*, the following should hold: `fmap (f . g) F = fmap f (fmap g F)`{.label .law}.
+Formally written, that means that `fmap (f . g) = fmap f . fmap g`.
+Or to write it in another way, for any functor *F*, the following should hold: `fmap (f . g) F = fmap f (fmap g F)`.
 
 If we can show that some type obeys both functor laws, we can rely on it having the same fundamental behaviors as other functors when it comes to mapping.
 We can know that when we use `fmap` on it, there won't be anything other than mapping going on behind the scenes and that it will act like a thing that can be mapped over, i.e. a functor.
@@ -337,7 +337,7 @@ You can also just try them on a bunch of different values of a type and be able 
 Let's take a look at a pathological example of a type constructor being an instance of the `Functor` typeclass but not really being a functor, because it doesn't satisfy the laws.
 Let's say that we have a type:
 
-```{.haskell:hs}
+```haskell
 data CMaybe a = CNothing | CJust Int a deriving (Show)
 ```
 
@@ -346,7 +346,7 @@ It's a data type that looks much like `Maybe a`, only the `Just` part holds two 
 The first field in the `CJust` value constructor will always have a type of `Int`, and it will be some sort of counter and the second field is of type `a`, which comes from the type parameter and its type will, of course, depend on the concrete type that we choose for `CMaybe a`.
 Let's play with our new type to get some intuition for it.
 
-```{.haskell:hs}
+```haskell
 ghci> CNothing
 CNothing
 ghci> CJust 0 "haha"
@@ -362,7 +362,7 @@ CJust 100 [1,2,3]
 If we use the `CNothing` constructor, there are no fields, and if we use the `CJust` constructor, the first field is an integer and the second field can be any type.
 Let's make this an instance of `Functor` so that every time we use `fmap`, the function gets applied to the second field, whereas the first field gets increased by 1.
 
-```{.haskell:hs}
+```haskell
 instance Functor CMaybe where
     fmap f CNothing = CNothing
     fmap f (CJust counter x) = CJust (counter+1) (f x)
@@ -371,7 +371,7 @@ instance Functor CMaybe where
 This is kind of like the instance implementation for `Maybe`, except that when we do `fmap` over a value that doesn't represent an empty box (a `CJust` value), we don't just apply the function to the contents, we also increase the counter by 1.
 Everything seems cool so far, we can even play with this a bit:
 
-```{.haskell:hs}
+```haskell
 ghci> fmap (++"ha") (CJust 0 "ho")
 CJust 1 "hoha"
 ghci> fmap (++"he") (fmap (++"ha") (CJust 0 "ho"))
@@ -383,7 +383,7 @@ CNothing
 Does this obey the functor laws?
 In order to see that something doesn't obey a law, it's enough to find just one counter-example.
 
-```{.haskell:hs}
+```haskell
 ghci> fmap id (CJust 0 "haha")
 CJust 1 "haha"
 ghci> id (CJust 0 "haha")
@@ -422,9 +422,9 @@ Looking at it this way gives us some intuition as to why using `fmap` on functio
 The result is still a function, only when we give it a number, it will be multiplied by three and then it will go through the attached transformation where it will be added to three.
 This is what happens with composition.
 
-## Applicative functors {#applicative-functors}
+## Applicative functors
 
-![disregard this analogy](assets/images/functors-applicative-functors-and-monoids/present.png){.right width=302 height=284}
+![disregard this analogy](assets/images/functors-applicative-functors-and-monoids/present.png)
 
 In this section, we'll take a look at applicative functors, which are beefed up functors, represented in Haskell by the `Applicative` typeclass, found in the `Control.Applicative` module.
 
@@ -442,7 +442,7 @@ Therefore, doing `fmap (*) (Just 3)` results in `Just ((*) 3)`, which can also b
 Interesting!
 We get a function wrapped in a `Just`!
 
-```{.haskell:hs}
+```haskell
 ghci> :t fmap (++) (Just "hey")
 fmap (++) (Just "hey") :: Maybe ([Char] -> [Char])
 ghci> :t fmap compare (Just 'a')
@@ -460,7 +460,7 @@ We see how by mapping "multi-parameter" functions over functors, we get functors
 So now what can we do with them?
 Well for one, we can map functions that take these functions as parameters over them, because whatever is inside a functor will be given to the function that we're mapping over it as a parameter.
 
-```{.haskell:hs}
+```haskell
 ghci> let a = fmap (*) [1,2,3,4]
 ghci> :t a
 a :: [Integer -> Integer]
@@ -479,7 +479,7 @@ It lies in the `Control.Applicative` module and it defines two methods, `pure` a
 It doesn't provide a default implementation for any of them, so we have to define them both if we want something to be an applicative functor.
 The class is defined like so:
 
-```{.haskell:hs}
+```haskell
 class (Functor f) => Applicative f where
     pure :: a -> f a
     (<*>) :: f (a -> b) -> f a -> f b
@@ -513,7 +513,7 @@ We'll see why soon.
 
 Let's take a look at the `Applicative` instance implementation for `Maybe`.
 
-```{.haskell:hs}
+```haskell
 instance Applicative Maybe where
     pure = Just
     Nothing <*> _ = Nothing
@@ -540,7 +540,7 @@ If any of the parameters is `Nothing`, `Nothing` is the result.
 OK cool great.
 Let's give this a whirl.
 
-```{.haskell:hs}
+```haskell
 ghci> Just (+3) <*> Just 9
 Just 12
 ghci> pure (+3) <*> Just 10
@@ -562,7 +562,7 @@ With normal functors, you can just map a function over a functor and then you ca
 Applicative functors, on the other hand, allow you to operate on several functors with a single function.
 Check out this piece of code:
 
-```{.haskell:hs}
+```haskell
 ghci> pure (+) <*> Just 3 <*> Just 5
 Just 8
 ghci> pure (+) <*> Just 3 <*> Nothing
@@ -571,7 +571,7 @@ ghci> pure (+) <*> Nothing <*> Just 5
 Nothing
 ```
 
-![whaale](assets/images/functors-applicative-functors-and-monoids/whale.png){.right width=214 height=177}
+![whaale](assets/images/functors-applicative-functors-and-monoids/whale.png)
 
 What's going on here?
 Let's take a look, step by step.
@@ -598,12 +598,12 @@ Instead of writing `pure f <*> x <*> y <*> ...`, we can write `fmap f x <*> y <*
 This is why `Control.Applicative` exports a function called `<$>`, which is just `fmap` as an infix operator.
 Here's how it's defined:
 
-```{.haskell:hs}
+```haskell
 (<$>) :: (Functor f) => (a -> b) -> f a -> f b
 f <$> x = fmap f x
 ```
 
-::: {.hintbox}
+:::
 **Yo!**
 Quick reminder: type variables are independent of parameter names or other value names.
 The `f` in the function declaration here is a type variable with a class constraint saying that any type constructor that replaces `f` should be in the `Functor` typeclass.
@@ -618,14 +618,14 @@ Let's take a closer look at how this works.
 We have a value of `Just "johntra"` and a value of `Just "volta"` and we want to join them into one `String` inside a `Maybe` functor.
 We do this:
 
-```{.haskell:hs}
+```haskell
 ghci> (++) <$> Just "johntra" <*> Just "volta"
 Just "johntravolta"
 ```
 
 Before we see how this happens, compare the above line with this:
 
-```{.haskell:hs}
+```haskell
 ghci> (++) "johntra" "volta"
 "johntravolta"
 ```
@@ -646,7 +646,7 @@ Lists (actually the list type constructor, `[]`) are applicative functors.
 What a surprise!
 Here's how `[]` is an instance of `Applicative`:
 
-```{.haskell:hs}
+```haskell
 instance Applicative [] where
     pure x = [x]
     fs <*> xs = [f x | f <- fs, x <- xs]
@@ -658,7 +658,7 @@ The minimal context for lists would be the empty list, `[]`, but the empty list 
 That's why `pure` takes a value and puts it in a singleton list.
 Similarly, the minimal context for the `Maybe` applicative functor would be a `Nothing`, but it represents the lack of a value instead of a value, so `pure` is implemented as `Just` in the instance implementation for `Maybe`.
 
-```{.haskell:hs}
+```haskell
 ghci> pure "Hey" :: [String]
 ["Hey"]
 ghci> pure "Hey" :: Maybe String
@@ -675,7 +675,7 @@ That's why we use a list comprehension to draw from both lists.
 We apply every possible function from the left list to every possible value from the right list.
 The resulting list has every possible combination of applying a function from the left list to a value in the right one.
 
-```{.haskell:hs}
+```haskell
 ghci> [(*0),(+100),(^2)] <*> [1,2,3]
 [0,0,0,101,102,103,1,4,9]
 ```
@@ -684,7 +684,7 @@ The left list has three functions and the right list has three values, so the re
 Every function in the left list is applied to every function in the right one.
 If we have a list of functions that take two parameters, we can apply those functions between two lists.
 
-```{.haskell:hs}
+```haskell
 ghci> [(+),(*)] <*> [1,2] <*> [3,4]
 [4,5,5,6,3,4,6,8]
 ```
@@ -695,7 +695,7 @@ Then, `[(1+),(2+),(1*),(2*)] <*> [3,4]` happens, which produces the final result
 Using the applicative style with lists is fun!
 Watch:
 
-```{.haskell:hs}
+```haskell
 ghci> (++) <$> ["ha","heh","hmm"] <*> ["?","!","."]
 ["ha?","ha!","ha.","heh?","heh!","heh.","hmm?","hmm!","hmm."]
 ```
@@ -709,7 +709,7 @@ So when you do something like `(+) <$> [1,2,3] <*> [4,5,6]`, you can think of it
 Using the applicative style on lists is often a good replacement for list comprehensions.
 In the second chapter, we wanted to see all the possible products of `[2,5,10]` and `[8,10,11]`, so we did this:
 
-```{.haskell:hs}
+```haskell
 ghci> [ x*y | x <- [2,5,10], y <- [8,10,11]]
 [16,20,22,40,50,55,80,100,110]
 ```
@@ -717,7 +717,7 @@ ghci> [ x*y | x <- [2,5,10], y <- [8,10,11]]
 We're just drawing from two lists and applying a function between every combination of elements.
 This can be done in the applicative style as well:
 
-```{.haskell:hs}
+```haskell
 ghci> (*) <$> [2,5,10] <*> [8,10,11]
 [16,20,22,40,50,55,80,100,110]
 ```
@@ -725,7 +725,7 @@ ghci> (*) <$> [2,5,10] <*> [8,10,11]
 This seems clearer to me, because it's easier to see that we're just calling `*` between two non-deterministic computations.
 If we wanted all possible products of those two lists that are more than 50, we'd just do:
 
-```{.haskell:hs}
+```haskell
 ghci> filter (>50) $ (*) <$> [2,5,10] <*> [8,10,11]
 [55,80,100,110]
 ```
@@ -736,7 +736,7 @@ It's easy to see how `pure f <*> xs` equals `fmap f xs` with lists.
 Another instance of `Applicative` that we've already encountered is `IO`.
 This is how the instance is implemented:
 
-```{.haskell:hs}
+```haskell
 instance Applicative IO where
     pure = return
     a <*> b = do
@@ -745,7 +745,7 @@ instance Applicative IO where
         return (f x)
 ```
 
-![ahahahah!](assets/images/functors-applicative-functors-and-monoids/knight.png){.left width=195 height=458}
+![ahahahah!](assets/images/functors-applicative-functors-and-monoids/knight.png)
 
 Since `pure` is all about putting a value in a minimal context that still holds it as its result, it makes sense that `pure` is just `return`, because `return` does exactly that; it makes an I/O action that doesn't do anything, it just yields some value as its result, but it doesn't really do any I/O operations like printing to the terminal or reading from a file.
 
@@ -760,7 +760,7 @@ We have to extract the function from the first I/O action, but to extract a resu
 
 Consider this:
 
-```{.haskell:hs}
+```haskell
 myAction :: IO String
 myAction = do
     a <- getLine
@@ -772,7 +772,7 @@ This is an I/O action that will prompt the user for two lines and yield as its r
 We achieved it by gluing together two `getLine` I/O actions and a `return`, because we wanted our new glued I/O action to hold the result of `a ++ b`.
 Another way of writing this would be to use the applicative style.
 
-```{.haskell:hs}
+```haskell
 myAction :: IO String
 myAction = (++) <$> getLine <*> getLine
 ```
@@ -787,7 +787,7 @@ Doing `(++) <$> getLine <*> getLine` makes a new, bigger box that sends those tw
 The type of the expression `(++) <$> getLine <*> getLine` is `IO String`, which means that this expression is a completely normal I/O action like any other, which also holds a result value inside it, just like other I/O actions.
 That's why we can do stuff like:
 
-```{.haskell:hs}
+```haskell
 main = do
     a <- (++) <$> getLine <*> getLine
     putStrLn $ "The two lines concatenated turn out to be: " ++ a
@@ -798,11 +798,11 @@ If you ever find yourself binding some I/O actions to names and then calling som
 Another instance of `Applicative` is `(->) r`, so functions.
 They are rarely used with the applicative style outside of code golf, but they're still interesting as applicatives, so let's take a look at how the function instance is implemented.
 
-::: {.hintbox}
+:::
 If you're confused about what `(->) r` means, check out the previous section where we explain how `(->) r` is a functor.
 :::
 
-```{.haskell:hs}
+```haskell
 instance Applicative ((->) r) where
     pure x = (\_ -> x)
     f <*> g = \x -> f x (g x)
@@ -813,21 +813,21 @@ A minimal default context that still yields that value as a result.
 That's why in the function instance implementation, `pure` takes a value and creates a function that ignores its parameter and always returns that value.
 If we look at the type for `pure`, but specialized for the `(->) r` instance, it's `pure :: a -> (r -> a)`.
 
-```{.haskell:hs}
+```haskell
 ghci> (pure 3) "blah"
 3
 ```
 
 Because of currying, function application is left-associative, so we can omit the parentheses.
 
-```{.haskell:hs}
+```haskell
 ghci> pure 3 "blah"
 3
 ```
 
 The instance implementation for `<*>` is a bit cryptic, so it's best if we just take a look at how to use functions as applicative functors in the applicative style.
 
-```{.haskell:hs}
+```haskell
 ghci> :t (+) <$> (+3) <*> (*100)
 (+) <$> (+3) <*> (*100) :: (Num a) => a -> a
 ghci> (+) <$> (+3) <*> (*100) $ 5
@@ -840,12 +840,12 @@ When we do `(+) <$> (+3) <*> (*100)`, we're making a function that will use `+` 
 To demonstrate on a real example, when we did `(+) <$> (+3) <*> (*100) $ 5`, the `5` first got applied to `(+3)` and `(*100)`, resulting in `8` and `500`.
 Then, `+` gets called with `8` and `500`, resulting in `508`.
 
-```{.haskell:hs}
+```haskell
 ghci> (\x y z -> [x,y,z]) <$> (+3) <*> (*2) <*> (/2) $ 5
 [8.0,10.0,2.5]
 ```
 
-![SLAP](assets/images/functors-applicative-functors-and-monoids/jazzb.png){.right width=400px height=230px}
+![SLAP](assets/images/functors-applicative-functors-and-monoids/jazzb.png)
 
 Same here.
 We create a function that will call the function `\x y z -> [x,y,z]` with the eventual results from `(+3)`, `(*2)` and `(/2)`.
@@ -872,7 +872,7 @@ You could look at it as `[1 + 3, 2 * 2]`.
 Because one type can't have two instances for the same typeclass, the `ZipList a` type was introduced, which has one constructor `ZipList` that has just one field, and that field is a list.
 Here's the instance:
 
-```{.haskell:hs}
+```haskell
 instance Applicative ZipList where
         pure x = ZipList (repeat x)
         ZipList fs <*> ZipList xs = ZipList (zipWith (\f x -> f x) fs xs)
@@ -895,9 +895,9 @@ If we zip a finite list with an infinite list, the length of the resulting list 
 
 So how do zip lists work in an applicative style?
 Let's see.
-Oh, the `ZipList a` type doesn't have a `Show` instance, so we have to use the `getZipList`{.label .function} function to extract a raw list out of a zip list.
+Oh, the `ZipList a` type doesn't have a `Show` instance, so we have to use the `getZipList` function to extract a raw list out of a zip list.
 
-```{.haskell:hs}
+```haskell
 ghci> getZipList $ (+) <$> ZipList [1,2,3] <*> ZipList [100,100,100]
 [101,102,103]
 ghci> getZipList $ (+) <$> ZipList [1,2,3] <*> ZipList [100,100..]
@@ -908,7 +908,7 @@ ghci> getZipList $ (,,) <$> ZipList "dog" <*> ZipList "cat" <*> ZipList "rat"
 [('d','c','r'),('o','a','a'),('g','t','t')]
 ```
 
-::: {.hintbox}
+:::
 The `(,,)` function is the same as `\x y z -> (x,y,z)`.
 Also, the `(,)` function is the same as `\x y -> (x,y)`.
 :::
@@ -919,10 +919,10 @@ Aside from `zipWith`, the standard library has functions such as `zipWith3`, `zi
 By using zip lists with an applicative style, we don't have to have a separate zip function for each number of lists that we want to zip together.
 We just use the applicative style to zip together an arbitrary amount of lists with a function, and that's pretty cool.
 
-`Control.Applicative` defines a function that's called `liftA2`{.label .function}, which has a type of `liftA2 :: (Applicative f) => (a -> b -> c) -> f a -> f b -> f c` .
+`Control.Applicative` defines a function that's called `liftA2`, which has a type of `liftA2 :: (Applicative f) => (a -> b -> c) -> f a -> f b -> f c` .
 It's defined like this:
 
-```{.haskell:hs}
+```haskell
 liftA2 :: (Applicative f) => (a -> b -> c) -> f a -> f b -> f c
 liftA2 f a b = f <$> a <*> b
 ```
@@ -938,7 +938,7 @@ Here's an interesting concept: we can take two applicative functors and combine 
 For instance, we have `Just 3` and `Just 4`.
 Let's assume that the second one has a singleton list inside it, because that's really easy to achieve:
 
-```{.haskell:hs}
+```haskell
 ghci> fmap (\x -> [x]) (Just 4)
 Just [4]
 ```
@@ -947,7 +947,7 @@ OK, so let's say we have `Just 3` and `Just [4]`.
 How do we get `Just [3,4]`?
 Easy.
 
-```{.haskell:hs}
+```haskell
 ghci> liftA2 (:) (Just 3) (Just [4])
 Just [3,4]
 ghci> (:) <$> Just 3 <*> Just [4]
@@ -961,7 +961,7 @@ It seems that we can combine any amount of applicatives into one applicative tha
 Let's try implementing a function that takes a list of applicatives and returns an applicative that has a list as its result value.
 We'll call it `sequenceA`.
 
-```{.haskell:hs}
+```haskell
 sequenceA :: (Applicative f) => [f a] -> f [a]
 sequenceA [] = pure []
 sequenceA (x:xs) = (:) <$> x <*> sequenceA xs
@@ -984,7 +984,7 @@ We know that `sequenceA []` ends up as being `Just []`, so this expression is no
 Another way to implement `sequenceA` is with a fold.
 Remember, pretty much any function where we go over a list element by element and accumulate a result along the way can be implemented with a fold.
 
-```{.haskell:hs}
+```haskell
 sequenceA :: (Applicative f) => [f a] -> f [a]
 sequenceA = foldr (liftA2 (:)) (pure [])
 ```
@@ -995,7 +995,7 @@ Then we do `liftA2 (:)` with the now last element and the current accumulator an
 
 Let's give our function a whirl on some applicatives.
 
-```{.haskell:hs}
+```haskell
 ghci> sequenceA [Just 3, Just 2, Just 1]
 Just [3,2,1]
 ghci> sequenceA [Just 3, Nothing, Just 1]
@@ -1026,7 +1026,7 @@ Using `sequenceA` is cool when we have a list of functions and we want to feed t
 For instance, we have a number and we're wondering whether it satisfies all of the predicates in a list.
 One way to do that would be like so:
 
-```{.haskell:hs}
+```haskell
 ghci> map (\f -> f 7) [(>4),(<10),odd]
 [True,True,True]
 ghci> and $ map (\f -> f 7) [(>4),(<10),odd]
@@ -1036,7 +1036,7 @@ True
 Remember, `and` takes a list of booleans and returns `True` if they're all `True`.
 Another way to achieve the same thing would be with `sequenceA`:
 
-```{.haskell:hs}
+```haskell
 ghci> sequenceA [(>4),(<10),odd] 7
 [True,True,True]
 ghci> and $ sequenceA [(>4),(<10),odd] 7
@@ -1055,7 +1055,7 @@ Hmm, interesting.
 It actually creates lists that have all possible combinations of their elements.
 For illustration, here's the above done with `sequenceA` and then done with a list comprehension:
 
-```{.haskell:hs}
+```haskell
 ghci> sequenceA [[1,2,3],[4,5,6]]
 [[1,4],[1,5],[1,6],[2,4],[2,5],[2,6],[3,4],[3,5],[3,6]]
 ghci> [[x,y] | x <- [1,2,3], y <- [4,5,6]]
@@ -1094,7 +1094,7 @@ It takes a list of I/O actions and returns an I/O action that will perform each 
 That's because to turn an `[IO a]` value into an `IO [a]` value, to make an I/O action that yields a list of results when performed, all those I/O actions have to be sequenced so that they're then performed one after the other when evaluation is forced.
 You can't get the result of an I/O action without performing it.
 
-```{.haskell:hs}
+```haskell
 ghci> sequenceA [getLine, getLine, getLine]
 heyh
 ho
@@ -1103,22 +1103,22 @@ woo
 ```
 
 Like normal functors, applicative functors come with a few laws.
-The most important one is the one that we already mentioned, namely that `pure f <*> x = fmap f x`{.label .law} holds.
+The most important one is the one that we already mentioned, namely that `pure f <*> x = fmap f x` holds.
 As an exercise, you can prove this law for some of the applicative functors that we've met in this chapter.The other functor laws are:
 
-* `pure id <*> v = v`{.label .law}
-* `pure (.) <*> u <*> v <*> w = u <*> (v <*> w)`{.label .law}
-* `pure f <*> pure x = pure (f x)`{.label .law}
-* `u <*> pure y = pure ($ y) <*> u`{.label .law}
+* `pure id <*> v = v`
+* `pure (.) <*> u <*> v <*> w = u <*> (v <*> w)`
+* `pure f <*> pure x = pure (f x)`
+* `u <*> pure y = pure ($ y) <*> u`
 
 We won't go over them in detail right now because that would take up a lot of pages and it would probably be kind of boring, but if you're up to the task, you can take a closer look at them and see if they hold for some of the instances.
 
 In conclusion, applicative functors aren't just interesting, they're also useful, because they allow us to combine different computations, such as I/O computations, non-deterministic computations, computations that might have failed, etc. by using the applicative style.
 Just by using `<$>` and `<*>` we can use normal functions to uniformly operate on any number of applicative functors and take advantage of the semantics of each one.
 
-## The newtype keyword {#the-newtype-keyword}
+## The newtype keyword
 
-![why_ so serious?](assets/images/functors-applicative-functors-and-monoids/maoi.png){.left width=107 height=202}
+![why_ so serious?](assets/images/functors-applicative-functors-and-monoids/maoi.png)
 
 So far, we've learned how to make our own algebraic data types by using the **data** keyword.
 We've also learned how to give existing types synonyms with the **type** keyword.
@@ -1127,7 +1127,7 @@ In this section, we'll be taking a look at how to make new types out of existing
 In the previous section, we saw that there are actually more ways for the list type to be an applicative functor.
 One way is to have `<*>` take every function out of the list that is its left parameter and apply it to every value in the list that is on the right, resulting in every possible combination of applying a function from the left list to a value in the right list.
 
-```{.haskell:hs}
+```haskell
 ghci> [(+1),(*100),(*5)] <*> [1,2,3]
 [2,3,4,100,200,300,5,10,15]
 ```
@@ -1139,7 +1139,7 @@ If you remember, we said that the `ZipList a` type was introduced for this reaso
 We put the list that we're wrapping in that field.
 Then, `ZipList` was made an instance of `Applicative`, so that when we want to use lists as applicatives in the zipping manner, we just wrap them with the `ZipList` constructor and then once we're done, unwrap them with `getZipList`:
 
-```{.haskell:hs}
+```haskell
 ghci> getZipList $ ZipList [(+1),(*100),(*5)] <*> ZipList [1,2,3]
 [2,200,15]
 ```
@@ -1148,14 +1148,14 @@ So, what does this have to do with this *newtype* keyword?
 Well, think about how we might write the data declaration for our `ZipList a` type.
 One way would be to do it like so:
 
-```{.haskell:hs}
+```haskell
 data ZipList a = ZipList [a]
 ```
 
 A type that has just one value constructor and that value constructor has just one field that is a list of things.
 We might also want to use record syntax so that we automatically get a function that extracts a list from a `ZipList`:
 
-```{.haskell:hs}
+```haskell
 data ZipList a = ZipList { getZipList :: [a] }
 ```
 
@@ -1165,7 +1165,7 @@ We had two ways of making an existing type an instance of a type class, so we us
 The *newtype* keyword in Haskell is made exactly for these cases when we want to just take one type and wrap it in something to present it as another type.
 In the actual libraries, `ZipList a` is defined like this:
 
-```{.haskell:hs}
+```haskell
 newtype ZipList a = ZipList { getZipList :: [a] }
 ```
 
@@ -1180,7 +1180,7 @@ So why not just use *newtype* all the time instead of *data* then?
 Well, when you make a new type from an existing type by using the *newtype* keyword, you can only have one value constructor and that value constructor can only have one field.
 But with *data*, you can make data types that have several value constructors and each constructor can have zero or more fields:
 
-```{.haskell:hs}
+```haskell
 data Profession = Fighter | Archer | Accountant
 
 data Race = Human | Elf | Orc | Goblin
@@ -1196,13 +1196,13 @@ If we derive the instance for a type class, the type that we're wrapping has to 
 It makes sense, because *newtype* just wraps an existing type.
 So now if we do the following, we can print and equate values of our new type:
 
-```{.haskell:hs}
+```haskell
 newtype CharList = CharList { getCharList :: [Char] } deriving (Eq, Show)
 ```
 
 Let's give that a go:
 
-```{.haskell:hs}
+```haskell
 ghci> CharList "this will be shown!"
 CharList {getCharList = "this will be shown!"}
 ghci> CharList "benny" == CharList "benny"
@@ -1213,7 +1213,7 @@ False
 
 In this particular *newtype*, the value constructor has the following type:
 
-```{.haskell:hs}
+```haskell
 CharList :: [Char] -> CharList
 ```
 
@@ -1221,37 +1221,37 @@ It takes a `[Char]` value, such as `"my sharona"` and returns a `CharList` value
 From the above examples where we used the `CharList` value constructor, we see that really is the case.
 Conversely, the `getCharList` function, which was generated for us because we used record syntax in our *newtype*, has this type:
 
-```{.haskell:hs}
+```haskell
 getCharList :: CharList -> [Char]
 ```
 
 It takes a `CharList` value and converts it to a `[Char]` value.
 You can think of this as wrapping and unwrapping, but you can also think of it as converting values from one type to the other.
 
-### Using newtype to make type class instances 
+### Using newtype to make type class instances
 
 Many times, we want to make our types instances of certain type classes, but the type parameters just don't match up for what we want to do.
 It's easy to make `Maybe` an instance of `Functor`, because the `Functor` type class is defined like this:
 
-```{.haskell:hs}
+```haskell
 class Functor f where
     fmap :: (a -> b) -> f a -> f b
 ```
 
 So we just start out with:
 
-```{.haskell:hs}
+```haskell
 instance Functor Maybe where
 ```
 
 And then implement `fmap`.
 All the type parameters add up because the `Maybe` takes the place of `f` in the definition of the `Functor` type class and so if we look at `fmap` like it only worked on `Maybe`, it ends up behaving like:
 
-```{.haskell:hs}
+```haskell
 fmap :: (a -> b) -> Maybe a -> Maybe b
 ```
 
-![wow, very evil](assets/images/functors-applicative-functors-and-monoids/krakatoa.png){.right width=322px height=280px}
+![wow, very evil](assets/images/functors-applicative-functors-and-monoids/krakatoa.png)
 
 Isn't that just peachy?
 Now what if we wanted to make the tuple an instance of `Functor` in such a way that when we `fmap` a function over a tuple, it gets applied to the first component of the tuple?
@@ -1261,13 +1261,13 @@ With `Maybe`, we just say `instance Functor Maybe where` because only type const
 But it seems like there's no way to do something like that with `(a,b)` so that the type parameter `a` ends up being the one that changes when we use `fmap`.
 To get around this, we can *newtype* our tuple in such a way that the second type parameter represents the type of the first component in the tuple:
 
-```{.haskell:hs}
+```haskell
 newtype Pair b a = Pair { getPair :: (a,b) }
 ```
 
 And now, we can make it an instance of `Functor` so that the function is mapped over the first component:
 
-```{.haskell:hs}
+```haskell
 instance Functor (Pair c) where
     fmap f (Pair (x,y)) = Pair (f x, y)
 ```
@@ -1276,27 +1276,27 @@ As you can see, we can pattern match on types defined with *newtype*.
 We pattern match to get the underlying tuple, then we apply the function `f` to the first component in the tuple and then we use the `Pair` value constructor to convert the tuple back to our `Pair b a`.
 If we imagine what the type `fmap` would be if it only worked on our new pairs, it would be:
 
-```{.haskell:hs}
+```haskell
 fmap :: (a -> b) -> Pair c a -> Pair c b
 ```
 
 Again, we said `instance Functor (Pair c) where` and so `Pair c` took the place of the `f` in the type class definition for `Functor`:
 
-```{.haskell:hs}
+```haskell
 class Functor f where
     fmap :: (a -> b) -> f a -> f b
 ```
 
 So now, if we convert a tuple into a `Pair b a`, we can use `fmap` over it and the function will be mapped over the first component:
 
-```{.haskell:hs}
+```haskell
 ghci> getPair $ fmap (*100) (Pair (2,3))
 (200,3)
 ghci> getPair $ fmap reverse (Pair ("london calling", 3))
 ("gnillac nodnol",3)
 ```
 
-### On newtype laziness 
+### On newtype laziness
 
 We mentioned that *newtype* is usually faster than *data*.
 The only thing that can be done with *newtype* is turning an existing type into a new type, so internally, Haskell can represent the values of types defined with *newtype* just like the original ones, only it has to keep in mind that their types are now distinct.
@@ -1308,21 +1308,21 @@ Furthermore, only those computations that are necessary for our function to tell
 The `undefined` value in Haskell represents an erroneous computation.
 If we try to evaluate it (that is, force Haskell to actually compute it) by printing it to the terminal, Haskell will throw a hissy fit (technically referred to as an exception):
 
-```{.haskell:hs}
+```haskell
 ghci> undefined
 *** Exception: Prelude.undefined
 ```
 
 However, if we make a list that has some `undefined` values in it but request only the head of the list, which is not `undefined`, everything will go smoothly because Haskell doesn't really need to evaluate any other elements in a list if we only want to see what the first element is:
 
-```{.haskell:hs}
+```haskell
 ghci> head [3,4,5,undefined,2,undefined]
 3
 ```
 
 Now consider the following type:
 
-```{.haskell:hs}
+```haskell
 data CoolBool = CoolBool { getCoolBool :: Bool }
 ```
 
@@ -1330,14 +1330,14 @@ It's your run-of-the-mill algebraic data type that was defined with the *data* k
 It has one value constructor, which has one field whose type is `Bool`.
 Let's make a function that pattern matches on a `CoolBool` and returns the value `"hello"` regardless of whether the `Bool` inside the `CoolBool` was `True` or `False`:
 
-```{.haskell:hs}
+```haskell
 helloMe :: CoolBool -> String
 helloMe (CoolBool _) = "hello"
 ```
 
 Instead of applying this function to a normal `CoolBool`, let's throw it a curveball and apply it to `undefined`!
 
-```{.haskell:hs}
+```haskell
 ghci> helloMe undefined
 "*** Exception: Prelude.undefined
 ```
@@ -1351,19 +1351,19 @@ And when we try to evaluate an `undefined` value, even a little, an exception is
 
 Instead of using the *data* keyword for `CoolBool`, let's try using *newtype*:
 
-```{.haskell:hs}
+```haskell
 newtype CoolBool = CoolBool { getCoolBool :: Bool }
 ```
 
 We don't have to change our `helloMe` function, because the pattern matching syntax is the same if you use *newtype* or *data* to define your type.
 Let's do the same thing here and apply `helloMe` to an `undefined` value:
 
-```{.haskell:hs}
+```haskell
 ghci> helloMe undefined
 "hello"
 ```
 
-![top of the mornin to ya!!!](assets/images/functors-applicative-functors-and-monoids/shamrock.png){.right width=184 height=230}
+![top of the mornin to ya!!!](assets/images/functors-applicative-functors-and-monoids/shamrock.png)
 
 It worked!
 Hmmm, why is that?
@@ -1375,7 +1375,7 @@ This difference in behavior may seem trivial, but it's actually pretty important
 Whereas *data* can be used to make your own types from scratch, *newtype* is for making a completely new type out of an existing type.
 Pattern matching on *newtype* values isn't like taking something out of a box (like it is with *data*), it's more about making a direct conversion from one type to another.
 
-### `type` vs. `newtype` vs. `data` 
+### `type` vs. `newtype` vs. `data`
 
 At this point, you may be a bit confused about what exactly the difference between *type*, *data* and *newtype* is, so let's refresh our memory a bit.
 
@@ -1383,7 +1383,7 @@ The **type** keyword is for making type synonyms.
 What that means is that we just give another name to an already existing type so that the type is easier to refer to.
 Say we did the following:
 
-```{.haskell:hs}
+```haskell
 type IntList = [Int]
 ```
 
@@ -1392,7 +1392,7 @@ They can be used interchangeably.
 We don't get an `IntList` value constructor or anything like that.
 Because `[Int]` and `IntList` are only two ways to refer to the same type, it doesn't matter which name we use in our type annotations:
 
-```{.haskell:hs}
+```haskell
 ghci> ([1,2,3] :: IntList) ++ ([1,2,3] :: [Int])
 [1,2,3,1,2,3]
 ```
@@ -1404,7 +1404,7 @@ The **newtype** keyword is for taking existing types and wrapping them in new ty
 When we use *newtype* to wrap an existing type, the type that we get is separate from the original type.
 If we make the following *newtype*:
 
-```{.haskell:hs}
+```haskell
 newtype CharList = CharList { getCharList :: [Char] }
 ```
 
@@ -1426,10 +1426,10 @@ If you just want your type signatures to look cleaner and be more descriptive, y
 If you want to take an existing type and wrap it in a new type in order to make it an instance of a type class, chances are you're looking for a *newtype*.
 And if you want to make something completely new, odds are good that you're looking for the *data* keyword.
 
-## Monoids {#monoids}
+## Monoids
 
 ![wow this is pretty much the gayest pirate ship
-ever](assets/images/functors-applicative-functors-and-monoids/pirateship.png){.right width=460 height=417}
+ever](assets/images/functors-applicative-functors-and-monoids/pirateship.png)
 
 Type classes in Haskell are used to present an interface for types that have some behavior in common.
 We started out with simple type classes like `Eq`, which is for types whose values can be equated, and `Ord`, which is for things that can be put in an order and then moved on to more interesting ones, like `Functor` and `Applicative`.
@@ -1446,7 +1446,7 @@ Only instead of multiplying numbers, it takes two lists and concatenates them.
 And much like `*`, it also has a certain value which doesn't change the other one when used with `++`.
 That value is the empty list: `[]`.
 
-```{.haskell:hs}
+```haskell
 ghci> 4 * 1
 4
 ghci> 1 * 9
@@ -1468,7 +1468,7 @@ It doesn't matter if we do `(3 * 4) * 5` or `3 * (4 * 5)`.
 Either way, the result is `60`.
 The same goes for `++`:
 
-```{.haskell:hs}
+```haskell
 ghci> (3 * 2) * (8 * 5)
 240
 ghci> 3 * (2 * (8 * 5))
@@ -1491,7 +1491,7 @@ There are a lot of other monoids to be found in the world of Haskell, which is w
 It's for types which can act like monoids.
 Let's see how the type class is defined:
 
-```{.haskell:hs}
+```haskell
 class Monoid m where
     mempty :: m
     mappend :: m -> m -> m
@@ -1499,7 +1499,7 @@ class Monoid m where
     mconcat = foldr mappend mempty
 ```
 
-![woof dee do!!!](assets/images/functors-applicative-functors-and-monoids/balloondog.png){.right width=260 height=326}
+![woof dee do!!!](assets/images/functors-applicative-functors-and-monoids/balloondog.png)
 
 The `Monoid` type class is defined in `import Data.Monoid`.
 Let's take some time and get properly acquainted with it.
@@ -1530,20 +1530,20 @@ It's possible to make instances of `Monoid` that don't follow these rules, but s
 Otherwise, what's the point?
 That's why when making instances, we have to make sure they follow these laws:
 
-* ``mempty `mappend` x = x``{.label .law}
-* ``x `mappend` mempty = x``{.label .law}
-* ``(x `mappend` y) `mappend` z = x `mappend` (y `mappend` z)``{.label .law}
+* ``mempty `mappend` x = x``
+* ``x `mappend` mempty = x``
+* ``(x `mappend` y) `mappend` z = x `mappend` (y `mappend` z)``
 
 The first two state that `mempty` has to act as the identity with respect to `mappend` and the third says that `mappend` has to be associative i.e. that it the order in which we use `mappend` to reduce several monoid values into one doesn't matter.
 Haskell doesn't enforce these laws, so we as the programmer have to be careful that our instances do indeed obey them.
 
-### Lists are monoids 
+### Lists are monoids
 
 Yes, lists are monoids!
 Like we've seen, the `++` function and the empty list `[]` form a monoid.
 The instance is very simple:
 
-```{.haskell:hs}
+```haskell
 instance Monoid [a] where
     mempty = []
     mappend = (++)
@@ -1554,7 +1554,7 @@ Notice that we wrote `instance Monoid [a]` and not `instance Monoid []`, because
 
 Giving this a test run, we encounter no surprises:
 
-```{.haskell:hs}
+```haskell
 ghci> [1,2,3] `mappend` [4,5,6]
 [1,2,3,4,5,6]
 ghci> ("one" `mappend` "two") `mappend` "tree"
@@ -1571,7 +1571,7 @@ ghci> mempty :: [a]
 []
 ```
 
-![smug as hell](assets/images/functors-applicative-functors-and-monoids/smug.png){.left width=157 height=144}
+![smug as hell](assets/images/functors-applicative-functors-and-monoids/smug.png)
 
 Notice that in the last line, we had to write an explicit type annotation, because if we just did `mempty`, GHCi wouldn't know which instance to use, so we had to say we want the list instance.
 We were able to use the general type of `[a]` (as opposed to specifying `[Int]` or `[String]`) because the empty list can act as if it contains any type.
@@ -1586,7 +1586,7 @@ Also, the empty list acts as the identity so all is well.
 Notice that monoids don't require that ``a `mappend` b`` be equal to ``b `mappend` a``.
 In the case of the list, they clearly aren't:
 
-```{.haskell:hs}
+```haskell
 ghci> "one" `mappend` "two"
 "onetwo"
 ghci> "two" `mappend` "one"
@@ -1596,14 +1596,14 @@ ghci> "two" `mappend` "one"
 And that's okay.
 The fact that for multiplication `3 * 5` and `5 * 3` are the same is just a property of multiplication, but it doesn't hold for all (and indeed, most) monoids.
 
-### `Product` and `Sum` 
+### `Product` and `Sum`
 
 We already examined one way for numbers to be considered monoids.
 Just have the binary function be `*` and the identity value `1`.
 It turns out that that's not the only way for numbers to be monoids.
 Another way is to have the binary function be `+` and the identity value `0`:
 
-```{.haskell:hs}
+```haskell
 ghci> 0 + 4
 4
 ghci> 5 + 0
@@ -1624,7 +1624,7 @@ We can have our cake and eat it too.
 The `Data.Monoid` module exports two types for this, namely `Product` and `Sum`.
 `Product` is defined like this:
 
-```{.haskell:hs}
+```haskell
 newtype Product a =  Product { getProduct :: a }
     deriving (Eq, Ord, Read, Show, Bounded)
 ```
@@ -1632,7 +1632,7 @@ newtype Product a =  Product { getProduct :: a }
 Simple, just a *newtype* wrapper with one type parameter along with some derived instances.
 Its instance for `Monoid` goes a little something like this:
 
-```{.haskell:hs}
+```haskell
 instance Num a => Monoid (Product a) where
     mempty = Product 1
     Product x `mappend` Product y = Product (x * y)
@@ -1644,7 +1644,7 @@ As you can see, there's a `Num a` class constraint.
 So this means that `Product a` is an instance of `Monoid` for all `a`'s that are already an instance of `Num`.
 To use `Producta a` as a monoid, we have to do some *newtype* wrapping and unwrapping:
 
-```{.haskell:hs}
+```haskell
 ghci> getProduct $ Product 3 `mappend` Product 9
 27
 ghci> getProduct $ Product 3 `mappend` mempty
@@ -1661,7 +1661,7 @@ But a bit later, we'll see how these `Monoid` instances that may seem trivial at
 `Sum` is defined like `Product` and the instance is similar as well.
 We use it in the same way:
 
-```{.haskell:hs}
+```haskell
 ghci> getSum $ Sum 2 `mappend` Sum 9
 11
 ghci> getSum $ mempty `mappend` Sum 3
@@ -1670,7 +1670,7 @@ ghci> getSum . mconcat . map Sum $ [1,2,3]
 6
 ```
 
-### `Any` and `All` 
+### `Any` and `All`
 
 Another type which can act like a monoid in two distinct but equally valid ways is `Bool`.
 The first way is to have the *or* function `||` act as the binary function along with `False` as the identity value.
@@ -1679,14 +1679,14 @@ So if we use `False` as the identity value, it will return `False` when *or*-ed 
 The `Any` *newtype* constructor is an instance of `Monoid` in this fashion.
 It's defined like this:
 
-```{.haskell:hs}
+```haskell
 newtype Any = Any { getAny :: Bool }
     deriving (Eq, Ord, Read, Show, Bounded)
 ```
 
 Its instance looks goes like so:
 
-```{.haskell:hs}
+```haskell
 instance Monoid Any where
         mempty = Any False
         Any x `mappend` Any y = Any (x || y)
@@ -1695,7 +1695,7 @@ instance Monoid Any where
 The reason it's called `Any` is because ``x `mappend` y`` will be `True` if *any* one of those two is `True`.
 Even if three or more `Any` wrapped `Bool`s are `mappend`ed together, the result will hold `True` if any of them are `True`:
 
-```{.haskell:hs}
+```haskell
 ghci> getAny $ Any True `mappend` Any False
 True
 ghci> getAny $ mempty `mappend` Any True
@@ -1710,14 +1710,14 @@ The other way for `Bool` to be an instance of `Monoid` is to kind of do the oppo
 Logical *and* will return `True` only if both of its parameters are `True`.
 This is the *newtype* declaration, nothing fancy:
 
-```{.haskell:hs}
+```haskell
 newtype All = All { getAll :: Bool }
         deriving (Eq, Ord, Read, Show, Bounded)
 ```
 
 And this is the instance:
 
-```{.haskell:hs}
+```haskell
 instance Monoid All where
         mempty = All True
         All x `mappend` All y = All (x && y)
@@ -1725,7 +1725,7 @@ instance Monoid All where
 
 When we `mappend` values of the `All` type, the result will be `True` only if *all* the values used in the `mappend` operations are `True`:
 
-```{.haskell:hs}
+```haskell
 ghci> getAll $ mempty `mappend` All True
 True
 ghci> getAll $ mempty `mappend` All False
@@ -1739,12 +1739,12 @@ False
 Just like with multiplication and addition, we usually explicitly state the binary functions instead of wrapping them in *newtype*s and then using `mappend` and `mempty`.
 `mconcat` seems useful for `Any` and `All`, but usually it's easier to use the `or` and `and` functions, which take lists of `Bool`s and return `True` if any of them are `True` or if all of them are `True`, respectively.
 
-### The `Ordering` monoid 
+### The `Ordering` monoid
 
 Hey, remember the `Ordering` type?
 It's used as the result when comparing things and it can have three values: `LT`, `EQ` and `GT`, which stand for *less than*, *equal* and *greater than* respectively:
 
-```{.haskell:hs}
+```haskell
 ghci> 1 `compare` 2
 LT
 ghci> 2 `compare` 2
@@ -1756,7 +1756,7 @@ GT
 With lists, numbers and boolean values, finding monoids was just a matter of looking at already existing commonly used functions and seeing if they exhibit some sort of monoid behavior.
 With `Ordering`, we have to look a bit harder to recognize a monoid, but it turns out that its `Monoid` instance is just as intuitive as the ones we've met so far and also quite useful:
 
-```{.haskell:hs}
+```haskell
 instance Monoid Ordering where
     mempty = EQ
     LT `mappend` _ = LT
@@ -1764,7 +1764,7 @@ instance Monoid Ordering where
     GT `mappend` _ = GT
 ```
 
-![did anyone ORDER pizza?!?! I can't BEAR these puns!](assets/images/functors-applicative-functors-and-monoids/bear.png){.right width=330 height=339}
+![did anyone ORDER pizza?!?! I can't BEAR these puns!](assets/images/functors-applicative-functors-and-monoids/bear.png)
 
 The instance is set up like this: when we `mappend` two `Ordering` values, the one on the left is kept, unless the value on the left is `EQ`, in which case the right one is the result.
 The identity is `EQ`.
@@ -1780,7 +1780,7 @@ To gain some intuition for `EQ` being the identity, we can notice that if we wer
 It's important to note that in the `Monoid` instance for `Ordering`, ``x `mappend` y`` doesn't equal ``y `mappend` x``.
 Because the first parameter is kept unless it's `EQ`, ``LT `mappend` GT`` will result in `LT`, whereas ``GT `mappend` LT`` will result in `GT`:
 
-```{.haskell:hs}
+```haskell
 ghci> LT `mappend` GT
 LT
 ghci> GT `mappend` LT
@@ -1796,7 +1796,7 @@ Let's say you were writing a function that takes two strings, compares their len
 But if the strings are of the same length, then instead of returning `EQ` right away, we want to compare them alphabetically.
 One way to write this would be like so:
 
-```{.haskell:hs}
+```haskell
 lengthCompare :: String -> String -> Ordering
 lengthCompare x y = let a = length x `compare` length y
                         b = x `compare` y
@@ -1807,7 +1807,7 @@ We name the result of comparing the lengths `a` and the result of the alphabetic
 
 But by employing our understanding of how `Ordering` is a monoid, we can rewrite this function in a much simpler manner:
 
-```{.haskell:hs}
+```haskell
 import Data.Monoid
 
 lengthCompare :: String -> String -> Ordering
@@ -1817,7 +1817,7 @@ lengthCompare x y = (length x `compare` length y) `mappend`
 
 We can try this out:
 
-```{.haskell:hs}
+```haskell
 ghci> lengthCompare "zen" "ants"
 LT
 ghci> lengthCompare "zen" "ant"
@@ -1828,7 +1828,7 @@ Remember, when we use `mappend`, its left parameter is always kept unless it's `
 That's why we put the comparison that we consider to be the first, more important criterion as the first parameter.
 If we wanted to expand this function to also compare for the number of vowels and set this to be the second most important criterion for comparison, we'd just modify it like this:
 
-```{.haskell:hs}
+```haskell
 import Data.Monoid
 
 lengthCompare :: String -> String -> Ordering
@@ -1840,7 +1840,7 @@ lengthCompare x y = (length x `compare` length y) `mappend`
 
 We made a helper function, which takes a string and tells us how many vowels it has by first filtering it only for letters that are in the string `"aeiou"` and then applying `length` to that.
 
-```{.haskell:hs}
+```haskell
 ghci> lengthCompare "zen" "anna"
 LT
 ghci> lengthCompare "zen" "ana"
@@ -1856,7 +1856,7 @@ In the third example, they both have the same length and the same number of vowe
 
 The `Ordering` monoid is very cool because it allows us to easily compare things by many different criteria and put those criteria in an order themselves, ranging from the most important to the least.
 
-### `Maybe` the monoid 
+### `Maybe` the monoid
 
 Let's take a look at the various ways that `Maybe a` can be made an instance of `Monoid` and what those instances are useful for.
 
@@ -1864,7 +1864,7 @@ One way is to treat `Maybe a` as a monoid only if its type parameter `a` is a mo
 We use `Nothing` as the identity, and so if one of the two values that we're `mappend`ing is `Nothing`, we keep the other value.
 Here's the instance declaration:
 
-```{.haskell:hs}
+```haskell
 instance Monoid a => Monoid (Maybe a) where
     mempty = Nothing
     Nothing `mappend` m = m
@@ -1878,7 +1878,7 @@ If we `mappend` something with a `Nothing`, the result is that something.
 If we `mappend` two `Just` values, the contents of the `Just`s get `mappended` and then wrapped back in a `Just`.
 We can do this because the class constraint ensures that the type of what's inside the `Just` is an instance of `Monoid`.
 
-```{.haskell:hs}
+```haskell
 ghci> Nothing `mappend` Just "andy"
 Just "andy"
 ghci> Just LT `mappend` Nothing
@@ -1896,7 +1896,7 @@ But if we don't know if the contents are monoids, we can't use `mappend` between
 Well, one thing we can do is to just discard the second value and keep the first one.
 For this, the `First a` type exists and this is its definition:
 
-```{.haskell:hs}
+```haskell
 newtype First a = First { getFirst :: Maybe a }
     deriving (Eq, Ord, Read, Show)
 ```
@@ -1904,7 +1904,7 @@ newtype First a = First { getFirst :: Maybe a }
 We take a `Maybe a` and we wrap it with a *newtype*.
 The `Monoid` instance is as follows:
 
-```{.haskell:hs}
+```haskell
 instance Monoid (First a) where
     mempty = First Nothing
     First (Just x) `mappend` _ = First (Just x)
@@ -1916,7 +1916,7 @@ Just like we said.
 If `mappend`'s first parameter is a `Just` value, we ignore the second one.
 If the first one is a `Nothing`, then we present the second parameter as a result, regardless of whether it's a `Just` or a `Nothing`:
 
-```{.haskell:hs}
+```haskell
 ghci> getFirst $ First (Just 'a') `mappend` First (Just 'b')
 Just 'a'
 ghci> getFirst $ First Nothing `mappend` First (Just 'b')
@@ -1928,32 +1928,32 @@ Just 'a'
 `First` is useful when we have a bunch of `Maybe` values and we just want to know if any of them is a `Just`.
 The `mconcat` function comes in handy:
 
-```{.haskell:hs}
+```haskell
 ghci> getFirst . mconcat . map First $ [Nothing, Just 9, Just 10]
 Just 9
 ```
 
 If we want a monoid on `Maybe a` such that the second parameter is kept if both parameters of `mappend` are `Just` values, `Data.Monoid` provides a the `Last a` type, which works like `First a`, only the last non-`Nothing` value is kept when `mappend`ing and using `mconcat`:
 
-```{.haskell:hs}
+```haskell
 ghci> getLast . mconcat . map Last $ [Nothing, Just 9, Just 10]
 Just 10
 ghci> getLast $ Last (Just "one") `mappend` Last (Just "two")
 Just "two"
 ```
 
-### Using monoids to fold data structures 
+### Using monoids to fold data structures
 
 One of the more interesting ways to put monoids to work is to make them help us define folds over various data structures.
 So far, we've only done folds over lists, but lists aren't the only data structure that can be folded over.
 We can define folds over almost any data structure.
 Trees especially lend themselves well to folding.
 
-Because there are so many data structures that work nicely with folds, the `Foldable`{.label .class} type class was introduced.
+Because there are so many data structures that work nicely with folds, the `Foldable` type class was introduced.
 Much like `Functor` is for things that can be mapped over, `Foldable` is for things that can be folded up!
 It can be found in `Data.Foldable` and because it exports functions whose names clash with the ones from the `Prelude`, it's best imported qualified (and served with basil):
 
-```{.haskell:hs}
+```haskell
 import qualified Foldable as F
 ```
 
@@ -1964,7 +1964,7 @@ Huh?
 But we already know these functions, what's so new about this?
 Let's compare the types of `Foldable`'s `foldr` and the `foldr` from the `Prelude` to see how they differ:
 
-```{.haskell:hs}
+```haskell
 ghci> :t foldr
 foldr :: (a -> b -> b) -> b -> [a] -> b
 ghci> :t F.foldr
@@ -1975,7 +1975,7 @@ Ah!
 So whereas `foldr` takes a list and folds it up, the `foldr` from `Data.Foldable` accepts any type that can be folded up, not just lists!
 As expected, both `foldr` functions do the same for lists:
 
-```{.haskell:hs}
+```haskell
 ghci> foldr (*) 1 [1,2,3]
 6
 ghci> F.foldr (*) 1 [1,2,3]
@@ -1985,7 +1985,7 @@ ghci> F.foldr (*) 1 [1,2,3]
 Okay then, what are some other data structures that support folds?
 Well, there's the `Maybe` we all know and love!
 
-```{.haskell:hs}
+```haskell
 ghci> F.foldl (+) 2 (Just 9)
 11
 ghci> F.foldr (||) False (Just True)
@@ -1998,7 +1998,7 @@ So let's examine a data structure that's a little more complex then.
 Remember the tree data structure from the [Making Our Own Types and Typeclasses](making-our-own-types-and-typeclasses.html#recursive-data-structures) chapter?
 We defined it like this:
 
-```{.haskell:hs}
+```haskell
 data Tree a = Empty | Node a (Tree a) (Tree a) deriving (Show, Read, Eq)
 ```
 
@@ -2009,7 +2009,7 @@ One way to make a type constructor an instance of `Foldable` is to just directly
 But another, often much easier way, is to implement the `foldMap` function, which is also a part of the `Foldable` type class.
 The `foldMap` function has the following type:
 
-```{.haskell:hs}
+```haskell
 foldMap :: (Monoid m, Foldable t) => (a -> m) -> t a -> m
 ```
 
@@ -2023,7 +2023,7 @@ So if we just implement `foldMap` for some type, we get `foldr` and `foldl` on t
 
 This is how we make `Tree` an instance of `Foldable`:
 
-```{.haskell:hs}
+```haskell
 instance F.Foldable Tree where
     foldMap f Empty = mempty
     foldMap f (Node x l r) = F.foldMap f l `mappend`
@@ -2031,7 +2031,7 @@ instance F.Foldable Tree where
                              F.foldMap f r
 ```
 
-![find the visual pun or whatever](assets/images/functors-applicative-functors-and-monoids/accordion.png){.right width=366 height=280}
+![find the visual pun or whatever](assets/images/functors-applicative-functors-and-monoids/accordion.png)
 
 We think like this: if we are provided with a function that takes an element of our tree and returns a monoid value, how do we reduce our whole tree down to one single monoid value?
 When we were doing `fmap` over our tree, we applied the function that we were mapping to a node and then we recursively mapped the function over the left subtree as well as the right one.
@@ -2053,7 +2053,7 @@ We receive that function as a parameter to `foldMap` and all we have to decide i
 Now that we have a `Foldable` instance for our tree type, we get `foldr` and `foldl` for free!
 Consider this tree:
 
-```{.haskell:hs}
+```haskell
 testTree = Node 5
             (Node 3
                 (Node 1 Empty Empty)
@@ -2069,7 +2069,7 @@ It has `5` at its root and then its left node is has `3` with `1` on the left an
 The root's right node has a `9` and then an `8` to its left and a `10` on the far right side.
 With a `Foldable` instance, we can do all of the folds that we can do on lists:
 
-```{.haskell:hs}
+```haskell
 ghci> F.foldl (+) 0 testTree
 42
 ghci> F.foldl (*) 1 testTree
@@ -2079,7 +2079,7 @@ ghci> F.foldl (*) 1 testTree
 And also, `foldMap` isn't only useful for making new instances of `Foldable`; it comes in handy for reducing our structure to a single monoid value.
 For instance, if we want to know if any number in our tree is equal to `3`, we can do this:
 
-```{.haskell:hs}
+```haskell
 ghci> getAny $ F.foldMap (\x -> Any $ x == 3) testTree
 True
 ```
@@ -2088,7 +2088,7 @@ Here, `\x -> Any $ x == 3` is a function that takes a number and returns a monoi
 `foldMap` applies this function to every element in our tree and then reduces the resulting monoids into a single monoid with `mappend`.
 If we do this:
 
-```{.haskell:hs}
+```haskell
 ghci> getAny $ F.foldMap (\x -> Any $ x > 15) testTree
 False
 ```
@@ -2101,10 +2101,9 @@ We can also easily turn our tree into a list by doing a `foldMap` with the `\x -
 By first projecting that function onto our tree, each element becomes a singleton list.
 The `mappend` action that takes place between all those singleton list results in a single list that holds all of the elements that are in our tree:
 
-```{.haskell:hs}
+```haskell
 ghci> F.foldMap (\x -> [x]) testTree
 [1,3,6,5,8,9,10]
 ```
 
 What's cool is that all of these trick aren't limited to trees, they work on any instance of `Foldable`.
-

@@ -1,8 +1,8 @@
 # Recursion {style=margin-left:-2px}
 
-## Hello recursion! {#hello-recursion}
+## Hello recursion!
 
-![SOVIET RUSSIA](assets/images/recursion/recursion.png){.left width=250 height=179}
+![SOVIET RUSSIA](assets/images/recursion/recursion.png)
 
 We mention recursion briefly in the previous chapter.
 In this chapter, we'll take a closer look at recursion, why it's important to Haskell and how we can work out very concise and elegant solutions to problems by thinking recursively.
@@ -26,7 +26,7 @@ All of a sudden, you'd be saying that *F(-2000)* is *F(-2001) + F(-2002)* and th
 Recursion is important to Haskell because unlike imperative languages, you do computations in Haskell by declaring what something *is* instead of declaring *how* you get it.
 That's why there are no while loops or for loops in Haskell and instead we many times have to use recursion to declare what something is.
 
-## Maximum awesome {#maximum-awesome}
+## Maximum awesome
 
 The `maximum` function takes a list of things that can be ordered (e.g. instances of the `Ord` typeclass) and returns the biggest of them.
 Think about how you'd implement that in an imperative fashion.
@@ -42,7 +42,7 @@ If the maximum of the tail is bigger, well, then it's the maximum of the tail.
 That's it!
 Now let's implement that in Haskell.
 
-```{.haskell:hs}
+```haskell
 maximum' :: (Ord a) => [a] -> a
 maximum' [] = error "maximum of empty list"
 maximum' [x] = x
@@ -86,7 +86,7 @@ An even clearer way to write this function is to use `max`.
 If you remember, `max` is a function that takes two numbers and returns the bigger of them.
 Here's how we could rewrite `maximum'` by using `max`:
 
-```{.haskell:hs}
+```haskell
 maximum' :: (Ord a) => [a] -> a
 maximum' [] = error "maximum of empty list"
 maximum' [x] = x
@@ -96,9 +96,9 @@ maximum' (x:xs) = max x (maximum' xs)
 How's that for elegant!
 In essence, the maximum of a list is the max of the first element and the maximum of the tail.
 
-![max](assets/images/recursion/maxs.png){.center width=651 height=267}
+![max](assets/images/recursion/maxs.png)
 
-## A few more recursive functions {#a-few-more-recursive-functions}
+## A few more recursive functions
 
 Now that we know how to generally think recursively, let's implement a few functions using recursion.
 First off, we'll implement `replicate`.
@@ -109,7 +109,7 @@ My guess is that the edge condition is 0 or less.
 If we try to replicate something zero times, it should return an empty list.
 Also for negative numbers, because it doesn't really make sense.
 
-```{.haskell:hs}
+```haskell
 replicate' :: (Num i, Ord i) => i -> a -> [a]
 replicate' n x
     | n <= 0    = []
@@ -121,7 +121,7 @@ If `n` is less than or equal to 0, return an empty list.
 Otherwise return a list that has `x` as the first element and then `x` replicated n-1 times as the tail.
 Eventually, the `(n-1)` part will cause our function to reach the edge condition.
 
-::: {.hintbox}
+:::
 **Note:** `Num` is not a subclass of `Ord`.
 This is because not every number type has an ordering, e.g. complex numbers aren't ordered.
 So that's why we have to specify both the `Num` and `Ord` class constraints when doing addition or subtraction and also comparison.
@@ -135,7 +135,7 @@ Also if we try to take anything from an empty list, we get an empty list.
 Notice that those are two edge conditions right there.
 So let's write that out:
 
-```{.haskell:hs}
+```haskell
 take' :: (Num i, Ord i) => i -> [a] -> [a]
 take' n _
     | n <= 0   = []
@@ -143,7 +143,7 @@ take' _ []     = []
 take' n (x:xs) = x : take' (n-1) xs
 ```
 
-![painter](assets/images/recursion/painter.png){.right width=350 height=276}
+![painter](assets/images/recursion/painter.png)
 
 The first pattern specifies that if we try to take a 0 or negative number of elements, we get an empty list.
 Notice that we're using `_` to match the list because we don't really care what it is in this case.
@@ -163,7 +163,7 @@ O-kay.
 What about the rest of it?
 Well, you could say that if we split a list to a head and a tail, the reversed list is equal to the reversed tail and then the head at the end.
 
-```{.haskell:hs}
+```haskell
 reverse' :: [a] -> [a]
 reverse' [] = []
 reverse' (x:xs) = reverse' xs ++ [x]
@@ -177,7 +177,7 @@ The good thing about infinite lists though is that we can cut them where we want
 `repeat` takes an element and returns an infinite list that just has that element.
 A recursive implementation of that is really easy, watch.
 
-```{.haskell:hs}
+```haskell
 repeat' :: a -> [a]
 repeat' x = x:repeat' x
 ```
@@ -194,7 +194,7 @@ Well, we get an empty list back then.
 So there's our edge condition.
 However, `zip` takes two lists as parameters, so there are actually two edge conditions.
 
-```{.haskell:hs}
+```haskell
 zip' :: [a] -> [b] -> [(a,b)]
 zip' _ [] = []
 zip' [] _ = []
@@ -211,7 +211,7 @@ It takes an element and a list and sees if that element is in the list.
 The edge condition, as is most of the times with lists, is the empty list.
 We know that an empty list contains no elements, so it certainly doesn't have the droids we're looking for.
 
-```{.haskell:hs}
+```haskell
 elem' :: (Eq a) => a -> [a] -> Bool
 elem' a [] = False
 elem' a (x:xs)
@@ -223,7 +223,7 @@ Pretty simple and expected.
 If the head isn't the element then we check the tail.
 If we reach an empty list, the result is `False`.
 
-## Quick, sort! {#quick-sort}
+## Quick, sort!
 
 We have a list of items that can be sorted.
 Their type is an instance of the `Ord` typeclass.
@@ -234,7 +234,7 @@ While it takes upwards of 10 lines to implement quicksort in imperative language
 Quicksort has become a sort of poster child for Haskell.
 Therefore, let's implement it here, even though implementing quicksort in Haskell is considered really cheesy because everyone does it to showcase how elegant Haskell is.
 
-![quickman](assets/images/recursion/quickman.png){.left width=180 height=235}
+![quickman](assets/images/recursion/quickman.png)
 
 So, the type signature is going to be `quicksort :: (Ord a) => [a] -> [a]`.
 No surprises there.
@@ -249,7 +249,7 @@ How are we going to filter the list so that we get only the elements smaller tha
 List comprehensions.
 So, let's dive in and define this function.
 
-```{.haskell:hs}
+```haskell
 quicksort :: (Ord a) => [a] -> [a]
 quicksort [] = []
 quicksort (x:xs) =
@@ -260,7 +260,7 @@ quicksort (x:xs) =
 
 Let's give it a small test run to see if it appears to behave correctly.
 
-```{.haskell:ghci}
+```haskell
 ghci> quicksort [10,2,5,3,1,6,7,4,2,3,4,8,9]
 [1,2,2,3,3,4,4,5,6,7,8,9,10]
 ghci> quicksort "the quick brown fox jumps over the lazy dog"
@@ -277,7 +277,7 @@ We sort the two lists using the same function.
 Eventually, we'll break it up so much that we reach empty lists and an empty list is already sorted in a way, by virtue of being empty.
 Here's an illustration:
 
-![quicksort](assets/images/recursion/quicksort.png){.center width=799 height=332}
+![quicksort](assets/images/recursion/quicksort.png)
 
 An element that is in place and won't move anymore is represented in `orange`{style=color:#FF6600;font-weight:bold;}.
 If you read them from left to right, you'll see the sorted list.
@@ -288,7 +288,7 @@ We chose the head because it's easy to get by pattern matching.
 The elements that are smaller than the pivot are `light green`{style=color:#0f0;font-weight:bold} and elements larger than the pivot are `dark green`{style=color:#030;font-weight:bold}.
 The yellowish gradient thing represents an application of quicksort.
 
-## Thinking recursively {#thinking-recursively}
+## Thinking recursively
 
 We did quite a bit of recursion so far and as you've probably noticed, there's a pattern here.
 Usually you define an edge case and then you define a function that does something between some element and the function applied to the rest.
@@ -298,7 +298,7 @@ A product of a list is the first element of the list times the product of the re
 The length of a list is one plus the length of the tail of the list.
 Ekcetera, ekcetera ...
 
-![brain](assets/images/recursion/brain.png){.left width=250 height=219}
+![brain](assets/images/recursion/brain.png)
 
 Of course, these also have edge cases.
 Usually the edge case is some scenario where a recursive application doesn't make sense.
@@ -315,4 +315,3 @@ Also when doing sums of lists, we define the sum of an empty list as 0 and 0 is 
 In quicksort, the edge case is the empty list and the identity is also the empty list, because if you add an empty list to a list, you just get the original list back.
 
 So when trying to think of a recursive way to solve a problem, try to think of when a recursive solution doesn't apply and see if you can use that as an edge case, think about identities and think about whether you'll break apart the parameters of the function (for instance, lists are usually broken into a head and a tail via pattern matching) and on which part you'll use the recursive call.
-

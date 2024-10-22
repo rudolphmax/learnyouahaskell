@@ -1,9 +1,9 @@
-# Making Our Own Types and Typeclasses 
+# Making Our Own Types and Typeclasses
 
 In the previous chapters, we covered some existing Haskell types and typeclasses.
 In this chapter, we'll learn how to make our own and how to put them to work!
 
-## Algebraic data types intro {#algebraic-data-types}
+## Algebraic data types intro
 
 So far, we've run into a lot of data types.
 `Bool`, `Int`, `Char`, `Maybe`, etc.
@@ -11,7 +11,7 @@ But how do we make our own?
 Well, one way is to use the **data** keyword to define a type.
 Let's see how the `Bool` type is defined in the standard library.
 
-```{.haskell:hs}
+```haskell
 data Bool = False | True
 ```
 
@@ -25,11 +25,11 @@ Both the type name and the value constructors have to be capital cased.
 
 In a similar fashion, we can think of the `Int` type as being defined like this:
 
-```{.haskell:hs}
+```haskell
 data Int = -2147483648 | -2147483647 | ... | -1 | 0 | 1 | 2 | ... | 2147483647
 ```
 
-![caveman](assets/images/making-our-own-types-and-typeclasses/caveman.png){.left width=220 height=215}
+![caveman](assets/images/making-our-own-types-and-typeclasses/caveman.png)
 
 The first and last value constructors are the minimum and maximum possible values of `Int`.
 It's not actually defined like this, the ellipses are here because we omitted a heapload of numbers, so this is just for illustrative purposes.
@@ -42,7 +42,7 @@ A better solution would be to make our own type to represent a shape.
 Let's say that a shape can be a circle or a rectangle.
 Here it is:
 
-```{.haskell:hs}
+```haskell
 data Shape = Circle Float Float Float | Rectangle Float Float Float Float
 ```
 
@@ -58,7 +58,7 @@ Now when I say fields, I actually mean parameters.
 Value constructors are actually functions that ultimately return a value of a data type.
 Let's take a look at the type signatures for these two value constructors.
 
-```{.haskell:hs}
+```haskell
 ghci> :t Circle
 Circle :: Float -> Float -> Float -> Shape
 ghci> :t Rectangle
@@ -69,7 +69,7 @@ Cool, so value constructors are functions like everything else.
 Who would have thought?
 Let's make a function that takes a shape and returns its surface.
 
-```{.haskell:hs}
+```haskell
 surface :: Shape -> Float
 surface (Circle _ _ r) = pi * r ^ 2
 surface (Rectangle x1 y1 x2 y2) = (abs $ x2 - x1) * (abs $ y2 - y1)
@@ -84,7 +84,7 @@ We pattern matched against constructors before (all the time actually) when we p
 We just write a constructor and then bind its fields to names.
 Because we're interested in the radius, we don't actually care about the first two fields, which tell us where the circle is.
 
-```{.haskell:hs}
+```haskell
 ghci> surface $ Circle 10 20 10
 314.15927
 ghci> surface $ Rectangle 0 0 100 100
@@ -97,7 +97,7 @@ That's because Haskell doesn't know how to display our data type as a string (ye
 Remember, when we try to print a value out in the prompt, Haskell first runs the `show` function to get the string representation of our value and then it prints that out to the terminal.
 To make our `Shape` type part of the `Show` typeclass, we modify it like this:
 
-```{.haskell:hs}
+```haskell
 data Shape = Circle Float Float Float | Rectangle Float Float Float Float deriving (Show)
 ```
 
@@ -105,7 +105,7 @@ We won't concern ourselves with deriving too much for now.
 Let's just say that if we add `deriving (Show)` at the end of a *data* declaration, Haskell automagically makes that type part of the `Show` typeclass.
 So now, we can do this:
 
-```{.haskell:hs}
+```haskell
 ghci> Circle 10 20 5
 Circle 10.0 20.0 5.0
 ghci> Rectangle 50 230 60 90
@@ -115,7 +115,7 @@ Rectangle 50.0 230.0 60.0 90.0
 Value constructors are functions, so we can map them and partially apply them and everything.
 If we want a list of concentric circles with different radii, we can do this.
 
-```{.haskell:hs}
+```haskell
 ghci> map (Circle 10 20) [4,5,6,6]
 [Circle 10.0 20.0 4.0,Circle 10.0 20.0 5.0,Circle 10.0 20.0 6.0,Circle 10.0 20.0 6.0]
 ```
@@ -124,7 +124,7 @@ Our data type is good, although it could be better.
 Let's make an intermediate data type that defines a point in two-dimensional space.
 Then we can use that to make our shapes more understandable.
 
-```{.haskell:hs}
+```haskell
 data Point = Point Float Float deriving (Show)
 data Shape = Circle Point Float | Rectangle Point Point deriving (Show)
 ```
@@ -136,7 +136,7 @@ This makes it easier to understand what's what.
 Same goes for the rectangle.
 We have to adjust our `surface` function to reflect these changes.
 
-```{.haskell:hs}
+```haskell
 surface :: Shape -> Float
 surface (Circle _ r) = pi * r ^ 2
 surface (Rectangle (Point x1 y1) (Point x2 y2)) = (abs $ x2 - x1) * (abs $ y2 - y1)
@@ -147,7 +147,7 @@ We disregarded the whole point in the circle pattern.
 In the rectangle pattern, we just used a nested pattern matching to get the fields of the points.
 If we wanted to reference the points themselves for some reason, we could have used as-patterns.
 
-```{.haskell:hs}
+```haskell
 ghci> surface (Rectangle (Point 0 0) (Point 100 100))
 10000.0
 ghci> surface (Circle (Point 0 0) 24)
@@ -157,7 +157,7 @@ ghci> surface (Circle (Point 0 0) 24)
 How about a function that nudges a shape?
 It takes a shape, the amount to move it on the x axis and the amount to move it on the y axis and then returns a new shape that has the same dimensions, only it's located somewhere else.
 
-```{.haskell:hs}
+```haskell
 nudge :: Shape -> Float -> Float -> Shape
 nudge (Circle (Point x y) r) a b = Circle (Point (x+a) (y+b)) r
 nudge (Rectangle (Point x1 y1) (Point x2 y2)) a b = Rectangle (Point (x1+a) (y1+b)) (Point (x2+a) (y2+b))
@@ -166,14 +166,14 @@ nudge (Rectangle (Point x1 y1) (Point x2 y2)) a b = Rectangle (Point (x1+a) (y1+
 Pretty straightforward.
 We add the nudge amounts to the points that denote the position of the shape.
 
-```{.haskell:hs}
+```haskell
 ghci> nudge (Circle (Point 34 34) 10) 5 10
 Circle (Point 39.0 44.0) 10.0
 ```
 
 If we don't want to deal directly with points, we can make some auxiliary functions that create shapes of some size at the zero coordinates and then nudge those.
 
-```{.haskell:hs}
+```haskell
 baseCircle :: Float -> Shape
 baseCircle r = Circle (Point 0 0) r
 
@@ -181,7 +181,7 @@ baseRect :: Float -> Float -> Shape
 baseRect width height = Rectangle (Point 0 0) (Point width height)
 ```
 
-```{.haskell:hs}
+```haskell
 ghci> nudge (baseRect 40 100) 60 23
 Rectangle (Point 60.0 23.0) (Point 100.0 123.0)
 ```
@@ -192,7 +192,7 @@ If you want to export all the value constructors for a given type, just write `.
 
 If we wanted to export the functions and types that we defined here in a module, we could start it off like this:
 
-```{.haskell:hs}
+```haskell
 module Shapes
 ( Point(..)
 , Shape(..)
@@ -217,16 +217,16 @@ So when we choose not to export them, we just prevent the person importing our m
 Not exporting the value constructors of a data types makes them more abstract in such a way that we hide their implementation.
 Also, whoever uses our module can't pattern match against the value constructors.
 
-## Record syntax {#record-syntax}
+## Record syntax
 
-![record](assets/images/making-our-own-types-and-typeclasses/record.png){.right width=208 height=97}
+![record](assets/images/making-our-own-types-and-typeclasses/record.png)
 
 OK, we've been tasked with creating a data type that describes a person.
 The info that we want to store about that person is: first name, last name, age, height, phone number, and favorite ice-cream flavor.
 I don't know about you, but that's all I ever want to know about a person.
 Let's give it a go!
 
-```{.haskell:hs}
+```haskell
 data Person = Person String String Int Float String String deriving (Show)
 ```
 
@@ -234,7 +234,7 @@ O-kay.
 The first field is the first name, the second is the last name, the third is the age and so on.
 Let's make a person.
 
-```{.haskell:hs}
+```haskell
 ghci> let guy = Person "Buddy" "Finklestein" 43 184.2 "526-2928" "Chocolate"
 ghci> guy
 Person "Buddy" "Finklestein" 43 184.2 "526-2928" "Chocolate"
@@ -245,7 +245,7 @@ What if we want to create a function to get separate info from a person?
 A function that gets some person's first name, a function that gets some person's last name, etc.
 Well, we'd have to define them kind of like this.
 
-```{.haskell:hs}
+```haskell
 firstName :: Person -> String
 firstName (Person firstname _ _ _ _ _) = firstname
 
@@ -269,7 +269,7 @@ Whew!
 I certainly did not enjoy writing that!
 Despite being very cumbersome and BORING to write, this method works.
 
-```{.haskell:hs}
+```haskell
 ghci> let guy = Person "Buddy" "Finklestein" 43 184.2 "526-2928" "Chocolate"
 ghci> firstName guy
 "Buddy"
@@ -288,7 +288,7 @@ The makers of Haskell were very smart and anticipated this scenario.
 They included an alternative way to write data types.
 Here's how we could achieve the above functionality with record syntax.
 
-```{.haskell:hs}
+```haskell
 data Person = Person { firstName :: String
                      , lastName :: String
                      , age :: Int
@@ -304,7 +304,7 @@ The resulting data type is exactly the same.
 The main benefit of this is that it creates functions that lookup fields in the data type.
 By using record syntax to create this data type, Haskell automatically made these functions: `firstName`, `lastName`, `age`, `height`, `phoneNumber` and `flavor`.
 
-```{.haskell:hs}
+```haskell
 ghci> :t flavor
 flavor :: Person -> String
 ghci> :t firstName
@@ -317,22 +317,22 @@ Say we have a type that represents a car.
 We want to keep track of the company that made it, the model name and its year of production.
 Watch.
 
-```{.haskell:hs}
+```haskell
 data Car = Car String String Int deriving (Show)
 ```
 
-```{.haskell:hs}
+```haskell
 ghci> Car "Ford" "Mustang" 1967
 Car "Ford" "Mustang" 1967
 ```
 
 If we define it using record syntax, we can make a new car like this.
 
-```{.haskell:hs}
+```haskell
 data Car = Car {company :: String, model :: String, year :: Int} deriving (Show)
 ```
 
-```{.haskell:hs}
+```haskell
 ghci> Car {company="Ford", model="Mustang", year=1967}
 Car {company = "Ford", model = "Mustang", year = 1967}
 ```
@@ -344,7 +344,7 @@ Use record syntax when a constructor has several fields and it's not obvious whi
 If we make a 3D vector data type by doing `data Vector = Vector Int Int Int`, it's pretty obvious that the fields are the components of a vector.
 However, in our `Person` and `Car` types, it wasn't so obvious and we greatly benefited from using record syntax.
 
-## Type parameters {#type-parameters}
+## Type parameters
 
 A value constructor can take some values parameters and then produce a new value.
 For instance, the `Car` constructor takes three values and produces a car value.
@@ -353,11 +353,11 @@ This might sound a bit too meta at first, but it's not that complicated.
 If you're familiar with templates in C++, you'll see some parallels.
 To get a clear picture of what type parameters work like in action, let's take a look at how a type we've already met is implemented.
 
-```{.haskell:hs}
+```haskell
 data Maybe a = Nothing | Just a
 ```
 
-![yeti](assets/images/making-our-own-types-and-typeclasses/yeti.png){.left width=209 height=260}
+![yeti](assets/images/making-our-own-types-and-typeclasses/yeti.png)
 
 The `a` here is the type parameter.
 And because there's a type parameter involved, we call `Maybe` a type constructor.
@@ -375,7 +375,7 @@ Values can have an `[Int]` type, a `[Char]` type, a `[[String]]` type, but you c
 
 Let's play around with the `Maybe` type.
 
-```{.haskell:hs}
+```haskell
 ghci> Just "Haha"
 Just "Haha"
 ghci> Just 84
@@ -406,7 +406,7 @@ Usually we use them when our data type would work regardless of the type of the 
 If our type acts as some kind of box, it's good to use them.
 We could change our `Car` data type from this:
 
-```{.haskell:hs}
+```haskell
 data Car = Car { company :: String
                , model :: String
                , year :: Int
@@ -415,7 +415,7 @@ data Car = Car { company :: String
 
 To this:
 
-```{.haskell:hs}
+```haskell
 data Car a b c = Car { company :: a
                      , model :: b
                      , year :: c
@@ -426,12 +426,12 @@ But would we really benefit?
 The answer is: probably no, because we'd just end up defining functions that only work on the `Car String String Int` type.
 For instance, given our first definition of `Car`, we could make a function that displays the car's properties in a nice little text.
 
-```{.haskell:hs}
+```haskell
 tellCar :: Car -> String
 tellCar (Car {company = c, model = m, year = y}) = "This " ++ c ++ " " ++ m ++ " was made in " ++ show y
 ```
 
-```{.haskell:hs}
+```haskell
 ghci> let stang = Car {company="Ford", model="Mustang", year=1967}
 ghci> tellCar stang
 "This Ford Mustang was made in 1967"
@@ -441,7 +441,7 @@ A cute little function!
 The type declaration is cute and it works nicely.
 Now what if `Car` was `Car a b c`?
 
-```{.haskell:hs}
+```haskell
 tellCar :: (Show a) => Car String String a -> String
 tellCar (Car {company = c, model = m, year = y}) = "This " ++ c ++ " " ++ m ++ " was made in " ++ show y
 ```
@@ -449,7 +449,7 @@ tellCar (Car {company = c, model = m, year = y}) = "This " ++ c ++ " " ++ m ++ "
 We'd have to force this function to take a `Car` type of `(Show a) => Car String String a`.
 You can see that the type signature is more complicated and the only benefit we'd actually get would be that we can use any type that's an instance of the `Show` typeclass as the type for `c`.
 
-```{.haskell:hs}
+```haskell
 ghci> tellCar (Car "Ford" "Mustang" 1967)
 "This Ford Mustang was made in 1967"
 ghci> tellCar (Car "Ford" "Mustang" "nineteen sixty seven")
@@ -460,7 +460,7 @@ ghci> :t Car "Ford" "Mustang" "nineteen sixty seven"
 Car "Ford" "Mustang" "nineteen sixty seven" :: Car [Char] [Char] [Char]
 ```
 
-![meekrat](assets/images/making-our-own-types-and-typeclasses/meekrat.png){.right width=150 height=267}
+![meekrat](assets/images/making-our-own-types-and-typeclasses/meekrat.png)
 
 In real life though, we'd end up using `Car String String Int` most of the time and so it would seem that parameterizing the `Car` type isn't really worth it.
 We usually use type parameters when the type that's contained inside the data type's various value constructors isn't really that important for the type to work.
@@ -476,7 +476,7 @@ This is a good example of where type parameters are very useful.
 Having maps parameterized enables us to have mappings from any type to any other type, as long as the type of the key is part of the `Ord` typeclass.
 If we were defining a mapping type, we could add a typeclass constraint in the *data* declaration:
 
-```{.haskell:hs}
+```haskell
 data (Ord k) => Map k v = ...
 ```
 
@@ -494,7 +494,7 @@ So don't put type constraints into *data* declarations even if it seems to make 
 Let's implement a 3D vector type and add some operations for it.
 We'll be using a parameterized type because even though it will usually contain numeric types, it will still support several of them.
 
-```{.haskell:hs}
+```haskell
 data Vector a = Vector a a a deriving (Show)
 
 vplus :: (Num t) => Vector t -> Vector t -> Vector t
@@ -519,7 +519,7 @@ When declaring a data type, the part before the `=` is the type constructor and 
 Giving a function a type of `Vector t t t -> Vector t t t -> t` would be wrong, because we have to put types in type declaration and the vector **type** constructor takes only one parameter, whereas the value constructor takes three.
 Let's play around with our vectors.
 
-```{.haskell:hs}
+```haskell
 ghci> Vector 3 5 8 `vplus` Vector 9 2 8
 Vector 12 7 16
 ghci> Vector 3 5 8 `vplus` Vector 9 2 8 `vplus` Vector 0 2 3
@@ -532,9 +532,9 @@ ghci> Vector 2 9 3 `vectMult` (Vector 4 9 5 `scalarMult` Vector 9 2 4)
 Vector 148 666 222
 ```
 
-## Derived instances {#derived-instances}
+## Derived instances
 
-![gob](assets/images/making-our-own-types-and-typeclasses/gob.png){.right width=112 height=350}
+![gob](assets/images/making-our-own-types-and-typeclasses/gob.png)
 
 In the [Typeclasses 101](types-and-typeclasses.html#typeclasses-101) section, we explained the basics of typeclasses.
 We explained that a typeclass is a sort of an interface that defines some behavior.
@@ -559,7 +559,7 @@ Haskell can derive the behavior of our types in these contexts if we use the *de
 
 Consider this data type:
 
-```{.haskell:hs}
+```haskell
 data Person = Person { firstName :: String
                      , lastName :: String
                      , age :: Int
@@ -574,7 +574,7 @@ We can try to equate them and see if they're equal or not.
 That's why it would make sense for this type to be part of the `Eq` typeclass.
 We'll derive the instance.
 
-```{.haskell:hs}
+```haskell
 data Person = Person { firstName :: String
                      , lastName :: String
                      , age :: Int
@@ -586,7 +586,7 @@ There's only one catch though, the types of all the fields also have to be part 
 But since both `String` and `Int` are, we're OK.
 Let's test our `Eq` instance.
 
-```{.haskell:hs}
+```haskell
 ghci> let mikeD = Person {firstName = "Michael", lastName = "Diamond", age = 43}
 ghci> let adRock = Person {firstName = "Adam", lastName = "Horovitz", age = 41}
 ghci> let mca = Person {firstName = "Adam", lastName = "Yauch", age = 44}
@@ -602,7 +602,7 @@ True
 
 Of course, since `Person` is now in `Eq`, we can use it as the `a` for all functions that have a class constraint of `Eq a` in their type signature, such as `elem`.
 
-```{.haskell:hs}
+```haskell
 ghci> let beastieBoys = [mca, adRock, mikeD]
 ghci> mikeD `elem` beastieBoys
 True
@@ -612,7 +612,7 @@ The `Show` and `Read` typeclasses are for things that can be converted to or fro
 Like with `Eq`, if a type's constructors have fields, their type has to be a part of `Show` or `Read` if we want to make our type an instance of them.
 Let's make our `Person` data type a part of `Show` and `Read` as well.
 
-```{.haskell:hs}
+```haskell
 data Person = Person { firstName :: String
                      , lastName :: String
                      , age :: Int
@@ -621,7 +621,7 @@ data Person = Person { firstName :: String
 
 Now we can print a person out to the terminal.
 
-```{.haskell:hs}
+```haskell
 ghci> let mikeD = Person {firstName = "Michael", lastName = "Diamond", age = 43}
 ghci> mikeD
 Person {firstName = "Michael", lastName = "Diamond", age = 43}
@@ -637,14 +637,14 @@ But now that we've derived a `Show` instance for it, it does know.
 Remember though, when we use the `read` function, we have to use an explicit type annotation to tell Haskell which type we want to get as a result.
 If we don't make the type we want as a result explicit, Haskell doesn't know which type we want.
 
-```{.haskell:hs}
+```haskell
 ghci> read "Person {firstName =\"Michael\", lastName =\"Diamond\", age = 43}" :: Person
 Person {firstName = "Michael", lastName = "Diamond", age = 43}
 ```
 
 If we use the result of our `read` later on in a way that Haskell can infer that it should read it as a person, we don't have to use type annotation.
 
-```{.haskell:hs}
+```haskell
 ghci> read "Person {firstName =\"Michael\", lastName =\"Diamond\", age = 43}" == mikeD
 True
 ```
@@ -657,13 +657,13 @@ If we compare two values of the same type that were made using different constru
 For instance, consider the `Bool` type, which can have a value of either `False` or `True`.
 For the purpose of seeing how it behaves when compared, we can think of it as being implemented like this:
 
-```{.haskell:hs}
+```haskell
 data Bool = False | True deriving (Ord)
 ```
 
 Because the `False` value constructor is specified first and the `True` value constructor is specified after it, we can consider `True` as greater than `False`.
 
-```{.haskell:hs}
+```haskell
 ghci> True `compare` False
 GT
 ghci> True > False
@@ -675,7 +675,7 @@ False
 In the `Maybe a` data type, the `Nothing` value constructor is specified before the `Just` value constructor, so a value of `Nothing` is always smaller than a value of `Just something`, even if that something is minus one billion trillion.
 But if we compare two `Just` values, then it goes to compare what's inside them.
 
-```{.haskell:hs}
+```haskell
 ghci> Nothing < Just 100
 True
 ghci> Nothing > Just (-49999)
@@ -691,7 +691,7 @@ But we can't do something like `Just (*3) > Just (*2)`, because `(*3)` and `(*2)
 We can easily use algebraic data types to make enumerations and the `Enum` and `Bounded` typeclasses help us with that.
 Consider the following data type:
 
-```{.haskell:hs}
+```haskell
 data Day = Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday
 ```
 
@@ -700,14 +700,14 @@ The `Enum` typeclass is for things that have predecessors and successors.
 We can also make it part of the `Bounded` typeclass, which is for things that have a lowest possible value and highest possible value.
 And while we're at it, let's also make it an instance of all the other derivable typeclasses and see what we can do with it.
 
-```{.haskell:hs}
+```haskell
 data Day = Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday
            deriving (Eq, Ord, Show, Read, Bounded, Enum)
 ```
 
 Because it's part of the `Show` and `Read` typeclasses, we can convert values of this type to and from strings.
 
-```{.haskell:hs}
+```haskell
 ghci> Wednesday
 Wednesday
 ghci> show Wednesday
@@ -718,7 +718,7 @@ Saturday
 
 Because it's part of the `Eq` and `Ord` typeclasses, we can compare or equate days.
 
-```{.haskell:hs}
+```haskell
 ghci> Saturday == Sunday
 False
 ghci> Saturday == Saturday
@@ -731,7 +731,7 @@ LT
 
 It's also part of `Bounded`, so we can get the lowest and highest day.
 
-```{.haskell:hs}
+```haskell
 ghci> minBound :: Day
 Monday
 ghci> maxBound :: Day
@@ -741,7 +741,7 @@ Sunday
 It's also an instance of `Enum`.
 We can get predecessors and successors of days and we can make list ranges from them!
 
-```{.haskell:hs}
+```haskell
 ghci> succ Monday
 Tuesday
 ghci> pred Saturday
@@ -754,18 +754,18 @@ ghci> [minBound .. maxBound] :: [Day]
 
 That's pretty awesome.
 
-## Type synonyms {#type-synonyms}
+## Type synonyms
 
 Previously, we mentioned that when writing types, the `[Char]` and `String` types are equivalent and interchangeable.
 That's implemented with **type synonyms**.
 Type synonyms don't really do anything per se, they're just about giving some types different names so that they make more sense to someone reading our code and documentation.
 Here's how the standard library defines `String` as a synonym for `[Char]`.
 
-```{.haskell:hs}
+```haskell
 type String = [Char]
 ```
 
-![chicken](assets/images/making-our-own-types-and-typeclasses/chicken.png){.left width=169 height=225}
+![chicken](assets/images/making-our-own-types-and-typeclasses/chicken.png)
 
 We've introduced the *type* keyword.
 The keyword might be misleading to some, because we're not actually making anything new (we did that with the *data* keyword), but we're just making a synonym for an already existing type.
@@ -777,7 +777,7 @@ When we were dealing with the `Data.Map` module, we first represented a phoneboo
 As we've already found out, an association list is a list of key-value pairs.
 Let's look at a phonebook that we had.
 
-```{.haskell:hs}
+```haskell
 phoneBook :: [(String,String)]
 phoneBook =
     [("amelia","555-2938")
@@ -793,14 +793,14 @@ We see that the type of `phoneBook` is `[(String,String)]`.
 That tells us that it's an association list that maps from strings to strings, but not much else.
 Let's make a type synonym to convey some more information in the type declaration.
 
-```{.haskell:hs}
+```haskell
 type PhoneBook = [(String,String)]
 ```
 
 Now the type declaration for our phonebook can be `phoneBook :: PhoneBook`.
 Let's make a type synonym for `String` as well.
 
-```{.haskell:hs}
+```haskell
 type PhoneNumber = String
 type Name = String
 type PhoneBook = [(Name,PhoneNumber)]
@@ -810,7 +810,7 @@ Giving the `String` type synonyms is something that Haskell programmers do when 
 
 So now, when we implement a function that takes a name and a number and sees if that name and number combination is in our phonebook, we can give it a very pretty and descriptive type declaration.
 
-```{.haskell:hs}
+```haskell
 inPhoneBook :: Name -> PhoneNumber -> PhoneBook -> Bool
 inPhoneBook name pnumber pbook = (name,pnumber) `elem` pbook
 ```
@@ -823,14 +823,14 @@ We introduce type synonyms either to describe what some existing type represents
 Type synonyms can also be parameterized.
 If we want a type that represents an association list type but still want it to be general so it can use any type as the keys and values, we can do this:
 
-```{.haskell:hs}
+```haskell
 type AssocList k v = [(k,v)]
 ```
 
 Now, a function that gets the value by a key in an association list can have a type of `(Eq k) => k -> AssocList k v -> Maybe v`.
 `AssocList` is a type constructor that takes two types and produces a concrete type, like `AssocList Int String`, for instance.
 
-::: {.hintbox}
+:::
 **Fonzie says:** Aaay!
 When I talk about *concrete types* I mean like fully applied types like `Map Int String` or if we're dealin' with one of them polymorphic functions, `[a]` or `(Ord a) => Maybe a` and stuff.
 And like, sometimes me and my buddies say that `Maybe` is a type, but we don't mean that, cause every idiot knows `Maybe` is a type constructor.
@@ -843,19 +843,19 @@ Just like we can partially apply functions to get new functions, we can partiall
 Just like we call a function with too few parameters to get back a new function, we can specify a type constructor with too few type parameters and get back a partially applied type constructor.
 If we wanted a type that represents a map (from `Data.Map`) from integers to something, we could either do this:
 
-```{.haskell:hs}
+```haskell
 type IntMap v = Map Int v
 ```
 
 Or we could do it like this:
 
-```{.haskell:hs}
+```haskell
 type IntMap = Map Int
 ```
 
 Either way, the `IntMap` type constructor takes one parameter and that is the type of what the integers will point to.
 
-::: {.hintbox}
+:::
 **Oh yeah**.
 If you're going to try and implement this, you'll probably going to do a qualified import of `Data.Map`.
 When you do a qualified import, type constructors also have to be preceded with a module name.
@@ -873,7 +873,7 @@ The `::` is in type declarations or in type annotations.
 Another cool data type that takes two types as its parameters is the `Either a b` type.
 This is roughly how it's defined:
 
-```{.haskell:hs}
+```haskell
 data Either a b = Left a | Right b deriving (Eq, Ord, Read, Show)
 ```
 
@@ -881,7 +881,7 @@ It has two value constructors.
 If the `Left` is used, then its contents are of type `a` and if `Right` is used, then its contents are of type `b`.
 So we can use this type to encapsulate a value of one type or another and then when we get a value of type `Either a b`, we usually pattern match on both `Left` and `Right` and we different stuff based on which one of them it was.
 
-```{.haskell:hs}
+```haskell
 ghci> Right 20
 Right 20
 ghci> Left "w00t"
@@ -906,7 +906,7 @@ However, if someone is already using that locker, he can't tell them the code fo
 We'll use a map from `Data.Map` to represent the lockers.
 It'll map from locker numbers to a pair of whether the locker is in use or not and the locker code.
 
-```{.haskell:hs}
+```haskell
 import qualified Data.Map as Map
 
 data LockerState = Taken | Free deriving (Show, Eq)
@@ -923,7 +923,7 @@ And now, we're going to make a function that searches for the code in a locker m
 We're going to use an `Either String Code` type to represent our result, because our lookup can fail in two ways --- the locker can be taken, in which case we can't tell the code or the locker number might not exist at all.
 If the lookup fails, we're just going to use a `String` to tell what's happened.
 
-```{.haskell:hs}
+```haskell
 lockerLookup :: Int -> LockerMap -> Either String Code
 lockerLookup lockerNumber map =
     case Map.lookup lockerNumber map of
@@ -941,7 +941,7 @@ If it isn't, then return a value of type `Right Code`, in which we give the stud
 It's actually a `Right String`, but we introduced that type synonym to introduce some additional documentation into the type declaration.
 Here's an example map:
 
-```{.haskell:hs}
+```haskell
 lockers :: LockerMap
 lockers = Map.fromList
     [(100,(Taken,"ZD39I"))
@@ -955,7 +955,7 @@ lockers = Map.fromList
 
 Now let's try looking up some locker codes.
 
-```{.haskell:hs}
+```haskell
 ghci> lockerLookup 101 lockers
 Right "JAH3I"
 ghci> lockerLookup 100 lockers
@@ -971,9 +971,9 @@ Right "QOTSA"
 We could have used a `Maybe a` to represent the result but then we wouldn't know why we couldn't get the code.
 But now, we have information about the failure in our result type.
 
-## Recursive data structures {#recursive-data-structures}
+## Recursive data structures
 
-![the fonz](assets/images/making-our-own-types-and-typeclasses/thefonz.png){.right width=168 height=301}
+![the fonz](assets/images/making-our-own-types-and-typeclasses/thefonz.png)
 
 As we've seen, a constructor in an algebraic data type can have several (or none at all) fields and each field must be of some concrete type.
 With that in mind, we can make types whose constructors have fields that are of the same type!
@@ -992,7 +992,7 @@ We could say that a list can be an empty list or it can be an element joined tog
 
 Let's use algebraic data types to implement our own list then!
 
-```{.haskell:hs}
+```haskell
 data List a = Empty | Cons a (List a) deriving (Show, Read, Eq, Ord)
 ```
 
@@ -1000,7 +1000,7 @@ This reads just like our definition of lists from one of the previous paragraphs
 It's either an empty list or a combination of a head with some value and a list.
 If you're confused about this, you might find it easier to understand in record syntax.
 
-```{.haskell:hs}
+```haskell
 data List a = Empty | Cons { listHead :: a, listTail :: List a} deriving (Show, Read, Eq, Ord)
 ```
 
@@ -1011,7 +1011,7 @@ We can already use our new list type!
 In other words, it has two fields.
 One field is of the type of `a` and the other is of the type `[a]`.
 
-```{.haskell:hs}
+```haskell
 ghci> Empty
 Empty
 ghci> 5 `Cons` Empty
@@ -1029,7 +1029,7 @@ We can define functions to be automatically infix by making them comprised of on
 We can also do the same with constructors, since they're just functions that return a data type.
 So check this out.
 
-```{.haskell:hs}
+```haskell
 infixr 5 :-:
 data List a = Empty | a :-: (List a) deriving (Show, Read, Eq, Ord)
 ```
@@ -1043,7 +1043,7 @@ That means that they're both left-associative (`4 * 3 * 2` is `(4 * 3) * 2`) but
 Otherwise, we just wrote `a :-: (List a)` instead of `Cons a (List a)`.
 Now, we can write out lists in our list type like so:
 
-```{.haskell:hs}
+```haskell
 ghci> 3 :-: 4 :-: 5 :-: Empty
 (:-:) 3 ((:-:) 4 ((:-:) 5 Empty))
 ghci> let a = 3 :-: 4 :-: 5 :-: Empty
@@ -1056,7 +1056,7 @@ When deriving `Show` for our type, Haskell will still display it as if the const
 Let's make a function that adds two of our lists together.
 This is how `++` is defined for normal lists:
 
-```{.haskell:hs}
+```haskell
 infixr 5  ++
 (++) :: [a] -> [a] -> [a]
 []     ++ ys = ys
@@ -1066,7 +1066,7 @@ infixr 5  ++
 So we'll just steal that for our own list.
 We'll name the function `.++`.
 
-```{.haskell:hs}
+```haskell
 infixr 5  .++
 (.++) :: List a -> List a -> List a
 Empty .++ ys = ys
@@ -1075,7 +1075,7 @@ Empty .++ ys = ys
 
 And let's see if it works ...
 
-```{.haskell:hs}
+```haskell
 ghci> let a = 3 :-: 4 :-: 5 :-: Empty
 ghci> let b = 6 :-: 7 :-: Empty
 ghci> a .++ b
@@ -1091,7 +1091,7 @@ We can match on `:-:` because it is a constructor for our own list type and we c
 Same goes for `[]`.
 Because pattern matching works (only) on constructors, we can match for stuff like that, normal prefix constructors or stuff like `8` or `'a'`, which are basically constructors for the numeric and character types, respectively.
 
-![binary search tree](assets/images/making-our-own-types-and-typeclasses/binarytree.png){.left width=323 height=225}
+![binary search tree](assets/images/making-our-own-types-and-typeclasses/binarytree.png)
 
 Now, we're going to implement a **binary search tree**.
 If you're not familiar with binary search trees from languages like C, here's what they are: an element points to two elements, one on its left and one on its right.
@@ -1111,7 +1111,7 @@ But right now, we'll just be implementing normal binary search trees.
 Here's what we're going to say: a tree is either an empty tree or it's an element that contains some value and two trees.
 Sounds like a perfect fit for an algebraic data type!
 
-```{.haskell:hs}
+```haskell
 data Tree a = EmptyTree | Node a (Tree a) (Tree a) deriving (Show, Read, Eq)
 ```
 
@@ -1130,7 +1130,7 @@ This might seem like it's inefficient but laziness takes care of that problem.
 So, here are two functions.
 One is a utility function for making a singleton tree (a tree with just one node) and a function to insert an element into a tree.
 
-```{.haskell:hs}
+```haskell
 singleton :: a -> Tree a
 singleton x = Node x EmptyTree EmptyTree
 
@@ -1163,7 +1163,7 @@ Well, we can take advantage of knowing that all the left elements are smaller th
 So if the element we're looking for is smaller than the root node, check to see if it's in the left subtree.
 If it's bigger, check to see if it's in the right subtree.
 
-```{.haskell:hs}
+```haskell
 treeElem :: (Ord a) => a -> Tree a -> Bool
 treeElem x EmptyTree = False
 treeElem x (Node a left right)
@@ -1178,7 +1178,7 @@ Instead of manually building one (although we could), we'll use a fold to build 
 Remember, pretty much everything that traverses a list one by one and then returns some sort of value can be implemented with a fold!
 We're going to start with the empty tree and then approach a list from the right and just insert element after element into our accumulator tree.
 
-```{.haskell:hs}
+```haskell
 ghci> let nums = [8,6,4,1,7,3,5]
 ghci> let numsTree = foldr treeInsert EmptyTree nums
 ghci> numsTree
@@ -1191,7 +1191,7 @@ In that `foldr`, `treeInsert` was the folding function (it takes a tree and a li
 When we print our tree to the console, it's not very readable, but if we try, we can make out its structure.
 We see that the root node is 5 and then it has two subtrees, one of which has the root node of 3 and the other a 7, etc.
 
-```{.haskell:hs}
+```haskell
 ghci> 8 `treeElem` numsTree
 True
 ghci> 100 `treeElem` numsTree
@@ -1208,9 +1208,9 @@ Cool.
 So as you can see, algebraic data structures are a really cool and powerful concept in Haskell.
 We can use them to make anything from boolean values and weekday enumerations to binary search trees and more!
 
-## Typeclasses 102 {#typeclasses-102}
+## Typeclasses 102
 
-![tweet](assets/images/making-our-own-types-and-typeclasses/trafficlight.png){.right width=175 height=480}
+![tweet](assets/images/making-our-own-types-and-typeclasses/trafficlight.png)
 
 So far, we've learned about some of the standard Haskell typeclasses and we've seen which types are in them.
 We've also learned how to automatically make our own types instances of the standard typeclasses by asking Haskell to derive the instances for us.
@@ -1230,7 +1230,7 @@ If we have a type (say, `Car`) and comparing two cars with the equality function
 
 This is how the `Eq` class is defined in the standard prelude:
 
-```{.haskell:hs}
+```haskell
 class Eq a where
     (==) :: a -> a -> Bool
     (/=) :: a -> a -> Bool
@@ -1247,7 +1247,7 @@ It doesn't have to be called `a`, it doesn't even have to be one letter, it just
 Then, we define several functions.
 It's not mandatory to implement the function bodies themselves, we just have to specify the type declarations for the functions.
 
-::: {.hintbox}
+:::
 Some people might understand this better if we wrote `class Eq equatable where` and then specified the type declarations like `(==) :: equatable -> equatable -> Bool`.
 :::
 
@@ -1255,7 +1255,7 @@ Anyway, we *did* implement the function bodies for the functions that `Eq` defin
 We said that two instances of `Eq` are equal if they are not different and they are different if they are not equal.
 We didn't have to do this, really, but we did and we'll see how this helps us soon.
 
-::: {.hintbox}
+:::
 If we have say `class Eq a where` and then define a type declaration within that class like `(==) :: a -> a -> Bool`, then when we examine the type of that function later on, it will have the type of `(Eq a) => a -> a -> Bool`.
 :::
 
@@ -1264,7 +1264,7 @@ Well, not much, really.
 But once we start making types instances of that class, we start getting some nice functionality.
 So check out this type:
 
-```{.haskell:hs}
+```haskell
 data TrafficLight = Red | Yellow | Green
 ```
 
@@ -1273,7 +1273,7 @@ Notice how we didn't derive any class instances for it.
 That's because we're going to write up some instances by hand, even though we could derive them for types like `Eq` and `Show`.
 Here's how we make it an instance of `Eq`.
 
-```{.haskell:hs}
+```haskell
 instance Eq TrafficLight where
     Red == Red = True
     Green == Green = True
@@ -1292,7 +1292,7 @@ That's called the minimal complete definition for the typeclass --- the minimum 
 To fulfill the minimal complete definition for `Eq`, we have to overwrite either one of `==` or `/=`.
 If `Eq` was defined simply like this:
 
-```{.haskell:hs}
+```haskell
 class Eq a where
     (==) :: a -> a -> Bool
     (/=) :: a -> a -> Bool
@@ -1307,7 +1307,7 @@ Since there are many more cases where two lights aren't equal, we specified the 
 Let's make this an instance of `Show` by hand, too.
 To satisfy the minimal complete definition for `Show`, we just have to implement its `show` function, which takes a value and turns it into a string.
 
-```{.haskell:hs}
+```haskell
 instance Show TrafficLight where
     show Red = "Red light"
     show Yellow = "Yellow light"
@@ -1317,7 +1317,7 @@ instance Show TrafficLight where
 Once again, we used pattern matching to achieve our goals.
 Let's see how it works in action:
 
-```{.haskell:hs}
+```haskell
 ghci> Red == Red
 True
 ghci> Red == Yellow
@@ -1336,7 +1336,7 @@ But if we want lights to appear like `"Red light"`, then we have to make the ins
 You can also make typeclasses that are subclasses of other typeclasses.
 The *class* declaration for `Num` is a bit long, but here's the first part:
 
-```{.haskell:hs}
+```haskell
 class (Eq a) => Num a where
    ...
 ```
@@ -1352,7 +1352,7 @@ But how are the `Maybe` or list types made as instances of typeclasses?
 What makes `Maybe` different from, say, `TrafficLight` is that `Maybe` in itself isn't a concrete type, it's a type constructor that takes one type parameter (like `Char` or something) to produce a concrete type (like `Maybe Char`).
 Let's take a look at the `Eq` typeclass again:
 
-```{.haskell:hs}
+```haskell
 class Eq a where
     (==) :: a -> a -> Bool
     (/=) :: a -> a -> Bool
@@ -1363,7 +1363,7 @@ class Eq a where
 From the type declarations, we see that the `a` is used as a concrete type because all the types in functions have to be concrete (remember, you can't have a function of the type `a -> Maybe` but you can have a function of `a -> Maybe a` or `Maybe Int -> Maybe String`).
 That's why we can't do something like
 
-```{.haskell:hs}
+```haskell
 instance Eq Maybe where
     ...
 ```
@@ -1373,7 +1373,7 @@ It's a type constructor that takes one parameter and then produces a concrete ty
 It would also be tedious to write `instance Eq (Maybe Int) where`, `instance Eq (Maybe Char) where`, etc. for every type ever.
 So we could write it out like so:
 
-```{.haskell:hs}
+```haskell
 instance Eq (Maybe m) where
     Just x == Just y = x == y
     Nothing == Nothing = True
@@ -1391,7 +1391,7 @@ Can you spot it?
 We use `==` on the contents of the `Maybe` but we have no assurance that what the `Maybe` contains can be used with `Eq`!
 That's why we have to modify our *instance* declaration like this:
 
-```{.haskell:hs}
+```haskell
 instance (Eq m) => Eq (Maybe m) where
     Just x == Just y = x == y
     Nothing == Nothing = True
@@ -1407,7 +1407,7 @@ For instance, here we required the contents of the `Maybe` to also be part of th
 
 When making instances, if you see that a type is used as a concrete type in the type declarations (like the `a` in `a -> a -> Bool`), you have to supply type parameters and add parentheses so that you end up with a concrete type.
 
-::: {.hintbox}
+:::
 Take into account that the type you're trying to make an instance of will replace the parameter in the *class* declaration.
 The `a` from `class Eq a where` will be replaced with a real type when you make an instance, so try mentally putting your type into the function type declarations as well.
 `(==) :: Maybe -> Maybe -> Bool` doesn't make much sense but `(==) :: (Eq m) => Maybe m -> Maybe m -> Bool` does.
@@ -1422,9 +1422,9 @@ If you do `:info Maybe`, it will show you all the typeclasses that `Maybe` is an
 Also `:info` can show you the type declaration of a function.
 I think that's pretty cool.
 
-## A yes-no typeclass {#a-yes-no-typeclass}
+## A yes-no typeclass
 
-![yesno](assets/images/making-our-own-types-and-typeclasses/yesno.png){.left width=201 height=111}
+![yesno](assets/images/making-our-own-types-and-typeclasses/yesno.png)
 
 In JavaScript and some other weakly typed languages, you can put almost anything inside an if expression.
 For example, you can do all of the following: `if (0) alert("YEAH!") else alert("NO!")`, `if ("") alert ("YEAH!") else alert("NO!")`, `if (false) alert("YEAH") else alert("NO!)`, etc. and all of these will throw an alert of `NO!`.
@@ -1434,7 +1434,7 @@ Even though strictly using `Bool` for boolean semantics works better in Haskell,
 For fun!
 Let's start out with a *class* declaration.
 
-```{.haskell:hs}
+```haskell
 class YesNo a where
     yesno :: a -> Bool
 ```
@@ -1447,7 +1447,7 @@ Notice that from the way we use the `a` in the function, `a` has to be a concret
 Next up, let's define some instances.
 For numbers, we'll assume that (like in JavaScript) any number that isn't 0 is true-ish and 0 is false-ish.
 
-```{.haskell:hs}
+```haskell
 instance YesNo Int where
     yesno 0 = False
     yesno _ = True
@@ -1455,7 +1455,7 @@ instance YesNo Int where
 
 Empty lists (and by extensions, strings) are a no-ish value, while non-empty lists are a yes-ish value.
 
-```{.haskell:hs}
+```haskell
 instance YesNo [a] where
     yesno [] = False
     yesno _ = True
@@ -1465,7 +1465,7 @@ Notice how we just put in a type parameter `a` in there to make the list a concr
 What else, hmm ...
 I know, `Bool` itself also holds true-ness and false-ness and it's pretty obvious which is which.
 
-```{.haskell:hs}
+```haskell
 instance YesNo Bool where
     yesno = id
 ```
@@ -1476,7 +1476,7 @@ It's just a standard library function that takes a parameter and returns the sam
 
 Let's make `Maybe a` an instance too.
 
-```{.haskell:hs}
+```haskell
 instance YesNo (Maybe a) where
     yesno (Just _) = True
     yesno Nothing = False
@@ -1490,7 +1490,7 @@ Still, this is really cool because now, any type of the form `Maybe something` i
 Previously, we defined a `Tree a` type, that represented a binary search tree.
 We can say an empty tree is false-ish and anything that's not an empty tree is true-ish.
 
-```{.haskell:hs}
+```haskell
 instance YesNo (Tree a) where
     yesno EmptyTree = False
     yesno _ = True
@@ -1503,7 +1503,7 @@ If it's green, you go.
 If it's yellow?
 Eh, I usually run the yellows because I live for adrenaline.
 
-```{.haskell:hs}
+```haskell
 instance YesNo TrafficLight where
     yesno Red = False
     yesno _ = True
@@ -1511,7 +1511,7 @@ instance YesNo TrafficLight where
 
 Cool, now that we have some instances, let's go play!
 
-```{.haskell:hs}
+```haskell
 ghci> yesno $ length []
 False
 ghci> yesno "haha"
@@ -1535,7 +1535,7 @@ yesno :: (YesNo a) => a -> Bool
 Right, it works!
 Let's make a function that mimics the if statement, but it works with `YesNo` values.
 
-```{.haskell:hs}
+```haskell
 yesnoIf :: (YesNo y) => y -> a -> a -> a
 yesnoIf yesnoVal yesResult noResult = if yesno yesnoVal then yesResult else noResult
 ```
@@ -1544,7 +1544,7 @@ Pretty straightforward.
 It takes a yes-no-ish value and two things.
 If the yes-no-ish value is more of a yes, it returns the first of the two things, otherwise it returns the second of them.
 
-```{.haskell:hs}
+```haskell
 ghci> yesnoIf [] "YEAH!" "NO!"
 "NO!"
 ghci> yesnoIf [2,3,4] "YEAH!" "NO!"
@@ -1557,26 +1557,26 @@ ghci> yesnoIf Nothing "YEAH!" "NO!"
 "NO!"
 ```
 
-## The Functor typeclass {#the-functor-typeclass}
+## The Functor typeclass
 
 So far, we've encountered a lot of the typeclasses in the standard library.
 We've played with `Ord`, which is for stuff that can be ordered.
 We've palled around with `Eq`, which is for things that can be equated.
 We've seen `Show`, which presents an interface for types whose values can be displayed as strings.
 Our good friend `Read` is there whenever we need to convert a string to a value of some type.
-And now, we're going to take a look at the `Functor`{.label .class} typeclass, which is basically for things that can be mapped over.
+And now, we're going to take a look at the `Functor` typeclass, which is basically for things that can be mapped over.
 You're probably thinking about lists now, since mapping over lists is such a dominant idiom in Haskell.
 And you're right, the list type is part of the `Functor` typeclass.
 
 What better way to get to know the `Functor` typeclass than to see how it's implemented?
 Let's take a peek.
 
-```{.haskell:hs}
+```haskell
 class Functor f where
     fmap :: (a -> b) -> f a -> f b
 ```
 
-![I AM FUNCTOOOOR!!!](assets/images/making-our-own-types-and-typeclasses/functor.png){.right width=220 height=441}
+![I AM FUNCTOOOOR!!!](assets/images/making-our-own-types-and-typeclasses/functor.png)
 
 Alright.
 We see that it defines one function, `fmap`, and doesn't provide any default implementation for it.
@@ -1597,7 +1597,7 @@ My friends, I think we have ourselves a functor!
 In fact, `map` is just a `fmap` that works only on lists.
 Here's how the list is an instance of the `Functor` typeclass.
 
-```{.haskell:hs}
+```haskell
 instance Functor [] where
     fmap = map
 ```
@@ -1608,7 +1608,7 @@ Notice how we didn't write `instance Functor [a] where`, because from `fmap :: (
 
 Since for lists, `fmap` is just `map`, we get the same results when using them on lists.
 
-```{.haskell:hs}
+```haskell
 map :: (a -> b) -> [a] -> [b]
 ghci> fmap (*2) [1..3]
 [2,4,6]
@@ -1627,7 +1627,7 @@ For one, the `Maybe a` type.
 In a way, it's like a box that can either hold nothing, in which case it has the value of `Nothing`, or it can hold one item, like `"HAHA"`, in which case it has a value of `Just "HAHA"`.
 Here's how `Maybe` is a functor.
 
-```{.haskell:hs}
+```haskell
 instance Functor Maybe where
     fmap f (Just x) = Just (f x)
     fmap f Nothing = Nothing
@@ -1645,7 +1645,7 @@ It makes sense.
 Just like if we map over an empty list, we get back an empty list.
 If it's not an empty value, but rather a single value packed up in a `Just`, then we apply the function on the contents of the `Just`.
 
-```{.haskell:hs}
+```haskell
 ghci> fmap (++ " HEY GUYS IM INSIDE THE JUST") (Just "Something serious.")
 Just "Something serious. HEY GUYS IM INSIDE THE JUST"
 ghci> fmap (++ " HEY GUYS IM INSIDE THE JUST") Nothing
@@ -1663,13 +1663,13 @@ We're going to use recursion on this one.
 Mapping over an empty tree will produce an empty tree.
 Mapping over a non-empty tree will be a tree consisting of our function applied to the root value and its left and right subtrees will be the previous subtrees, only our function will be mapped over them.
 
-```{.haskell:hs}
+```haskell
 instance Functor Tree where
     fmap f EmptyTree = EmptyTree
     fmap f (Node x leftsub rightsub) = Node (f x) (fmap f leftsub) (fmap f rightsub)
 ```
 
-```{.haskell:hs}
+```haskell
 ghci> fmap (*2) EmptyTree
 EmptyTree
 ghci> fmap (*4) (foldr treeInsert EmptyTree [5,7,3,2,1,7])
@@ -1684,7 +1684,7 @@ Hmmm!
 I know, we'll partially apply `Either` by feeding it only one parameter so that it has one free parameter.
 Here's how `Either a` is a functor in the standard libraries:
 
-```{.haskell:hs}
+```haskell
 instance Functor (Either a) where
     fmap f (Right x) = Right (f x)
     fmap f (Left x) = Left x
@@ -1698,7 +1698,7 @@ In the implementation, we mapped in the case of a `Right` value constructor, but
 Why is that?
 Well, if we look back at how the `Either a b` type is defined, it's kind of like:
 
-```{.haskell:hs}
+```haskell
 data Either a b = Left a | Right b
 ```
 
@@ -1711,7 +1711,7 @@ This also goes nicely with our box analogy if we think of the `Left` part as sor
 Maps from `Data.Map` can also be made a functor because they hold values (or not!).
 In the case of `Map k v`, `fmap` will map a function `v -> v'` over a map of type `Map k v` and return a map of type `Map k v'`.
 
-::: {.hintbox}
+:::
 Note, the `'` has no special meaning in types just like it doesn't have special meaning when naming values.
 It's used to denote things that are similar, only slightly changed.
 :::
@@ -1722,7 +1722,7 @@ With the `Functor` typeclass, we've seen how typeclasses can represent pretty co
 We've also had some more practice with partially applying types and making instances.
 In one of the next chapters, we'll also take a look at some laws that apply for functors.
 
-::: {.hintbox}
+:::
 **Just one more thing!**
 Functors should obey some laws so that they may have some properties that we can depend on and not think about too much.
 If we use `fmap (+1)` over the list `[1,2,3,4]`, we expect the result to be `[2,3,4,5]` and not its reverse, `[5,4,3,2]`.
@@ -1731,9 +1731,9 @@ For example, if we gave the wrong functor instance to our `Tree` type, using `fm
 We'll go over the functor laws in more detail in one of the next chapters.
 :::
 
-## Kinds and some type-foo {#kinds-and-some-type-foo}
+## Kinds and some type-foo
 
-![TYPE FOO MASTER](assets/images/making-our-own-types-and-typeclasses/typefoo.png){.right width=287 height=400}
+![TYPE FOO MASTER](assets/images/making-our-own-types-and-typeclasses/typefoo.png)
 
 Type constructors take other types as parameters to eventually produce concrete types.
 That kind of reminds me of functions, which take values as parameters to produce values.
@@ -1752,7 +1752,7 @@ This may sound a bit weird and confusing, but it's actually a really cool concep
 What are kinds and what are they good for?
 Well, let's examine the kind of a type by using the `:k` command in GHCI.
 
-```{.haskell:hs}
+```haskell
 ghci> :k Int
 Int :: *
 ```
@@ -1766,7 +1766,7 @@ If I had to read `*` out loud (I haven't had to do that so far), I'd say *star* 
 
 Okay, now let's see what the kind of `Maybe` is.
 
-```{.haskell:hs}
+```haskell
 ghci> :k Maybe
 Maybe :: * -> *
 ```
@@ -1776,7 +1776,7 @@ And that's what this kind tells us.
 Just like `Int -> Int` means that a function takes an `Int` and returns an `Int`, `* -> *` means that the type constructor takes one concrete type and returns a concrete type.
 Let's apply the type parameter to `Maybe` and see what the kind of that type is.
 
-```{.haskell:hs}
+```haskell
 ghci> :k Maybe Int
 Maybe Int :: *
 ```
@@ -1792,7 +1792,7 @@ Like we said, types are the labels of values and kinds are the labels of types a
 
 Let's look at another kind.
 
-```{.haskell:hs}
+```haskell
 ghci> :k Either
 Either :: * -> * -> *
 ```
@@ -1801,7 +1801,7 @@ Aha, this tells us that `Either` takes two concrete types as type parameters to 
 It also looks kind of like a type declaration of a function that takes two values and returns something.
 Type constructors are curried (just like functions), so we can partially apply them.
 
-```{.haskell:hs}
+```haskell
 ghci> :k Either String
 Either String :: * -> *
 ghci> :k Either String Int
@@ -1812,7 +1812,7 @@ When we wanted to make `Either` a part of the `Functor` typeclass, we had to par
 In other words, `Functor` wants types of kind `* -> *` and so we had to partially apply `Either` to get a type of kind `* -> *` instead of its original kind `* -> * -> *`.
 If we look at the definition of `Functor` again
 
-```{.haskell:hs}
+```haskell
 class Functor f where
     fmap :: (a -> b) -> f a -> f b
 ```
@@ -1824,7 +1824,7 @@ And from that, we can deduce that types that want to be friends with `Functor` h
 Now, let's do some type-foo.
 Take a look at this typeclass that I'm just going to make up right now:
 
-```{.haskell:hs}
+```haskell
 class Tofu t where
     tofu :: j a -> t a j
 ```
@@ -1842,7 +1842,7 @@ Wow.
 OK, so let's make a type with a kind of `* -> (* -> *) -> *`.
 Here's one way of going about it.
 
-```{.haskell:hs}
+```haskell
 data Frank a b  = Frank {frankField :: b a} deriving (Show)
 ```
 
@@ -1852,7 +1852,7 @@ We assume `*` for `a`, which means that `b` takes one type parameter and so its 
 Now we know the kinds of both `a` and `b` and because they're parameters for `Frank`, we see that `Frank` has a kind of `* -> (* -> *) -> *` The first `*` represents `a` and the `(* -> *)` represents `b`.
 Let's make some `Frank` values and check out their types.
 
-```{.haskell:hs}
+```haskell
 ghci> :t Frank {frankField = Just "HAHA"}
 Frank {frankField = Just "HAHA"} :: Frank [Char] Maybe
 ghci> :t Frank {frankField = Node 'a' EmptyTree EmptyTree}
@@ -1872,12 +1872,12 @@ Making `Frank` an instance of `Tofu` is pretty simple.
 We see that `tofu` takes a `j a` (so an example type of that form would be `Maybe Int`) and returns a `t a j`.
 So if we replace `Frank` with `j`, the result type would be `Frank Int Maybe`.
 
-```{.haskell:hs}
+```haskell
 instance Tofu Frank where
     tofu x = Frank x
 ```
 
-```{.haskell:hs}
+```haskell
 ghci> tofu (Just 'a') :: Frank Char Maybe
 Frank {frankField = Just 'a'}
 ghci> tofu ["HELLO"] :: Frank [Char] []
@@ -1888,7 +1888,7 @@ Not very useful, but we did flex our type muscles.
 Let's do some more type-foo.
 We have this data type:
 
-```{.haskell:hs}
+```haskell
 data Barry t k p = Barry { yabba :: p, dabba :: t k }
 ```
 
@@ -1901,7 +1901,7 @@ For `k`, we assume `*` and so by extension, `t` has a kind of `* -> *`.
 Now let's just replace those kinds with the *somethings* that we used as placeholders and we see it has a kind of `(* -> *) -> * -> * -> *`.
 Let's check that with GHCI.
 
-```{.haskell:hs}
+```haskell
 ghci> :k Barry
 Barry :: (* -> *) -> * -> * -> *
 ```
@@ -1913,7 +1913,7 @@ That means that the start of the instance declaration will be: `instance Functor
 If we look at `fmap` as if it was made specifically for `Barry`, it would have a type of `fmap :: (a -> b) -> Barry c d a -> Barry c d b`, because we just replace the `Functor`'s `f` with `Barry c d`.
 The third type parameter from `Barry` will have to change and we see that it's conveniently in its own field.
 
-```{.haskell:hs}
+```haskell
 instance Functor (Barry a b) where
     fmap f (Barry {yabba = x, dabba = y}) = Barry {yabba = f x, dabba = y}
 ```
@@ -1928,4 +1928,3 @@ When working on real Haskell, you usually won't have to mess with kinds and do k
 Usually, you just have to partially apply your own type to `* -> *` or `*` when making it an instance of one of the standard typeclasses, but it's good to know how and why that actually works.
 It's also interesting to see that types have little types of their own.
 Again, you don't really have to understand everything we did here to read on, but if you understand how kinds work, chances are that you have a very solid grasp of Haskell's type system.
-

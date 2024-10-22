@@ -1,11 +1,11 @@
-# Functionally Solving Problems 
+# Functionally Solving Problems
 
 In this chapter, we'll take a look at a few interesting problems and how to think functionally to solve them as elegantly as possible.
 We probably won't be introducing any new concepts, we'll just be flexing our newly acquired Haskell muscles and practicing our coding skills.
 Each section will present a different problem.
 First we'll describe the problem, then we'll try and find out what the best (or least bad) way of solving it is.
 
-## Reverse Polish notation calculator {#reverse-polish-notation-calculator}
+## Reverse Polish notation calculator
 
 Usually when we write mathematical expressions in school, we write them in an infix manner.
 For instance, we write `10 - (4 + 3) * 2`.
@@ -24,7 +24,7 @@ Every time a number is encountered, push it on to the stack.
 When we encounter an operator, take the two numbers that are on top of the stack (we also say that we *pop* them), use the operator and those two and then push the resulting number back onto the stack.
 When you reach the end of the expression, you should be left with a single number if the expression was well-formed and that number represents the result.
 
-![this expression](http://s3.amazonaws.com/lyah/rpn.png){.center width=626 height=224}
+![this expression](http://s3.amazonaws.com/lyah/rpn.png)
 
 Let's go over the expression `10 4 3 + 2 * -` together!
 First we push `10` on to the stack and the stack is now `10`.
@@ -47,12 +47,12 @@ What would the type of that function be?
 We want it to take a string as a parameter and produce a number as its result.
 So it will probably be something like `solveRPN :: (Num a) => String -> a`.
 
-::: {.hintbox}
+:::
 **Protip:** it really helps to first think what the type declaration of a function should be before concerning ourselves with the implementation and then write it down.
 In Haskell, a function's type declaration tells us a whole lot about the function, due to the very strong type system.
 :::
 
-![HA HA HA](assets/images/functionally-solving-problems/calculator.png){.left width=220 height=190}
+![HA HA HA](assets/images/functionally-solving-problems/calculator.png)
 
 Cool.
 When implementing a solution to a problem in Haskell, it's also good to think back on how you did it by hand and maybe try to see if you can gain any insight from that.
@@ -80,7 +80,7 @@ We take that single item out of the list and that's our final result!
 
 So here's a sketch of that function:
 
-```{.haskell:hs}
+```haskell
 import Data.List
 
 solveRPN :: (Num a) => String -> a
@@ -98,7 +98,7 @@ So all that's left now is to implement a folding function that will take a stack
 If the stack is `[4,10]` and the item `"*"`, then it will have to return `[40]`.
 But before that, let's turn our function into [point-free style](higher-order-functions.html#composition) because it has a lot of parentheses that are kind of freaking me out:
 
-```{.haskell:hs}
+```haskell
 import Data.List
 
 solveRPN :: (Num a) => String -> a
@@ -111,7 +111,7 @@ Much better.
 So, the folding function will take a stack and an item and return a new stack.
 We'll use pattern matching to get the top items of a stack and to pattern match against operators like `"*"` and `"-"`.
 
-```{.haskell:hs}
+```haskell
 solveRPN :: (Num a, Read a) => String -> a
 solveRPN = head . foldl foldingFunction [] . words
     where   foldingFunction (x:y:ys) "*" = (x * y):ys
@@ -148,7 +148,7 @@ The final stack is `[5]`, which is the number that we return.
 
 Let's play around with our function:
 
-```{.haskell:hs}
+```haskell
 ghci> solveRPN "10 4 3 + 2 * -"
 -4
 ghci> solveRPN "2 3 +"
@@ -172,7 +172,7 @@ We can also make ternary operators that pop three numbers off the stack and push
 Let's modify our function to take a few more operators.
 For simplicity's sake, we'll change its type declaration so that it returns a number of type `Float`.
 
-```{.haskell:hs}
+```haskell
 import Data.List
 
 solveRPN :: String -> Float
@@ -192,7 +192,7 @@ Wow, great!
 With the logarithm operator, we just pattern match against a single element and the rest of the stack because we only need one element to perform its natural logarithm.
 With the sum operator, we just return a stack that has only one element, which is the sum of the stack so far.
 
-```{.haskell:hs}
+```haskell
 ghci> solveRPN "2.7 ln"
 0.9932518
 ghci> solveRPN "10 10 10 10 sum 4 /"
@@ -205,7 +205,7 @@ ghci> solveRPN "10 2 ^"
 
 Notice that we can include floating point numbers in our expression because `read` knows how to read them.
 
-```{.haskell:hs}
+```haskell
 ghci> solveRPN "43.2425 0.5 ^"
 6.575903
 ```
@@ -219,7 +219,7 @@ We could make one right now, but it would be a bit tedious because it would invo
 If you're feeling up to the challenge though, you can go ahead and try it!
 Hint: you can use `reads` to see if a read was successful or not.
 
-## Heathrow to London {#heathrow-to-london}
+## Heathrow to London
 
 Our next problem is this: your plane has just landed in England and you rent a car.
 You have a meeting really soon and you have to get from Heathrow Airport to London as fast as you can (but safely!).
@@ -229,7 +229,7 @@ It takes you a fixed amount of time to travel from one crossroads to another.
 It's up to you to find the optimal path to take so that you get to London as fast as you can!
 You start on the left side and can either cross to the other main road or go forward.
 
-![Heathrow - London](assets/images/functionally-solving-problems/roads.png){.center width=780 height=237}
+![Heathrow - London](assets/images/functionally-solving-problems/roads.png)
 
 As you can see in the picture, the shortest path from Heathrow to London in this case is to start on main road B, cross over, go forward on A, cross over again and then go forward twice on B.
 If we take this path, it takes us 75 minutes.
@@ -238,7 +238,7 @@ Had we chosen any other path, it would take more than that.
 Our job is to make a program that takes input that represents a road system and print out what the shortest path across it is.
 Here's what the input would look like for this case:
 
-```{.plain}
+```haskell
 50
 10
 30
@@ -277,7 +277,7 @@ We also won't be able to say for certain that our solution is the optimal one, w
 That's not a good solution then.
 Here's a simplified picture of our road system:
 
-![roads](assets/images/functionally-solving-problems/roads_simple.png){.center width=685 height=245}
+![roads](assets/images/functionally-solving-problems/roads_simple.png)
 
 Alright, can you figure out what the shortest path to the first crossroads (the first blue dot on A, marked *A1*) on road A is?
 That's pretty trivial.
@@ -299,7 +299,7 @@ It costs only 10 to get to *B1*, but then it would take an additional 110 minute
 So obviously, the cheapest path to *A2* is `B, C, A`.
 In the same way, the cheapest way to *B2* is to go forward from *A1* and then cross over.
 
-::: {.hintbox}
+:::
 **Maybe you're asking yourself**: but what about getting to *A2* by first crossing over at *B1* and then going on forward?
 Well, we already covered crossing from *B1* to *A1* when we were looking for the best way to *A1*, so we don't have to take that into account in the next step as well.
 :::
@@ -330,7 +330,7 @@ One way is to think of the starting points and crossroads as nodes of a graph th
 If we imagine that the starting points actually point to each other with a road that has a length of one, we see that every crossroads (or node) points to the node on the other side and also to the next one on its side.
 Except for the last nodes, they just point to the other side.
 
-```{.haskell:hs}
+```haskell
 data Node = Node Road Road | EndNode Road
 data Road = Road Int Node
 ```
@@ -342,7 +342,7 @@ For instance, the first part of the road on the A main road would be `Road 50 a1
 Another way would be to use `Maybe` for the road parts that point forward.
 Each node has a road part that point to the opposite road, but only those nodes that aren't the end ones have road parts that point forward.
 
-```{.haskell:hs}
+```haskell
 data Node = Node Road (Maybe Road)
 data Road = Road Int Node
 ```
@@ -355,7 +355,7 @@ So the road system that we use for this example can be easily represented as fou
 
 It's always good to keep our data types as simple as possible, although not any simpler!
 
-```{.haskell:hs}
+```haskell
 data Section = Section { getA :: Int, getB :: Int, getC :: Int } deriving (Show)
 type RoadSystem = [Section]
 ```
@@ -365,7 +365,7 @@ It's as simple as it goes and I have a feeling it'll work perfectly for implemen
 `Section` is a simple algebraic data type that holds three integers for the lengths of its three road parts.
 We introduce a type synonym as well, saying that `RoadSystem` is a list of sections.
 
-::: {.hintbox}
+:::
 We could also use a triple of `(Int, Int, Int)` to represent a road section.
 Using tuples instead of making your own algebraic data types is good for some small localized stuff, but it's usually better to make a new type for things like this.
 It gives the type system more information about what's what.
@@ -375,7 +375,7 @@ If we use `Section` and `Vector` data types, then we can't accidentally add a ve
 
 Our road system from Heathrow to London can now be represented like this:
 
-```{.haskell:hs}
+```haskell
 heathrowToLondon :: RoadSystem
 heathrowToLondon = [Section 50 10 30, Section 5 90 20, Section 40 2 25, Section 10 8 0]
 ```
@@ -387,7 +387,7 @@ We'll represent a path as a list as well.
 Let's introduce a `Label` type that's just an enumeration of either `A`, `B` or `C`.
 We'll also make a type synonym: `Path`.
 
-```{.haskell:hs}
+```haskell
 data Label = A | B | C deriving (Show)
 type Path = [(Label, Int)]
 ```
@@ -395,7 +395,7 @@ type Path = [(Label, Int)]
 Our function, we'll call it `optimalPath` should thus have a type declaration of `optimalPath :: RoadSystem -> Path`.
 If called with the road system `heathrowToLondon`, it should return the following path:
 
-```{.haskell:hs}
+```haskell
 [(B,10),(C,30),(A,5),(C,20),(B,2),(B,8)]
 ```
 
@@ -413,11 +413,11 @@ If you look at this step as a function, it takes a pair of paths and a section a
 The type is `(Path, Path) -> Section -> (Path, Path)`.
 Let's go ahead and implement this function, because it's bound to be useful.
 
-::: {.hintbox}
+:::
 **Hint:** it will be useful because `(Path, Path) -> Section -> (Path, Path)` can be used as the binary function for a left fold, which has to have a type of `a -> b -> a`
 :::
 
-```{.haskell:hs}
+```haskell
 roadStep :: (Path, Path) -> Section -> (Path, Path)
 roadStep (pathA, pathB) (Section a b c) =
     let priceA = sum $ map snd pathA
@@ -435,7 +435,7 @@ roadStep (pathA, pathB) (Section a b c) =
     in  (newPathToA, newPathToB)
 ```
 
-![this is you](assets/images/functionally-solving-problems/guycar.png){.right width=420 height=381}
+![this is you](assets/images/functionally-solving-problems/guycar.png)
 
 What's going on here?
 First, calculate the optimal price on road A based on the best so far on A and we do the same for B.
@@ -462,7 +462,7 @@ Finally, we return `newPathToA` and `newPathToB` in a pair.
 Let's run this function on the first section of `heathrowToLondon`.
 Because it's the first section, the best paths on A and B parameter will be a pair of empty lists.
 
-```{.haskell:hs}
+```haskell
 ghci> roadStep ([], []) (head heathrowToLondon)
 ([(C,30),(B,10)],[(B,10)])
 ```
@@ -470,7 +470,7 @@ ghci> roadStep ([], []) (head heathrowToLondon)
 Remember, the paths are reversed, so read them from right to left.
 From this we can read that the best path to the next A is to start on B and then cross over to A and that the best path to the next B is to just go directly forward from the starting point at B.
 
-::: {.hintbox}
+:::
 **Optimization tip:** when we do `priceA = sum $ map snd pathA`, we're calculating the price from the path on every step.
 We wouldn't have to do that if we implemented `roadStep` as a `(Path, Path, Int, Int) -> Section -> (Path, Path, Int, Int)` function where the integers represent the best price on A and B.
 :::
@@ -481,7 +481,7 @@ Then, it's called with that pair of paths and the next section and so on.
 When we've walked over all the sections, we're left with a pair of optimal paths and the shorter of them is our answer.
 With this in mind, we can implement `optimalPath`.
 
-```{.haskell:hs}
+```haskell
 optimalPath :: RoadSystem -> Path
 optimalPath roadSystem =
     let (bestAPath, bestBPath) = foldl roadStep ([],[]) roadSystem
@@ -497,7 +497,7 @@ Before returning it, we also reverse it, because the optimal paths so far were r
 
 Let's test this!
 
-```{.haskell:hs}
+```haskell
 ghci> optimalPath heathrowToLondon
 [(B,10),(C,30),(A,5),(C,20),(B,2),(B,8),(C,0)]
 ```
@@ -512,7 +512,7 @@ First off, let's make a function that takes a list and splits it into groups of 
 We'll call it `groupsOf`.
 For a parameter of `[1..10]`, `groupsOf 3` should return `[[1,2,3],[4,5,6],[7,8,9],[10]]`.
 
-```{.haskell:hs}
+```haskell
 groupsOf :: Int -> [a] -> [[a]]
 groupsOf 0 _ = undefined
 groupsOf _ [] = []
@@ -524,7 +524,7 @@ For an `xs` of `[1..10]` and an `n` of `3`, this equals `[1,2,3] : groupsOf 3 [4
 When the recursion is done, we get our list in groups of three.
 And here's our `main` function, which reads from the standard input, makes a `RoadSystem` out of it and prints out the shortest path:
 
-```{.haskell:hs}
+```haskell
 import Data.List
 
 main = do
@@ -548,7 +548,7 @@ We call `optimalPath` with that and then get the path and the price in a nice te
 
 We save the following text
 
-```{.plain}
+```haskell
 50
 10
 30
@@ -565,7 +565,7 @@ We save the following text
 
 in a file called `paths.txt` and then feed it to our program.
 
-```{.plain}
+```haskell
 $ cat paths.txt | runhaskell heathrow.hs
 The best path to take is: BCACBBC
 The price is: 75
@@ -574,4 +574,3 @@ The price is: 75
 Works like a charm!
 You can use your knowledge of the `Data.Random` module to generate a much longer system of roads, which you can then feed to what we just wrote.
 If you get stack overflows, try using `foldl'` instead of `foldl`, because `foldl'` is strict.
-
